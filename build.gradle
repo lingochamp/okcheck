@@ -5,6 +5,8 @@ targetCompatibility = 1.6
 
 repositories {
     mavenCentral()
+    google()
+    jcenter()
 }
 
 dependencies {
