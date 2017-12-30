@@ -28,6 +28,7 @@ class OkCheckPlugin implements Plugin<Project> {
 
     private boolean pointCurrentTask = false
     private boolean isContainOkCheck = false
+    private boolean isNeedDiffAllProject = false
 
     @Override
     void apply(Project project) {
@@ -38,19 +39,35 @@ class OkCheckPlugin implements Plugin<Project> {
 
             project.task(TASK_NAME, type: OkCheckTask, overwrite: true)
         } else {
-            setupOkCheckForSubproject(project)
+            setupOkCheckForSubProject(project)
 
             // changed module list
             final List<String> changedModuleList = BuildConfig.getChangedModuleList(project)
             project.afterEvaluate {
-                if (pointCurrentTask || changedModuleList.contains(project.name)) {
-                    if (pointCurrentTask) {
-                        println "okcheck: enable check for ${project.name} because of command point to it"
-                    } else {
-                        println "okcheck: enable check for ${project.name} because of file changed on it"
+                boolean isChangedModule = changedModuleList.contains(project.name)
+                if (isNeedDiffAllProject) {
+                    if (isChangedModule) {
+                        println "OkCheck: enable check for ${project.name} because of file changed on it"
+                        project.task(TASK_NAME, type: OkCheckTask, overwrite: true) {
+                            dependsOn project.getTasksByName('check', false)
+                        }
+                    } else if (pointCurrentTask) {
+                        project.getLogger().warn("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
+                        project.task(TASK_NAME, type: OkCheckTask, overwrite: true)
                     }
-                    project.task(TASK_NAME, type: OkCheckTask, overwrite: true) {
-                        dependsOn project.getTasksByName('check', false)
+                } else if (pointCurrentTask) {
+                    if (!isChangedModule) {
+                        project.getLogger().warn("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
+                        project.task(TASK_NAME, type: OkCheckTask, overwrite: true)
+                    } else {
+                        project.task(TASK_NAME, type: OkCheckTask, overwrite: true) {
+                            dependsOn project.getTasksByName('check', false)
+                        }
+                    }
+                } else if (isContainOkCheck) {
+                    if (isChangedModule) {
+                        project.getLogger().warn("OkCheck: if you want to exec okcheck on this module please run "
+                                + "command okcheck instead of just for target module")
                     }
                 }
             }
@@ -90,7 +107,7 @@ class OkCheckPlugin implements Plugin<Project> {
         BuildConfig.saveChangedModuleList(project, changedModuleList)
     }
 
-    private def setupOkCheckForSubproject(Project project) {
+    private def setupOkCheckForSubProject(Project project) {
         // point current task
         def taskNames = project.gradle.startParameter.taskNames
         def pointOkCheck = ":" + project.name + ":" + TASK_NAME
@@ -104,7 +121,11 @@ class OkCheckPlugin implements Plugin<Project> {
                 pointCurrentTask = true
             }
 
-            if (isContainOkCheck && pointOkCheck) {
+            if (name == TASK_NAME) {
+                isNeedDiffAllProject = true
+            }
+
+            if (isContainOkCheck && pointCurrentTask && isNeedDiffAllProject) {
                 break
             }
         }
