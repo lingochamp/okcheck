@@ -1,0 +1,17 @@
+apply plugin: 'groovy'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile localGroovy()
+    compile gradleApi()
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile 'com.android.tools.build:gradle:3.0.1'
+}
+
+apply from: 'gradle/publish.gradle'
