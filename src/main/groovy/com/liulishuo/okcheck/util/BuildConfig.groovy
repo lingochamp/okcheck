@@ -20,7 +20,8 @@ import org.gradle.api.Project
 
 class BuildConfig {
     final static String buildDirName = "okcheck-build"
-    final static String moduleListFileName = "changed-module-name.txt"
+    final static String moduleListFilename = "changed-module-name.txt"
+    final static String passedModuleFilename = "passed-module-name.txt"
 
     static def saveChangedModuleList(Project project, List<String> changedModuleList) {
         File changeModuleSaveFile = getChangeModuleSaveFile(project)
@@ -46,12 +47,46 @@ class BuildConfig {
         }
     }
 
+    static def setupPassedModuleFile(Project project) {
+        File passedModuleFile = getPassedModuleFile(project)
+
+        File parentDir = passedModuleFile.getParentFile()
+        if (!parentDir) parentDir.mkdirs()
+
+        if (passedModuleFile.exists()) passedModuleFile.delete()
+    }
+
+    static def addToPassedModuleFile(Project project) {
+        File passedModuleFile = getPassedModuleFile(project.rootProject)
+        if (!passedModuleFile.exists()) {
+            passedModuleFile.createNewFile()
+        }
+
+        passedModuleFile.append(project.name + "\n")
+    }
+
+    static boolean isAllModulePassed(Project project, List<String> changedModuleList) {
+        File passedModuleFile = getPassedModuleFile(project.rootProject)
+        if (!passedModuleFile.exists()) return false
+
+        List<String> passedModule = passedModuleFile.readLines()
+
+        List<String> leftModuleList = changedModuleList.clone()
+        leftModuleList.removeAll(passedModule)
+
+        return leftModuleList.isEmpty()
+    }
+
     static List<String> getChangedModuleList(Project project) {
         final changeModuleSaveFile = getChangeModuleSaveFile(project.rootProject)
         return changeModuleSaveFile.readLines()
     }
 
     static File getChangeModuleSaveFile(Project project) {
-        return new File(new File(project.getBuildDir(), buildDirName), moduleListFileName)
+        return new File(new File(project.getBuildDir(), buildDirName), moduleListFilename)
+    }
+
+    static File getPassedModuleFile(Project project) {
+        return new File(new File(project.getBuildDir(), buildDirName), passedModuleFilename)
     }
 }

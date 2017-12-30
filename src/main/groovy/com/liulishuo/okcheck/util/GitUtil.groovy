@@ -56,6 +56,6 @@ class GitUtil {
     }
 
     static String runCmd(String cmd) {
-        return cmd.execute().text.trim()
+        return cmd.execute().text.trim().replaceAll("\"", "")
     }
 }

@@ -16,25 +16,52 @@
 
 package com.liulishuo.okcheck
 
+import com.liulishuo.okcheck.util.BuildConfig
+import com.liulishuo.okcheck.util.ChangeFile
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 class OkCheckTask extends DefaultTask {
+    @Input
+    List<String> changedModuleList
+
+    @Input
+    boolean isMock
+
     OkCheckTask() {
         setDescription("check project only for changed files")
     }
 
     @TaskAction
     void setupOkcheck() {
-        // ignore debug
-        project.plugins.whenPluginAdded { plugin ->
-            if ('com.android.build.gradle.LibraryPlugin' == plugin.class.name) {
-                project.android.variantFilter {
-                    if (it.buildType.name == 'debug') {
-                        it.ignore = true
-                    }
-                }
+        if (project == project.rootProject) {
+            println "OkCheck: Finish root okcheck task!"
+        } else if (!isMock) {
+            println "OkCheck: Finish ${project.name} okcheck task!"
+            BuildConfig.addToPassedModuleFile(project)
+
+            if (BuildConfig.isAllModulePassed(project, changedModuleList)) {
+                new ChangeFile(project.rootProject.name).refreshLastExecCommitId()
+                println "OkCheck: All check is passed and refreshed the commit to current one!"
             }
+        }
+
+    }
+
+    static def addValidTask(Project project, List<String> moduleList) {
+        project.task(OkCheckPlugin.TASK_NAME, type: OkCheckTask, overwrite: true) {
+            dependsOn project.getTasksByName('check', false)
+            changedModuleList = moduleList
+            isMock = false
+        }
+    }
+
+    static def addMockTask(Project project) {
+        project.task(OkCheckPlugin.TASK_NAME, type: OkCheckTask, overwrite: true) {
+            changedModuleList = new ArrayList<>()
+            isMock = true
         }
     }
 }

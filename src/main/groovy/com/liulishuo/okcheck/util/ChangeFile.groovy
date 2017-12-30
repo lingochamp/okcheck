@@ -37,12 +37,16 @@ class ChangeFile {
 
     def refreshLastExecCommitId() {
         File backupFile = new File(backupPath)
-        if (!backupFile.exists()) {
+        if (!backupFile.getParentFile().exists()) {
             backupFile.getParentFile().mkdirs()
         }
 
-        backupFile.createNewFile()
-        backupFile.write(GitUtil.currentCommitId())
+        if (!backupFile.exists()){
+            backupFile.createNewFile()
+        }
+
+        println "OkCheck: Refresh $currentCommitId to $backupPath"
+        backupFile.write(currentCommitId)
     }
 
     private String getLastExecCommitId() {

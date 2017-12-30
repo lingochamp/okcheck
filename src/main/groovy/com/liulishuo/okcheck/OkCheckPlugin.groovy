@@ -37,7 +37,7 @@ class OkCheckPlugin implements Plugin<Project> {
             // root project
             setupOkCheck(project)
 
-            project.task(TASK_NAME, type: OkCheckTask, overwrite: true)
+            OkCheckTask.addMockTask(project)
         } else {
             setupOkCheckForSubProject(project)
 
@@ -48,21 +48,17 @@ class OkCheckPlugin implements Plugin<Project> {
                 if (isNeedDiffAllProject) {
                     if (isChangedModule) {
                         println "OkCheck: enable check for ${project.name} because of file changed on it"
-                        project.task(TASK_NAME, type: OkCheckTask, overwrite: true) {
-                            dependsOn project.getTasksByName('check', false)
-                        }
+                        OkCheckTask.addValidTask(project, changedModuleList)
                     } else if (pointCurrentTask) {
                         project.getLogger().warn("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
-                        project.task(TASK_NAME, type: OkCheckTask, overwrite: true)
+                        OkCheckTask.addMockTask(project)
                     }
                 } else if (pointCurrentTask) {
                     if (!isChangedModule) {
                         project.getLogger().warn("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
-                        project.task(TASK_NAME, type: OkCheckTask, overwrite: true)
+                        OkCheckTask.addMockTask(project)
                     } else {
-                        project.task(TASK_NAME, type: OkCheckTask, overwrite: true) {
-                            dependsOn project.getTasksByName('check', false)
-                        }
+                        OkCheckTask.addValidTask(project, changedModuleList)
                     }
                 } else if (isContainOkCheck) {
                     if (isChangedModule) {
@@ -105,6 +101,7 @@ class OkCheckPlugin implements Plugin<Project> {
         }
 
         BuildConfig.saveChangedModuleList(project, changedModuleList)
+        BuildConfig.setupPassedModuleFile(project)
     }
 
     private def setupOkCheckForSubProject(Project project) {
