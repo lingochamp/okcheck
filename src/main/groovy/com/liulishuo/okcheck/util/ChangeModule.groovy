@@ -32,7 +32,7 @@ class ChangeModule {
         changedFilePaths.forEach {
             for (int i = 0; i < pathModuleList.size(); i++) {
                 PathModule pathModule = pathModuleList.get(i)
-                if (!changedModuleNameList.contains(pathModuleList.moduleName)
+                if (!changedModuleNameList.contains(pathModule.moduleName)
                         && pathModule.isOnThisModule(it)) {
                     changedModuleNameList.add(pathModule.moduleName)
                 }
