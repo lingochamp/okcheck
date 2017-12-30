@@ -16,6 +16,9 @@
 
 package com.liulishuo.okcheck
 
+import com.liulishuo.okcheck.util.BuildConfig
+import com.liulishuo.okcheck.util.ChangeFile
+import com.liulishuo.okcheck.util.ChangeModule
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -23,59 +26,100 @@ class OkCheckPlugin implements Plugin<Project> {
 
     private static final TASK_NAME = "okcheck"
 
+    private boolean pointCurrentTask = false
+    private boolean isContainOkCheck = false
+
     @Override
     void apply(Project project) {
 
-        boolean isContainOkCheck = false
-        boolean pointCurrentTask = false
-        def taskNames = project.gradle.startParameter.taskNames
+        if (project == project.rootProject) {
+            // root project
+            setupOkCheck(project)
 
+            project.task(TASK_NAME, type: OkCheckTask, overwrite: true)
+        } else {
+            setupOkCheckForSubproject(project)
+
+            // changed module list
+            final List<String> changedModuleList = BuildConfig.getChangedModuleList(project)
+            project.afterEvaluate {
+                if (pointCurrentTask || changedModuleList.contains(project.name)) {
+                    if (pointCurrentTask) {
+                        println "okcheck: enable check for ${project.name} because of command point to it"
+                    } else {
+                        println "okcheck: enable check for ${project.name} because of file changed on it"
+                    }
+                    project.task(TASK_NAME, type: OkCheckTask, overwrite: true) {
+                        dependsOn project.getTasksByName('check', false)
+                    }
+                }
+            }
+        }
+    }
+
+    private def setupOkCheck(Project project) {
+        ChangeFile changeFile = new ChangeFile(project.rootProject.name)
+
+        List<String> changeFilePathList = changeFile.getChangeFilePathList()
+        println "COMMIT ID BACKUP PATH: ${changeFile.backupPath}"
+
+        println "CHANGE FLIES:"
+        changeFilePathList.forEach {
+            println "       $it"
+        }
+        List<String> changedCodeFilePathList = new ArrayList<>()
+        changeFilePathList.forEach {
+            if (it.endsWith(".java") || it.endsWith(".groovy") || it.endsWith(".kt") || it.endsWith(".xml")) {
+                changedCodeFilePathList.add(it)
+            }
+        }
+
+        final List<String> changedModuleList = new ArrayList<>()
+
+        if (changedCodeFilePathList.isEmpty()) {
+            println "NO CHANGED CODE FILE!"
+        } else {
+            changedModuleList.addAll(ChangeModule.getChangedModuleList(project, changedCodeFilePathList))
+        }
+
+        println "CHANGE MODULES:"
+        changedModuleList.forEach {
+            println "       $it"
+        }
+
+        BuildConfig.saveChangedModuleList(project, changedModuleList)
+    }
+
+    private def setupOkCheckForSubproject(Project project) {
+        // point current task
+        def taskNames = project.gradle.startParameter.taskNames
         def pointOkCheck = ":" + project.name + ":" + TASK_NAME
         for (int i = 0; i < taskNames.size(); i++) {
             String name = taskNames.get(i)
-            if (name.endsWith(TASK_NAME)) {
+            if (name.contains(TASK_NAME)) {
                 isContainOkCheck = true
             }
 
-            println pointOkCheck
             if (name == pointOkCheck) {
-                println 'point to the current task'
                 pointCurrentTask = true
             }
 
-            if (isContainOkCheck && pointCurrentTask) break
+            if (isContainOkCheck && pointOkCheck) {
+                break
+            }
         }
 
+        // ignore non-release build-type to improve speed.
         if (isContainOkCheck) {
             project.plugins.whenPluginAdded { plugin ->
                 if ('com.android.build.gradle.LibraryPlugin' == plugin.class.name) {
                     project.android.variantFilter {
                         if (it.buildType.name != 'release') {
-                            println 'okcheck: on the current version okcheck only check release buildType'
                             it.ignore = true
                         }
                     }
                 }
             }
-        }
-
-        def effectModule = ''
-
-        File rootDir = project.rootProject.rootDir
-        project.afterEvaluate {
-            project.allprojects {
-                String relativePath = rootDir.toURI().relativize(it.projectDir.toURI()).getPath()
-                println "get project and path: ${it.name} with $relativePath"
-            }
-
-            if (project.name == effectModule || pointCurrentTask) {
-                project.task(TASK_NAME, type: OkCheckTask, overwrite: true) {
-                    dependsOn project.getTasksByName('check', false)
-                }
-            } else {
-                project.task(TASK_NAME, type: OkCheckTask, overwrite: true)
-            }
-
         }
     }
 }
