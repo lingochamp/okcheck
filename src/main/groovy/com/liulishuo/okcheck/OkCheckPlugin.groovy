@@ -93,12 +93,13 @@ class OkCheckPlugin implements Plugin<Project> {
             println "NO CHANGED CODE FILE!"
         } else {
             changedModuleList.addAll(ChangeModule.getChangedModuleList(project, changedCodeFilePathList))
+            println "CHANGE MODULES:"
+            changedModuleList.forEach {
+                println "       $it"
+            }
         }
 
-        println "CHANGE MODULES:"
-        changedModuleList.forEach {
-            println "       $it"
-        }
+
 
         BuildConfig.saveChangedModuleList(project, changedModuleList)
         BuildConfig.setupPassedModuleFile(project)
