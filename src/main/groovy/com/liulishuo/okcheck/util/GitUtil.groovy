@@ -32,7 +32,9 @@ class GitUtil {
     }
 
     static List<String> diffFileToNowList(String commitId) {
-        return filterInvalidLine(runCmd("git diff --name-only --diff-filter=ACMRTUXB $commitId HEAD~0"))
+        return filterInvalidLine(runCmd("git diff --name-only --diff-filter=ACMRTUXB $commitId HEAD~0")
+                .split('\n'))
+
     }
 
     static List<String> noCommitFilePathList() {
