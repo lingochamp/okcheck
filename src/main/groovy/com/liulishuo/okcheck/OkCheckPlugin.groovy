@@ -20,8 +20,62 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 class OkCheckPlugin implements Plugin<Project> {
-    @Override
-    void apply(Project target) {
 
+    private static final TASK_NAME = "okcheck"
+
+    @Override
+    void apply(Project project) {
+
+        boolean isContainOkCheck = false
+        boolean pointCurrentTask = false
+        def taskNames = project.gradle.startParameter.taskNames
+
+        def pointOkCheck = ":" + project.name + ":" + TASK_NAME
+        for (int i = 0; i < taskNames.size(); i++) {
+            String name = taskNames.get(i)
+            if (name.endsWith(TASK_NAME)) {
+                isContainOkCheck = true
+            }
+
+            println pointOkCheck
+            if (name == pointOkCheck) {
+                println 'point to the current task'
+                pointCurrentTask = true
+            }
+
+            if (isContainOkCheck && pointCurrentTask) break
+        }
+
+        if (isContainOkCheck) {
+            project.plugins.whenPluginAdded { plugin ->
+                if ('com.android.build.gradle.LibraryPlugin' == plugin.class.name) {
+                    project.android.variantFilter {
+                        if (it.buildType.name != 'release') {
+                            println 'okcheck: on the current version okcheck only check release buildType'
+                            it.ignore = true
+                        }
+                    }
+                }
+            }
+        }
+
+        def effectModule = ''
+
+        File rootDir = project.rootProject.rootDir
+        project.afterEvaluate {
+            project.allprojects {
+                String relativePath = rootDir.toURI().relativize(it.projectDir.toURI()).getPath()
+                println "get project and path: ${it.name} with $relativePath"
+            }
+
+            if (project.name == effectModule || pointCurrentTask) {
+                project.task(TASK_NAME, type: OkCheckTask, overwrite: true) {
+                    dependsOn project.getTasksByName('check', false)
+                }
+            } else {
+                project.task(TASK_NAME, type: OkCheckTask, overwrite: true)
+            }
+
+        }
     }
 }
