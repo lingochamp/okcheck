@@ -1,12 +1,19 @@
+/*
+ * Copyright (c) 2017 LingoChamp Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 apply plugin: 'maven-publish'
-
-// https://docs.gradle.org/current/userguide/publishing_maven.html#sec:publishing_multiple_modules_to_maven
-// publish to the remote Nexus build with `./gradlew clean build publish`
-
-// Sample way to checkout:
-// Just execute `gradle clean build publishToMavenLocal`. Check out result stuff on the
-// `~/.m2/repository/cn/dreamtobe/splitaar/sample/splitaar-sample-api` and
-// `~/.m2/repository/cn/dreamtobe/splitaar/sample/splitaar-sample-impl`
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
@@ -20,39 +27,24 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 publishing {
     publications {
-        impl(MavenPublication) {
+        okcheck(MavenPublication) {
             groupId GROUP_ID
             artifactId POM_ARTIFACT_ID
             version VERSION_NAME
 
-            artifact(sourcesJar)
-            artifact(javadocJar)
-            pom.withXml {
-                def dependenciesNode = asNode().appendNode('dependencies')
-                //Iterate over the compile dependencies (we don't want the test ones), adding a <dependency> node for each
-                configurations.compile.allDependencies.each {
-                    if (it.group != null && (it.name != null || "unspecified".equals(it.name)) && it.version != null) {
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', it.group)
-                        dependencyNode.appendNode('artifactId', it.name)
-                        dependencyNode.appendNode('version', it.version)
-                    }
-                }
-            }
+            from components.java
         }
     }
 
     repositories {
         Properties properties = new Properties()
         def localFile = project.rootProject.file('local.properties')
-        def mvnName=""
-        def mvnPassword=""
+        def mvnName = ""
+        def mvnPassword = ""
         if (localFile.exists()) {
             properties.load(localFile.newDataInputStream())
             mvnName = properties.getProperty("mvn.user")
             mvnPassword = properties.getProperty("mvn.password")
-        } else {
-
         }
 
         maven {
