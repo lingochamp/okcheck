@@ -43,8 +43,10 @@ class OkCheckTask extends DefaultTask {
             BuildConfig.addToPassedModuleFile(project)
 
             if (BuildConfig.isAllModulePassed(project, changedModuleList)) {
-                new ChangeFile(project.rootProject.name).refreshLastExecCommitId()
+                ChangeFile changeFile = new ChangeFile(project.rootProject.name)
+                changeFile.refreshLastExecCommitId()
                 println "OkCheck: All check is passed and refreshed the commit to current one!"
+                println "OkCheck: ${changeFile.maintain()}"
             }
         }
 

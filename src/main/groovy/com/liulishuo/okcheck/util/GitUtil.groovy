@@ -39,13 +39,21 @@ class GitUtil {
 
     static List<String> noCommitFilePathList() {
         final List<String> originList = filterInvalidLine(runCmd('git status -s').split('\n'))
-        final List<String> noCommitFilePathList = new ArrayList<>()
+        return assembleLastStringForEachLine(originList)
+    }
+
+    static List<String> listAllBranchs() {
+        final List<String> branchLines = filterInvalidLine(runCmd('git branch -a').split('\n'))
+        return assembleLastStringForEachLine(branchLines)
+    }
+
+    static List<String> assembleLastStringForEachLine(List<String> originList) {
+        final List<String> lastStringList = new ArrayList<>();
         originList.forEach {
             String[] splitLine = it.split(" ")
-            noCommitFilePathList.add(splitLine[splitLine.length - 1])
+            lastStringList.add(splitLine[splitLine.length - 1])
         }
-
-        return noCommitFilePathList
+        return lastStringList
     }
 
     static List<String> filterInvalidLine(String[] paths) {

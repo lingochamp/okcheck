@@ -16,13 +16,17 @@
 
 package com.liulishuo.okcheck.util
 
+import groovy.io.FileType
+
 class ChangeFile {
     public final String backupPath
     private final String currentBranchName = GitUtil.currentBranchName()
     private final String currentCommitId = GitUtil.currentCommitId()
+    private final String projectName
 
     ChangeFile(String projectName) {
-        backupPath = "${System.getProperty("user.home")}/.okcheck/$projectName/$currentBranchName"
+        this.projectName = projectName
+        backupPath = backupBranchCommitIdFilePath(currentBranchName)
     }
 
     List<String> getChangeFilePathList() {
@@ -41,7 +45,7 @@ class ChangeFile {
             backupFile.getParentFile().mkdirs()
         }
 
-        if (!backupFile.exists()){
+        if (!backupFile.exists()) {
             backupFile.createNewFile()
         }
 
@@ -58,4 +62,60 @@ class ChangeFile {
         }
     }
 
+    String maintain() {
+        String info = "maintain:"
+        final List<String> branchNames = GitUtil.listAllBranchs()
+        final List<String> allBranchCommitIdPaths = new ArrayList<>()
+        branchNames.forEach {
+            allBranchCommitIdPaths.add(backupBranchCommitIdFilePath( it))
+        }
+
+        final commitBackupFile = new File(getCommitIdBackupPath())
+        if (!commitBackupFile.exists()) {
+            info += "no invalid backup found."
+            return info
+        }
+
+        // assemble all no exist backups
+        final List<String> invalidBackups = new ArrayList<>()
+        commitBackupFile.eachFileRecurse(FileType.FILES) { file ->
+            if (!allBranchCommitIdPaths.contains(file.absolutePath)) {
+                invalidBackups.add(file.absolutePath)
+            }
+        }
+
+        // delete all no exist backup
+        invalidBackups.forEach {
+            info += "\n         Delete overdue backup: $it"
+            new File(it).delete()
+        }
+        invalidBackups.clear()
+
+        // assemble all empty dir
+        commitBackupFile.eachFileRecurse(FileType.DIRECTORIES) { dir ->
+            if (dir.list().length == 0) invalidBackups.add(dir.absolutePath)
+        }
+
+        // delete all empty dir
+        invalidBackups.forEach {
+            File dir = new File(it)
+            if (dir.exists()) {
+                info += "\n         Delete Empty dir: $it"
+                dir.delete()
+            }
+        }
+
+        return info
+    }
+
+    String backupBranchCommitIdFilePath(String branchName) {
+        return "${getCommitIdBackupPath()}/$branchName"
+    }
+
+    private String commitIdBackupPath = null
+
+    String getCommitIdBackupPath() {
+        if (commitIdBackupPath == null) commitIdBackupPath = "${System.getProperty("user.home")}/.okcheck/$projectName/commitId"
+        return commitIdBackupPath
+    }
 }
