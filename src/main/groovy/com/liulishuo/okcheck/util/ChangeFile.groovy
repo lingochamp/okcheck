@@ -115,7 +115,7 @@ class ChangeFile {
     private String commitIdBackupPath = null
 
     String getCommitIdBackupPath() {
-        if (commitIdBackupPath == null) commitIdBackupPath = "${System.getProperty("user.home")}/.okcheck/$projectName/commitId"
+        if (commitIdBackupPath == null) commitIdBackupPath = "${System.getProperty("user.home")}/.okcheck/$projectName/commit-id"
         return commitIdBackupPath
     }
 }
