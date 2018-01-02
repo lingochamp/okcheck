@@ -42,7 +42,7 @@ class GitUtil {
         return assembleLastStringForEachLine(originList)
     }
 
-    static List<String> listAllBranchs() {
+    static List<String> listAllBranches() {
         final List<String> branchLines = filterInvalidLine(runCmd('git branch -a').split('\n'))
         return assembleLastStringForEachLine(branchLines)
     }

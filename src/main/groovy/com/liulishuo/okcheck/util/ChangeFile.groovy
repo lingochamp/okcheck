@@ -64,7 +64,7 @@ class ChangeFile {
 
     String maintain() {
         String info = "maintain:"
-        final List<String> branchNames = GitUtil.listAllBranchs()
+        final List<String> branchNames = GitUtil.listAllBranches()
         final List<String> allBranchCommitIdPaths = new ArrayList<>()
         branchNames.forEach {
             allBranchCommitIdPaths.add(backupBranchCommitIdFilePath( it))
