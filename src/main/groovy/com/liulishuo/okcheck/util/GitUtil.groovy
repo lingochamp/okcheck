@@ -34,7 +34,6 @@ class GitUtil {
     static List<String> diffFileToNowList(String commitId) {
         return filterInvalidLine(runCmd("git diff --name-only --diff-filter=ACMRTUXB $commitId HEAD~0")
                 .split('\n'))
-
     }
 
     static List<String> noCommitFilePathList() {
@@ -45,6 +44,10 @@ class GitUtil {
     static List<String> listAllBranches() {
         final List<String> branchLines = filterInvalidLine(runCmd('git branch -a').split('\n'))
         return assembleLastStringForEachLine(branchLines)
+    }
+
+    static List<String> lastCommitIdList(int limitCount) {
+        filterInvalidLine(runCmd("git log --pretty='%h' -n $limitCount").split('\n'))
     }
 
     static List<String> assembleLastStringForEachLine(List<String> originList) {
