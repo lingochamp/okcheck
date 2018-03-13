@@ -19,6 +19,7 @@ package com.liulishuo.okcheck
 import com.liulishuo.okcheck.util.BuildConfig
 import com.liulishuo.okcheck.util.ChangeFile
 import com.liulishuo.okcheck.util.ChangeModule
+import com.liulishuo.okcheck.util.GitUtil
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -33,6 +34,11 @@ class OkCheckPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        String branchName = GitUtil.currentBranchName()
+        if (branchName == null || branchName.length() <= 0) {
+            println("OkCheck: this is not on the valid okcheck env, okcheck must running on the git repo!")
+            return
+        }
 
         if (project == project.rootProject) {
             // root project
