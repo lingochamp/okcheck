@@ -38,7 +38,6 @@ class OkCheckTask extends DefaultTask {
     @TaskAction
     void setupOkcheck() {
         if (project == project.rootProject) {
-            setupOkCheck(project)
             println "OkCheck: Finish root okcheck task!"
         } else if (!isMock) {
             println "OkCheck: Finish ${project.name} okcheck task!"
@@ -54,38 +53,7 @@ class OkCheckTask extends DefaultTask {
 
     }
 
-    private static def setupOkCheck(Project project) {
-        ChangeFile changeFile = new ChangeFile(project.rootProject.name)
 
-        List<String> changeFilePathList = changeFile.getChangeFilePathList()
-        println "COMMIT ID BACKUP PATH: ${changeFile.backupPath}"
-
-        println "CHANGE FLIES:"
-        changeFilePathList.forEach {
-            println "       $it"
-        }
-        List<String> changedCodeFilePathList = new ArrayList<>()
-        changeFilePathList.forEach {
-            if (it.endsWith(".java") || it.endsWith(".groovy") || it.endsWith(".kt") || it.endsWith(".xml")) {
-                changedCodeFilePathList.add(it)
-            }
-        }
-
-        final List<String> changedModuleList = new ArrayList<>()
-
-        if (changedCodeFilePathList.isEmpty()) {
-            println "NO CHANGED CODE FILE!"
-        } else {
-            changedModuleList.addAll(ChangeModule.getChangedModuleList(project, changedCodeFilePathList))
-            println "CHANGE MODULES:"
-            changedModuleList.forEach {
-                println "       $it"
-            }
-        }
-
-        BuildConfig.saveChangedModuleList(project, changedModuleList)
-        BuildConfig.setupPassedModuleFile(project)
-    }
 
     static def addValidTask(Project project, List<String> moduleList) {
         project.task(OkCheckPlugin.TASK_NAME, type: OkCheckTask, overwrite: true) {

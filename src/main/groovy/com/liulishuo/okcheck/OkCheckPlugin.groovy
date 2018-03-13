@@ -17,6 +17,8 @@
 package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.util.BuildConfig
+import com.liulishuo.okcheck.util.ChangeFile
+import com.liulishuo.okcheck.util.ChangeModule
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -26,7 +28,7 @@ class OkCheckPlugin implements Plugin<Project> {
     private static final TASK_NAME = "okcheck"
 
     private boolean pointCurrentTask = false
-    private boolean isContainOkCheck = false
+    private boolean isRequireOkcheck = false
     private boolean isNeedDiffAllProject = false
 
     @Override
@@ -34,6 +36,7 @@ class OkCheckPlugin implements Plugin<Project> {
 
         if (project == project.rootProject) {
             // root project
+            setupOkCheck(project)
             OkCheckTask.addMockTask(project)
         } else {
             setupOkCheckForSubProject(project)
@@ -57,7 +60,7 @@ class OkCheckPlugin implements Plugin<Project> {
                     } else {
                         OkCheckTask.addValidTask(project, changedModuleList)
                     }
-                } else if (isContainOkCheck) {
+                } else if (isRequireOkcheck) {
                     if (isChangedModule) {
                         project.getLogger().warn("OkCheck: if you want to exec okcheck on this module please run "
                                 + "command okcheck instead of just for target module")
@@ -67,15 +70,51 @@ class OkCheckPlugin implements Plugin<Project> {
         }
     }
 
+    private static def setupOkCheck(Project project) {
+        boolean isRequireOkCheck = isRequireOkCheck(project)
+        ChangeFile changeFile = new ChangeFile(project.rootProject.name)
+
+        List<String> changeFilePathList = changeFile.getChangeFilePathList()
+        if (isRequireOkCheck) {
+            println "COMMIT ID BACKUP PATH: ${changeFile.backupPath}"
+
+            println "CHANGE FLIES:"
+            changeFilePathList.forEach {
+                println "       $it"
+            }
+        }
+        List<String> changedCodeFilePathList = new ArrayList<>()
+        changeFilePathList.forEach {
+            if (it.endsWith(".java") || it.endsWith(".groovy") || it.endsWith(".kt") || it.endsWith(".xml")) {
+                changedCodeFilePathList.add(it)
+            }
+        }
+
+        final List<String> changedModuleList = new ArrayList<>()
+
+        if (changedCodeFilePathList.isEmpty()) {
+            if (isRequireOkCheck) println "NO CHANGED CODE FILE!"
+        } else {
+            changedModuleList.addAll(ChangeModule.getChangedModuleList(project, changedCodeFilePathList))
+            if (isRequireOkCheck) {
+                println "CHANGE MODULES:"
+                changedModuleList.forEach {
+                    println "       $it"
+                }
+            }
+        }
+
+        BuildConfig.saveChangedModuleList(project, changedModuleList)
+        BuildConfig.setupPassedModuleFile(project)
+    }
+
     private def setupOkCheckForSubProject(Project project) {
         // point current task
+        isRequireOkcheck = isRequireOkCheck(project)
         def taskNames = project.gradle.startParameter.taskNames
         def pointOkCheck = ":" + project.name + ":" + TASK_NAME
         for (int i = 0; i < taskNames.size(); i++) {
             String name = taskNames.get(i)
-            if (name.contains(TASK_NAME)) {
-                isContainOkCheck = true
-            }
 
             if (name == pointOkCheck) {
                 pointCurrentTask = true
@@ -85,13 +124,13 @@ class OkCheckPlugin implements Plugin<Project> {
                 isNeedDiffAllProject = true
             }
 
-            if (isContainOkCheck && pointCurrentTask && isNeedDiffAllProject) {
+            if (pointCurrentTask && isNeedDiffAllProject) {
                 break
             }
         }
 
         // ignore non-release build-type to improve speed.
-        if (isContainOkCheck) {
+        if (isRequireOkcheck) {
             project.plugins.whenPluginAdded { plugin ->
                 if ('com.android.build.gradle.LibraryPlugin' == plugin.class.name) {
                     project.android.variantFilter {
@@ -112,5 +151,19 @@ class OkCheckPlugin implements Plugin<Project> {
                 }
             }
         }
+    }
+
+    private static boolean isRequireOkCheck(Project project) {
+        def taskNames = project.gradle.startParameter.taskNames
+
+        boolean isRequireOkcheck = false
+        for (int i = 0; i < taskNames.size(); i++) {
+            String name = taskNames.get(i)
+            if (name.contains(TASK_NAME)) {
+                isRequireOkcheck = true
+                break
+            }
+        }
+        return isRequireOkcheck
     }
 }
