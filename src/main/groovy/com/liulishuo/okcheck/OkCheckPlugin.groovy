@@ -17,10 +17,9 @@
 package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.util.BuildConfig
-import com.liulishuo.okcheck.util.ChangeFile
-import com.liulishuo.okcheck.util.ChangeModule
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 
 class OkCheckPlugin implements Plugin<Project> {
 
@@ -35,8 +34,6 @@ class OkCheckPlugin implements Plugin<Project> {
 
         if (project == project.rootProject) {
             // root project
-            setupOkCheck(project)
-
             OkCheckTask.addMockTask(project)
         } else {
             setupOkCheckForSubProject(project)
@@ -70,41 +67,6 @@ class OkCheckPlugin implements Plugin<Project> {
         }
     }
 
-    private def setupOkCheck(Project project) {
-        ChangeFile changeFile = new ChangeFile(project.rootProject.name)
-
-        List<String> changeFilePathList = changeFile.getChangeFilePathList()
-        println "COMMIT ID BACKUP PATH: ${changeFile.backupPath}"
-
-        println "CHANGE FLIES:"
-        changeFilePathList.forEach {
-            println "       $it"
-        }
-        List<String> changedCodeFilePathList = new ArrayList<>()
-        changeFilePathList.forEach {
-            if (it.endsWith(".java") || it.endsWith(".groovy") || it.endsWith(".kt") || it.endsWith(".xml")) {
-                changedCodeFilePathList.add(it)
-            }
-        }
-
-        final List<String> changedModuleList = new ArrayList<>()
-
-        if (changedCodeFilePathList.isEmpty()) {
-            println "NO CHANGED CODE FILE!"
-        } else {
-            changedModuleList.addAll(ChangeModule.getChangedModuleList(project, changedCodeFilePathList))
-            println "CHANGE MODULES:"
-            changedModuleList.forEach {
-                println "       $it"
-            }
-        }
-
-
-
-        BuildConfig.saveChangedModuleList(project, changedModuleList)
-        BuildConfig.setupPassedModuleFile(project)
-    }
-
     private def setupOkCheckForSubProject(Project project) {
         // point current task
         def taskNames = project.gradle.startParameter.taskNames
@@ -136,6 +98,16 @@ class OkCheckPlugin implements Plugin<Project> {
                         if (it.buildType.name != 'release') {
                             it.ignore = true
                         }
+                    }
+                }
+            }
+
+            Map<Project, Set<Task>> map = project.getAllTasks(true)
+            Collection<Set<Task>> values = map.values()
+            for (Set<Task> taskSet : values) {
+                for (Task task : taskSet) {
+                    if (task.name.endsWith('DebugUnitTest')) {
+                        task.deleteAllActions()
                     }
                 }
             }
