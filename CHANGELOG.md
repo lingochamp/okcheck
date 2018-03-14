@@ -1,3 +1,7 @@
+## 0.0.6
+
+- Feat: support destination field on the extension to judge the report parent folder, and as default will output the reports on the build dir of root project
+
 ## 0.0.5
 
 - Feat: support lint,ktlint,checkstyle,pmd,findbugs on okcheck
