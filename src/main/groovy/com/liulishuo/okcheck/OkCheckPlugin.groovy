@@ -32,14 +32,36 @@ class OkCheckPlugin implements Plugin<Project> {
     private boolean isRequireOkcheck = false
     private boolean isNeedDiffAllProject = false
 
+    private OkCheckExtension okCheckExtension;
+
     @Override
     void apply(Project project) {
+        okCheckExtension = project.extensions.create("okcheck", OkCheckExtension)
+
+        // lint->checkstyle->ktlint->pmd->findbugs
+        if (project != project.rootProject) {
+            // we have to apply those plugin first to handle its extension.
+            project.configure(project) {
+                apply plugin: 'checkstyle'
+                apply plugin: 'pmd'
+                apply plugin: 'findbugs'
+            }
+
+            project.afterEvaluate {
+                if (okCheckExtension.enableCheckstyle) OkCheckStyleTask.addTask(project)
+                if (okCheckExtension.enablePmd) OkPmdTask.addTask(project)
+                if (okCheckExtension.enableFindbugs) OkFindbugsTask.addTask(project)
+                if (okCheckExtension.enableKtlint) OkKtlintTask.addTask(project)
+            }
+        }
+
         String branchName = GitUtil.currentBranchName()
         if (branchName == null || branchName.length() <= 0) {
             println("OkCheck: this is not on the valid okcheck env, okcheck must running on the git repo!")
             return
         }
 
+        // diff okcheck
         if (project == project.rootProject) {
             // root project
             setupOkCheck(project)
@@ -54,7 +76,7 @@ class OkCheckPlugin implements Plugin<Project> {
                 if (isNeedDiffAllProject) {
                     if (isChangedModule) {
                         println "OkCheck: enable check for ${project.name} because of file changed on it"
-                        OkCheckTask.addValidTask(project, changedModuleList)
+                        OkCheckTask.addValidTask(project, changedModuleList, okCheckExtension)
                     } else if (pointCurrentTask) {
                         project.getLogger().warn("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
                         OkCheckTask.addMockTask(project)
@@ -64,7 +86,7 @@ class OkCheckPlugin implements Plugin<Project> {
                         project.getLogger().warn("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
                         OkCheckTask.addMockTask(project)
                     } else {
-                        OkCheckTask.addValidTask(project, changedModuleList)
+                        OkCheckTask.addValidTask(project, changedModuleList, okCheckExtension)
                     }
                 } else if (isRequireOkcheck) {
                     if (isChangedModule) {

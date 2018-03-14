@@ -21,6 +21,7 @@ import com.liulishuo.okcheck.util.ChangeFile
 import com.liulishuo.okcheck.util.ChangeModule
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
@@ -54,10 +55,16 @@ class OkCheckTask extends DefaultTask {
     }
 
 
+    static def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension) {
+        Set<String> dependsTaskNames = new HashSet<>()
+        dependsTaskNames.add('lint')
+        if (extension.enableCheckstyle) dependsTaskNames.add(OkCheckStyleTask.NAME)
+        if (extension.enablePmd) dependsTaskNames.add(OkPmdTask.NAME)
+        if (extension.enableFindbugs) dependsTaskNames.add(OkFindbugsTask.NAME)
+        if (extension.enableKtlint) dependsTaskNames.add(OkKtlintTask.NAME)
 
-    static def addValidTask(Project project, List<String> moduleList) {
         project.task(OkCheckPlugin.TASK_NAME, type: OkCheckTask, overwrite: true) {
-            dependsOn project.getTasksByName('check', false)
+            dependsOn dependsTaskNames
             changedModuleList = moduleList
             isMock = false
         }
