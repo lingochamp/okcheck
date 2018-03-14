@@ -32,11 +32,11 @@ class OkCheckPlugin implements Plugin<Project> {
     private boolean isRequireOkcheck = false
     private boolean isNeedDiffAllProject = false
 
-    private OkCheckExtension okCheckExtension;
+    private OkCheckExtension okCheckExtension
 
     @Override
     void apply(Project project) {
-        okCheckExtension = project.extensions.create("okcheck", OkCheckExtension)
+        okCheckExtension = project.extensions.create("okcheck", OkCheckExtension, project)
 
         // lint->checkstyle->ktlint->pmd->findbugs
         if (project != project.rootProject) {
@@ -48,9 +48,9 @@ class OkCheckPlugin implements Plugin<Project> {
             }
 
             project.afterEvaluate {
-                if (okCheckExtension.enableCheckstyle) OkCheckStyleTask.addTask(project)
-                if (okCheckExtension.enablePmd) OkPmdTask.addTask(project)
-                if (okCheckExtension.enableFindbugs) OkFindbugsTask.addTask(project)
+                if (okCheckExtension.enableCheckstyle) OkCheckStyleTask.addTask(project, okCheckExtension.destination)
+                if (okCheckExtension.enablePmd) OkPmdTask.addTask(project , okCheckExtension.destination)
+                if (okCheckExtension.enableFindbugs) OkFindbugsTask.addTask(project, okCheckExtension.destination)
                 if (okCheckExtension.enableKtlint) OkKtlintTask.addTask(project)
             }
         }

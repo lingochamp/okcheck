@@ -17,9 +17,11 @@
 package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.config.CheckStyle
+import com.liulishuo.okcheck.util.DestinationUtil
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.Checkstyle
+import org.gradle.api.tasks.Input
 
 class OkCheckStyleTask extends Checkstyle {
 
@@ -39,6 +41,10 @@ class OkCheckStyleTask extends Checkstyle {
             exclude '**/com/google/**/*.java'
 
             classpath = project.files()
+            reports {
+                xml.enabled = false
+                html.enabled = true
+            }
         }
 
         doLast {
@@ -58,12 +64,20 @@ class OkCheckStyleTask extends Checkstyle {
     }
 
     static String NAME = "okCheckStyle"
-    static void addTask(Project project) {
+
+    static void addTask(Project project, File destination) {
 //        project.configure(project) {
 //            apply plugin: 'checkstyle'
 //        }
 
-        project.task(NAME, type: OkCheckStyleTask)
+        project.task(NAME, type: OkCheckStyleTask) {
+            project.extensions.checkstyle.with {
+                reports {
+                    html.setDestination(DestinationUtil.getHtmlDest(project, destination, "checkstyle"))
+                }
+            }
+        }
+
         project.afterEvaluate {
             project.tasks.findByName('check')?.dependsOn(NAME)
         }

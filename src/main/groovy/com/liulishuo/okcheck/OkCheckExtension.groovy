@@ -16,9 +16,18 @@
 
 package com.liulishuo.okcheck
 
+import org.gradle.api.Project
+
 class OkCheckExtension {
     boolean enableCheckstyle = true
     boolean enableFindbugs = true
     boolean enablePmd = true
     boolean enableKtlint = true
+    File destination
+
+    OkCheckExtension(Project project) {
+        destination = project.rootProject.getBuildDir()
+    }
+
+
 }

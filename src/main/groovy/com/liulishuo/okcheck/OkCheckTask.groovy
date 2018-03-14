@@ -19,6 +19,8 @@ package com.liulishuo.okcheck
 import com.liulishuo.okcheck.util.BuildConfig
 import com.liulishuo.okcheck.util.ChangeFile
 import com.liulishuo.okcheck.util.ChangeModule
+import com.liulishuo.okcheck.util.DestinationUtil
+import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -54,7 +56,6 @@ class OkCheckTask extends DefaultTask {
 
     }
 
-
     static def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension) {
         Set<String> dependsTaskNames = new HashSet<>()
         dependsTaskNames.add('lint')
@@ -67,6 +68,18 @@ class OkCheckTask extends DefaultTask {
             dependsOn dependsTaskNames
             changedModuleList = moduleList
             isMock = false
+        }
+
+        if (extension.destination != project.buildDir) {
+            project.tasks.findByName('lint').doLast {
+                File originFile = new File(project.buildDir, "reports/lint-results.html")
+                if (originFile.exists()) {
+                    File targetFile = DestinationUtil.getHtmlDest(project, extension.destination, "lint")
+                    if (!targetFile.getParentFile().exists()) targetFile.getParentFile().mkdirs()
+                    FileUtils.copyFile(originFile, targetFile)
+                    println("OkCheck: Copy ${originFile.path} to ${targetFile.path}.")
+                }
+            }
         }
     }
 

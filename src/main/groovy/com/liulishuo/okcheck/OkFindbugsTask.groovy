@@ -17,8 +17,10 @@
 package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.config.FindbugsFilter
+import com.liulishuo.okcheck.util.DestinationUtil
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.FindBugs
+import org.gradle.api.tasks.Input
 
 class OkFindbugsTask extends FindBugs {
 
@@ -39,13 +41,10 @@ class OkFindbugsTask extends FindBugs {
             reports {
                 xml.enabled = false
                 html.enabled = true
-                xml {
-                    destination new File(project.buildDir, "reports/findbugs/findbugs.xml")
-                    xml.withMessages true
-                }
-                html {
-                    destination new File(project.buildDir, "reports/findbugs/index.html")
-                }
+//                xml {
+//                    destination new File(dest, "reports/findbugs/findbugs.xml")
+//                    xml.withMessages true
+//                }
             }
             classpath = project.files()
         }
@@ -57,7 +56,7 @@ class OkFindbugsTask extends FindBugs {
 
     static String NAME = "okFindbugs"
 
-    static void addTask(Project project) {
+    static void addTask(Project project, File dest) {
 //        project.configure(project) {
 //            apply plugin: 'findbugs'
 //        }
@@ -66,6 +65,13 @@ class OkFindbugsTask extends FindBugs {
         println("OkCheck: find assemble task: ${project.tasks.findByName('assemble')}")
         project.task(NAME, type: OkFindbugsTask) {
             dependsOn "assemble"
+            project.extensions.findbugs.with {
+                reports {
+                    html {
+                        destination DestinationUtil.getHtmlDest(project, dest, "findbugs")
+                    }
+                }
+            }
         }
         println("OkCheck: add $NAME task done")
 //        project.afterEvaluate {

@@ -17,8 +17,10 @@
 package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.config.PmdRuleSet
+import com.liulishuo.okcheck.util.DestinationUtil
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.Pmd
+import org.gradle.api.tasks.Input
 
 class OkPmdTask extends Pmd {
 
@@ -48,11 +50,17 @@ class OkPmdTask extends Pmd {
 
     static String NAME = "okPmd"
 
-    static void addTask(Project project) {
+    static void addTask(Project project, File destination) {
 //        project.configure(project) {
 //            apply plugin: 'pmd'
 //        }
-        project.task(NAME, type: OkPmdTask)
+        project.task(NAME, type: OkPmdTask) {
+            project.extensions.pmd.with {
+                reports {
+                    html.setDestination(DestinationUtil.getHtmlDest(project, destination, "pmd"))
+                }
+            }
+        }
         project.afterEvaluate {
             project.tasks.findByName('check')?.dependsOn(NAME)
         }
