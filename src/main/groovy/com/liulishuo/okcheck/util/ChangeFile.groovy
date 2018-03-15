@@ -67,7 +67,7 @@ class ChangeFile {
         final List<String> branchNames = GitUtil.listAllBranches()
         final List<String> allBranchCommitIdPaths = new ArrayList<>()
         branchNames.forEach {
-            allBranchCommitIdPaths.add(backupBranchCommitIdFilePath( it))
+            allBranchCommitIdPaths.add(backupBranchCommitIdFilePath(it))
         }
 
         final commitBackupFile = new File(getCommitIdBackupPath())
@@ -115,7 +115,11 @@ class ChangeFile {
     private String commitIdBackupPath = null
 
     String getCommitIdBackupPath() {
-        if (commitIdBackupPath == null) commitIdBackupPath = "${System.getProperty("user.home")}/.okcheck/$projectName/commit-id"
+        if (commitIdBackupPath == null) commitIdBackupPath = "${okcheckHomePath()}/$projectName/commit-id"
         return commitIdBackupPath
+    }
+
+    static String okcheckHomePath() {
+        return "${System.getProperty("user.home")}/.okcheck"
     }
 }
