@@ -1,3 +1,7 @@
+## 0.0.7
+
+- Feat: enable picasso style rules as default and split rules to two type: with-suppressions if rootProject/suppressions.xml exist or without-suppressions if it is not exist
+
 ## 0.0.6
 
 - Feat: support destination field on the extension to judge the report parent folder, and as default will output the reports on the build dir of root project
