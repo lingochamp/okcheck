@@ -28,9 +28,8 @@ class OkPmdTask extends Pmd {
         setDescription("Runs a set of static code analysis rules on Java source code files and generates a report of " +
                 "problems found with the default set.")
         project.extensions.pmd.with {
-            ignoreFailures = false
-            ruleSetConfig = project.resources.text.fromString(PmdRuleSet.RULE_SET)
-            ruleSets = []
+            if (ruleSetConfig == null) ruleSetConfig = project.resources.text.fromString(PmdRuleSet.RULE_SET)
+            if (ruleSets == null) ruleSets = []
 
             source 'src'
             include '**/*.java'

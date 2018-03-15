@@ -27,11 +27,10 @@ class OkFindbugsTask extends FindBugs {
         setDescription("Analyzes class with the default set.")
         setGroup("verification")
         project.extensions.findbugs.with {
-            ignoreFailures = false
-            excludeFilterConfig = project.resources.text.fromString(FindbugsFilter.FILTER)
-            effort = "max"
-            reportLevel = "high"
-            classes = project.files("$project.buildDir/intermediates/classes")
+            if (excludeFilter == null) excludeFilterConfig = project.resources.text.fromString(FindbugsFilter.FILTER)
+            if (effort == null) effort = "max"
+            if (reportLevel == null) reportLevel = "medium"
+            if (classes == null) classes = project.files("$project.buildDir/intermediates/classes")
 
             source 'src'
             include '**/*.java'
@@ -45,7 +44,7 @@ class OkFindbugsTask extends FindBugs {
 //                    xml.withMessages true
 //                }
             }
-            classpath = project.files()
+            if (classpath == null) classpath = project.files()
         }
 
         doFirst {
