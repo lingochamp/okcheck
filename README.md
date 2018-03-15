@@ -40,10 +40,10 @@ allprojects {
 }
 ```
 
-配置让checkstyle的失败不会中断编译(其他的同理):
+配置让编译继续，如果findbugs扫描出存在warnnings的错误(其他的同理):
 ```
 subprojects {
-    checkstyle {
+    findbugs {
         ignoreFailures = true
     }
 }
