@@ -20,7 +20,6 @@ import com.liulishuo.okcheck.config.PmdRuleSet
 import com.liulishuo.okcheck.util.DestinationUtil
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.Pmd
-import org.gradle.api.tasks.Input
 
 class OkPmdTask extends Pmd {
 

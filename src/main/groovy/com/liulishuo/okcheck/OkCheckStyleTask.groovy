@@ -21,7 +21,6 @@ import com.liulishuo.okcheck.util.DestinationUtil
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.Checkstyle
-import org.gradle.api.tasks.Input
 
 class OkCheckStyleTask extends Checkstyle {
 
@@ -31,7 +30,11 @@ class OkCheckStyleTask extends Checkstyle {
         project.extensions.checkstyle.with {
             toolVersion = "8.3"
             ignoreFailures = false
-            config = project.resources.text.fromString(CheckStyle.RULE)
+            if (project.rootProject.file("suppressions.xml").exists()) {
+                config = project.resources.text.fromString(CheckStyle.RULE_WITH_SUPPRESSION)
+            } else {
+                config = project.resources.text.fromString(CheckStyle.RULE)
+            }
 
             source 'src'
             include '**/*.java'
