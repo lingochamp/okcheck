@@ -29,12 +29,10 @@ class OkCheckStyleTask extends Checkstyle {
         setDescription("Check style with the default set.")
         project.extensions.checkstyle.with {
             toolVersion = "8.3"
-            if (config == null) {
-                if (project.rootProject.file("suppressions.xml").exists()) {
-                    config = project.resources.text.fromString(CheckStyle.RULE_WITH_SUPPRESSION)
-                } else {
-                    config = project.resources.text.fromString(CheckStyle.RULE)
-                }
+            if (project.rootProject.file("suppressions.xml").exists()) {
+                config = project.resources.text.fromString(CheckStyle.RULE_WITH_SUPPRESSION)
+            } else {
+                config = project.resources.text.fromString(CheckStyle.RULE)
             }
 
 
@@ -45,7 +43,7 @@ class OkCheckStyleTask extends Checkstyle {
             exclude '**/protobuf/*.java'
             exclude '**/com/google/**/*.java'
 
-            if (classpath == null) classpath = project.files()
+            classpath = project.files()
             reports {
                 xml.enabled = false
                 html.enabled = true
