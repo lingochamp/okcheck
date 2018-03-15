@@ -26,8 +26,8 @@ class CleanOkCheckDiffTask extends DefaultTask {
 
     @TaskAction
     void clean() {
-        File homePath = ChangeFile.okcheckHomePath()
-        println("OkCheck: delete ${homePath.path}")
+        String homePath = ChangeFile.okcheckHomePath()
+        println("OkCheck: delete ${homePath}")
         FileUtils.deleteDirectory(new File(ChangeFile.okcheckHomePath()))
     }
 
