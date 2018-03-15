@@ -58,13 +58,13 @@ class OkCheckPlugin implements Plugin<Project> {
             }
         }
 
+        // diff okcheck
         String branchName = GitUtil.currentBranchName()
         if (branchName == null || branchName.length() <= 0) {
             println("OkCheck: this is not on the valid okcheck env, okcheck must running on the git repo!")
             return
         }
 
-        // diff okcheck
         if (project == project.rootProject) {
             // root project
             setupOkCheck(project)
@@ -101,39 +101,48 @@ class OkCheckPlugin implements Plugin<Project> {
         }
     }
 
-    private static def setupOkCheck(Project project) {
+    private static void setupOkCheck(Project project) {
+        if (project != project.rootProject) throw new IllegalAccessException("only can invoke by the root project!")
+
         boolean isRequireOkCheck = isRequireOkCheck(project)
-        ChangeFile changeFile = new ChangeFile(project.rootProject.name)
-
-        List<String> changeFilePathList = changeFile.getChangeFilePathList()
-        if (isRequireOkCheck) {
-            println "COMMIT ID BACKUP PATH: ${changeFile.backupPath}"
-
-            println "CHANGE FLIES:"
-            changeFilePathList.forEach {
-                println "       $it"
-            }
-        }
-        List<String> changedCodeFilePathList = new ArrayList<>()
-        changeFilePathList.forEach {
-            if (it.endsWith(".java") || it.endsWith(".groovy") || it.endsWith(".kt") || it.endsWith(".xml")) {
-                changedCodeFilePathList.add(it)
-            }
-        }
-
         final List<String> changedModuleList = new ArrayList<>()
 
-        if (changedCodeFilePathList.isEmpty()) {
-            if (isRequireOkCheck) println "NO CHANGED CODE FILE!"
+        if (isFirstBlood(project)) {
+            if (isRequireOkCheck) println("OkCheck: First blood means every module is free to okcheck!")
+            changedModuleList.addAll(ChangeModule.getAllModuleList(project))
         } else {
-            changedModuleList.addAll(ChangeModule.getChangedModuleList(project, changedCodeFilePathList))
+            ChangeFile changeFile = new ChangeFile(project.rootProject.name)
+
+            List<String> changeFilePathList = changeFile.getChangeFilePathList()
             if (isRequireOkCheck) {
-                println "CHANGE MODULES:"
-                changedModuleList.forEach {
+                println "COMMIT ID BACKUP PATH: ${changeFile.backupPath}"
+
+                println "CHANGE FLIES:"
+                changeFilePathList.forEach {
                     println "       $it"
                 }
             }
+            List<String> changedCodeFilePathList = new ArrayList<>()
+            changeFilePathList.forEach {
+                if (it.endsWith(".java") || it.endsWith(".groovy") || it.endsWith(".kt") || it.endsWith(".xml")) {
+                    changedCodeFilePathList.add(it)
+                }
+            }
+
+
+            if (changedCodeFilePathList.isEmpty()) {
+                if (isRequireOkCheck) println "NO CHANGED CODE FILE!"
+            } else {
+                changedModuleList.addAll(ChangeModule.getChangedModuleList(project, changedCodeFilePathList))
+                if (isRequireOkCheck) {
+                    println "CHANGE MODULES:"
+                    changedModuleList.forEach {
+                        println "       $it"
+                    }
+                }
+            }
         }
+
 
         BuildConfig.saveChangedModuleList(project, changedModuleList)
         BuildConfig.setupPassedModuleFile(project)
@@ -196,5 +205,11 @@ class OkCheckPlugin implements Plugin<Project> {
             }
         }
         return isRequireOkcheck
+    }
+
+    private static boolean isFirstBlood(Project project) {
+        String projectHomePath = "${ChangeFile.okcheckHomePath()}/${project.rootProject.name}"
+        // not exist means first time to invoke okcheck(maybe just clean time).
+        return !new File(projectHomePath).exists()
     }
 }

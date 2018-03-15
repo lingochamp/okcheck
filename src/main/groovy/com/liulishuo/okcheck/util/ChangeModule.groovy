@@ -20,6 +20,14 @@ import org.gradle.api.Project
 
 class ChangeModule {
 
+    static List<String> getAllModuleList(Project project) {
+        final List<String> moduleNameList = new ArrayList<>()
+        project.subprojects {
+            moduleNameList.add(it.name)
+        }
+        return moduleNameList
+    }
+
     static List<String> getChangedModuleList(Project project, List<String> changedFilePaths) {
         final List<PathModule> pathModuleList = new ArrayList<>()
         File rootDir = project.rootProject.rootDir

@@ -57,6 +57,13 @@ class OkCheckTask extends DefaultTask {
     }
 
     static def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension) {
+        if (project.tasks.findByName('lint') == null) {
+            addMockTask(project)
+            println("OkCheck: lint task can not be found, so it must not be android/library module, then we will not" +
+                    " run any real check on this module ${project.name}")
+            return
+        }
+
         Set<String> dependsTaskNames = new HashSet<>()
         dependsTaskNames.add('lint')
         if (extension.enableCheckstyle) dependsTaskNames.add(OkCheckStyleTask.NAME)
@@ -75,7 +82,7 @@ class OkCheckTask extends DefaultTask {
                 File originFile = new File(project.buildDir, "reports/lint-results.html")
                 if (originFile.exists()) {
                     File targetFile = DestinationUtil.getHtmlDest(project, extension.destination, "lint")
-                    if (!targetFile.getParentFile().exists()) targetFile.getParentFile().mkdirs()
+                    if (!targetFile.getParentFile().exists()) targetFile.getParentFile() mkdirs()
                     FileUtils.copyFile(originFile, targetFile)
                     println("OkCheck: Copy ${originFile.path} to ${targetFile.path}.")
                 }
