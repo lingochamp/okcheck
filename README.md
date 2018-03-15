@@ -24,7 +24,7 @@ allprojects {
 
 如下配置不引入KtLint与Checkstyle，并且配置让报告导出到每个module自己的reports目录下:
 
-```groovy
+```
 allprojects {
     okcheck {
         // AndroidLint 会强制开启，所以目前没有提供开关
@@ -41,6 +41,7 @@ allprojects {
 ```
 
 配置让编译继续，如果findbugs扫描出存在warnnings的错误(其他的同理):
+
 ```
 subprojects {
     findbugs {
@@ -49,9 +50,16 @@ subprojects {
 }
 ```
 
+任务说明:
+
+- `./gradlew okcheck`: 执行差量的扫描
+- `./gradlew cleanOkcheckDiff`: 清除所有缓存的差量数据，下次会全量扫描
+- `./gradlew -PignoreOkcheckDiff okcheck`: 忽略差量数据进行全量的扫描
+
 ## 其他
 
 - 在`apply`了`okcheck`以后，如若没有对源码与资源扫描的任务(`lint`,`ktlint`,`checkstyle`,`pmd`)进行关闭，默认也会将这几个任务绑定到`check`任务中。
+- 首次执行`okcheck`任务会进行全量扫描
 
 #### 已经忽略包
 

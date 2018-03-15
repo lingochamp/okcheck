@@ -1,3 +1,9 @@
+## 0.1.0
+
+- Feat: support `ignoreOkcheckDiff` to check whole modules, such as `./gradlew -PignoreOkcheckDiff okcheck`
+- Feat: check all modules when there isn't ~/.okcheck exist
+- Feat: add `cleanOkcheckDiff` task to clean the okcheck diff folder on ~/.okcheck
+
 ## 0.0.9
 
 - Feat: exclude protobuf
