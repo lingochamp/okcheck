@@ -149,8 +149,8 @@
         <!--module name="TodoComment"/-->
         <module name="UpperEll"/>
         <!-- if suppressions.xml is exist will contain bellow rules -->
-        <module name="SuppressionFilter">
-            <property name="file" value="suppressions.xml"/>
-        </module>
+    </module>
+    <module name="SuppressionFilter">
+        <property name="file" value="suppressions.xml"/>
     </module>
 </module>

@@ -169,9 +169,9 @@ class CheckStyle {
             "        <!--module name=\"TodoComment\"/-->\n" +
             "        <module name=\"UpperEll\"/>\n" +
             "        <!-- if suppressions.xml is exist will contain bellow rules -->\n" +
-            "        <module name=\"SuppressionFilter\">\n" +
-            "            <property name=\"file\" value=\"suppressions.xml\"/>\n" +
-            "        </module>\n" +
+            "    </module>\n" +
+            "    <module name=\"SuppressionFilter\">\n" +
+            "        <property name=\"file\" value=\"suppressions.xml\"/>\n" +
             "    </module>\n" +
             "</module>"
 
