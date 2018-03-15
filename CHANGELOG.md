@@ -1,3 +1,7 @@
+## 0.0.8
+
+- Fix: fix SuppressionFilter can't on Tree error
+
 ## 0.0.7
 
 - Feat: enable picasso style rules as default and split rules to two type: with-suppressions if rootProject/suppressions.xml exist or without-suppressions if it is not exist
