@@ -107,7 +107,10 @@ class OkCheckPlugin implements Plugin<Project> {
         boolean isRequireOkCheck = isRequireOkCheck(project)
         final List<String> changedModuleList = new ArrayList<>()
 
-        if (isFirstBlood(project)) {
+        if (project.hasProperty("ignoreOkcheckDiff")) {
+            if (isRequireOkCheck) println("OkCheck: ignore okcheck diff means every module is free to okcheck!")
+            changedModuleList.addAll(ChangeModule.getAllModuleList(project))
+        } else if (isFirstBlood(project)) {
             if (isRequireOkCheck) println("OkCheck: First blood means every module is free to okcheck!")
             changedModuleList.addAll(ChangeModule.getAllModuleList(project))
         } else {
