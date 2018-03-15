@@ -1,3 +1,8 @@
+## 0.0.9
+
+- Feat: exclude protobuf
+- Fix: fix special extension with pmd,findbugs,checkstyle can't effect
+
 ## 0.0.8
 
 - Fix: fix SuppressionFilter can't on Tree error
