@@ -49,6 +49,10 @@ subprojects {
 }
 ```
 
+## 其他
+
+在`apply`了`okcheck`以后，如若没有对源码与资源扫描的任务(`lint`,`ktlint`,`checkstyle`,`pmd`)进行关闭，默认也会将这几个任务绑定到`check`任务中。
+
 ## LICENSE
 
 ```
