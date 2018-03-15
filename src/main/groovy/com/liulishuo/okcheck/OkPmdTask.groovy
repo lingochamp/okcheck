@@ -33,7 +33,10 @@ class OkPmdTask extends Pmd {
 
             source 'src'
             include '**/*.java'
-            exclude '**/gen/**'
+            exclude '**/gen/**', '**/test/**'
+            exclude '**/proto/*.java'
+            exclude '**/protobuf/*.java'
+            exclude '**/com/google/**/*.java'
 
             reports {
                 xml.enabled = false
