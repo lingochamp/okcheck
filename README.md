@@ -51,7 +51,19 @@ subprojects {
 
 ## 其他
 
-在`apply`了`okcheck`以后，如若没有对源码与资源扫描的任务(`lint`,`ktlint`,`checkstyle`,`pmd`)进行关闭，默认也会将这几个任务绑定到`check`任务中。
+- 在`apply`了`okcheck`以后，如若没有对源码与资源扫描的任务(`lint`,`ktlint`,`checkstyle`,`pmd`)进行关闭，默认也会将这几个任务绑定到`check`任务中。
+
+#### 已经忽略包
+
+在`checkstyle`,`findbugs`,`pmd`中忽略了以下路径的扫描:
+
+```
+**/gen/**
+**/test/**
+**/proto/*.java
+**/protobuf/*.java
+**/com/google/**/*.java
+```
 
 ## LICENSE
 
