@@ -23,7 +23,7 @@ class PmdRuleSet {
             "         xsi:noNamespaceSchemaLocation=\"http://pmd.sf.net/ruleset_xml_schema.xsd\"\n" +
             "         xsi:schemaLocation=\"http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd\">\n" +
             "\n" +
-            "    <description>Custom ruleset for Android application</description>\n" +
+            "    <description>Custom ruleset for ribot Android application</description>\n" +
             "\n" +
             "    <exclude-pattern>.*/R.java</exclude-pattern>\n" +
             "    <exclude-pattern>.*/gen/.*</exclude-pattern>\n" +
@@ -32,17 +32,28 @@ class PmdRuleSet {
             "    <rule ref=\"rulesets/java/clone.xml\" />\n" +
             "    <rule ref=\"rulesets/java/finalizers.xml\" />\n" +
             "    <rule ref=\"rulesets/java/imports.xml\">\n" +
+            "        <!-- Espresso is designed this way !-->\n" +
             "        <exclude name=\"TooManyStaticImports\" />\n" +
             "    </rule>\n" +
-            "    <rule ref=\"rulesets/java/logging-java.xml\" />\n" +
-            "    <rule ref=\"rulesets/java/braces.xml\" />\n" +
-            "    <rule ref=\"rulesets/java/strings.xml\" />\n" +
+            "    <rule ref=\"rulesets/java/logging-java.xml\">\n" +
+            "        <!-- This rule wasn't working properly and given errors in every var call info -->\n" +
+            "        <exclude name=\"GuardLogStatementJavaUtil\" />\n" +
+            "    </rule>\n" +
+            "    <rule ref=\"rulesets/java/braces.xml\">\n" +
+            "        <!-- We allow single line if's without braces -->\n" +
+            "        <exclude name=\"IfStmtsMustUseBraces\" />\n" +
+            "    </rule>\n" +
+            "    <rule ref=\"rulesets/java/strings.xml\" >\n" +
+            "        <!-- Exclude because causes problems with SQL Strings that usually require duplication -->\n" +
+            "        <exclude name=\"AvoidDuplicateLiterals\"/>\n" +
+            "    </rule>\n" +
             "    <rule ref=\"rulesets/java/basic.xml\" />\n" +
             "    <rule ref=\"rulesets/java/naming.xml\">\n" +
             "        <exclude name=\"AbstractNaming\" />\n" +
             "        <exclude name=\"LongVariable\" />\n" +
             "        <exclude name=\"ShortMethodName\" />\n" +
             "        <exclude name=\"ShortVariable\" />\n" +
+            "        <exclude name=\"ShortClassName\" />\n" +
             "        <exclude name=\"VariableNamingConventions\" />\n" +
             "    </rule>\n" +
             "</ruleset>"
