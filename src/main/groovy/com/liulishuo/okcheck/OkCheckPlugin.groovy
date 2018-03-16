@@ -107,9 +107,18 @@ class OkCheckPlugin implements Plugin<Project> {
         boolean isRequireOkCheck = isRequireOkCheck(project)
         final List<String> changedModuleList = new ArrayList<>()
 
-        if (project.hasProperty("ignoreOkcheckDiff")) {
-            if (isRequireOkCheck) println("OkCheck: ignore okcheck diff means every module is free to okcheck!")
-            changedModuleList.addAll(ChangeModule.getAllModuleList(project))
+        boolean ignoreDiff = isIgnoreDiff(project)
+        if (ignoreDiff) {
+            final List<String> pointTaskNameList = getPointTargetModelNameList(project)
+            if (pointTaskNameList.size() > 0) {
+                if (isRequireOkCheck) {
+                    println("OkCheck: ignore okcheck diff means target module(${pointTaskNameList} is free to okcheck!")
+                }
+                changedModuleList.addAll(pointTaskNameList)
+            } else {
+                if (isRequireOkCheck) println("OkCheck: ignore okcheck diff means every module is free to okcheck!")
+                changedModuleList.addAll(ChangeModule.getAllModuleList(project))
+            }
         } else if (isFirstBlood(project)) {
             if (isRequireOkCheck) println("OkCheck: First blood means every module is free to okcheck!")
             changedModuleList.addAll(ChangeModule.getAllModuleList(project))
@@ -208,6 +217,30 @@ class OkCheckPlugin implements Plugin<Project> {
             }
         }
         return isRequireOkcheck
+    }
+
+    private static List<String> getPointTargetModelNameList(Project project) {
+        def taskNames = project.gradle.startParameter.taskNames
+        List<String> pointTaskNameList = new ArrayList<>()
+
+        for (int i = 0; i < taskNames.size(); i++) {
+            String name = taskNames.get(i)
+            if (name.endsWith(TASK_NAME) && name.contains(":")) {
+                String[] splitNames = name.split(":")
+                String projectName = splitNames[splitNames.size() - 1]
+                project.rootProject.subprojects {
+                    if (projectName == it.name) pointTaskNameList.add(projectName)
+                }
+            } else if (name == TASK_NAME) {
+                return new ArrayList<String>()
+            }
+        }
+
+        return pointTaskNameList
+    }
+
+    private static boolean isIgnoreDiff(Project project) {
+        return project.hasProperty("ignoreOkcheckDiff")
     }
 
     private static boolean isFirstBlood(Project project) {
