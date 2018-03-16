@@ -25,6 +25,8 @@ class OkCheckExtension {
     boolean enableKtlint = true
     File destination
 
+    String[] exclude = []
+
     OkCheckExtension(Project project) {
         destination = project.rootProject.getBuildDir()
     }

@@ -57,7 +57,7 @@ class OkFindbugsTask extends FindBugs {
 
     static String NAME = "okFindbugs"
 
-    static void addTask(Project project, File dest) {
+    static void addTask(Project project, OkCheckExtension extension) {
 //        project.configure(project) {
 //            apply plugin: 'findbugs'
 //        }
@@ -69,8 +69,12 @@ class OkFindbugsTask extends FindBugs {
             project.extensions.findbugs.with {
                 reports {
                     html {
-                        destination DestinationUtil.getHtmlDest(project, dest, "findbugs")
+                        destination DestinationUtil.getHtmlDest(project, extension.destination, "findbugs")
                     }
+                }
+
+                if (extension.exclude.size() > 0) {
+                    exclude extension.exclude
                 }
             }
         }

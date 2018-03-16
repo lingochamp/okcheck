@@ -68,7 +68,7 @@ class OkCheckStyleTask extends Checkstyle {
 
     static String NAME = "okCheckStyle"
 
-    static void addTask(Project project, File destination) {
+    static void addTask(Project project, OkCheckExtension extension) {
 //        project.configure(project) {
 //            apply plugin: 'checkstyle'
 //        }
@@ -76,7 +76,11 @@ class OkCheckStyleTask extends Checkstyle {
         project.task(NAME, type: OkCheckStyleTask) {
             project.extensions.checkstyle.with {
                 reports {
-                    html.setDestination(DestinationUtil.getHtmlDest(project, destination, "checkstyle"))
+                    html.setDestination(DestinationUtil.getHtmlDest(project, extension.destination, "checkstyle"))
+                }
+
+                if (extension.exclude.size() > 0) {
+                    exclude extension.exclude
                 }
             }
         }

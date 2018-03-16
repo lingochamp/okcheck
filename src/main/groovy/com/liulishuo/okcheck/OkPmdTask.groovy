@@ -51,14 +51,18 @@ class OkPmdTask extends Pmd {
 
     static String NAME = "okPmd"
 
-    static void addTask(Project project, File destination) {
+    static void addTask(Project project, OkCheckExtension extension) {
 //        project.configure(project) {
 //            apply plugin: 'pmd'
 //        }
         project.task(NAME, type: OkPmdTask) {
             project.extensions.pmd.with {
                 reports {
-                    html.setDestination(DestinationUtil.getHtmlDest(project, destination, "pmd"))
+                    html.setDestination(DestinationUtil.getHtmlDest(project, extension.destination, "pmd"))
+                }
+
+                if (extension.exclude.size() > 0) {
+                    exclude extension.exclude
                 }
             }
         }
