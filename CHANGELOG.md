@@ -1,3 +1,7 @@
+## 0.1.2
+
+- Feat: using the new pmd rulest to ignore single-line-if without braces and some others, more detail please see: `src/main/resources/pmd-ruleset.xml`
+
 ## 0.1.1
 
 - Feat: support exclude param on the okcheck extension
