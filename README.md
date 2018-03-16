@@ -22,7 +22,7 @@ allprojects {
 
 ## 如何配置
 
-如下配置不引入KtLint与Checkstyle，并且配置让报告导出到每个module自己的reports目录下:
+如下配置不引入KtLint与Checkstyle，让报告导出到每个module自己的reports目录下，以及`checkstyle`,`pmd`,`findbugs`忽略路径包含`protobuf`的所有`java`文件:
 
 ```
 allprojects {
@@ -36,6 +36,9 @@ allprojects {
 	// 为了方便统一导出，因此默认的所有报告会在根项目的`build/reports/<modules>/`下面
 	// 如果想要定制到每个独立module自己的reports下面，使用如下配置
 	destination = buildDir
+
+	//`checkstyle`,`pmd`,`findbugs`忽略路径包含`protobuf`的所有`java`文件
+	exclude = ['**/protobuf/*.java']
     }
 }
 ```
@@ -50,11 +53,14 @@ subprojects {
 }
 ```
 
+配置忽略`NeedIgnoreDemo.java`
+
 任务说明:
 
 - `./gradlew okcheck`: 执行差量的扫描
 - `./gradlew cleanOkcheckDiff`: 清除所有缓存的差量数据，下次会全量扫描
 - `./gradlew -PignoreOkcheckDiff okcheck`: 忽略差量数据进行全量的扫描
+- `./gradlew -PignoreOkCheckDiff :module1:okcheck`: 忽略差量数据进行`module1`模块的扫描
 
 ## 其他
 

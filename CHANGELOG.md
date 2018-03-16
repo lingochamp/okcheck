@@ -1,3 +1,8 @@
+## 0.1.1
+
+- Feat: support exclude param on the okcheck extension
+- Feat: handle the case of using ignoreOkcheckDiff on target-module okcheck task
+
 ## 0.1.0
 
 - Feat: support `ignoreOkcheckDiff` to check whole modules, such as `./gradlew -PignoreOkcheckDiff okcheck`
