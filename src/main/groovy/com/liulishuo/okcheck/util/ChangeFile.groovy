@@ -28,8 +28,8 @@ class ChangeFile {
 
     ChangeFile(Project project) {
         this.projectName = project.name
-        backupPath = backupBranchCommitIdFilePath(currentBranchName)
         this.project = project
+        backupPath = backupBranchCommitIdFilePath(currentBranchName)
     }
 
     List<String> getChangeFilePathList() {
@@ -123,7 +123,7 @@ class ChangeFile {
     }
 
     static String okcheckHomePath(Project project) {
-        File firstCandidate = new File(project.rootDir(), ".okcheck")
+        File firstCandidate = new File(project.rootProject.absoluteProjectPath(".okcheck"))
         if (firstCandidate.exists()) return firstCandidate.absolutePath
 
         return "${System.getProperty("user.home")}/.okcheck"
