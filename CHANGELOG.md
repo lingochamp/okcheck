@@ -1,3 +1,8 @@
+## 0.1.3
+
+- Feat: using debug type instead for both library and application
+- Feat: using the .okcheck cache on the current path when it exist
+
 ## 0.1.2
 
 - Feat: using the new pmd rulest to ignore single-line-if without braces and some others, more detail please see: `src/main/resources/pmd-ruleset.xml`
