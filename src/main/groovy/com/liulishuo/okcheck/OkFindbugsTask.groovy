@@ -65,7 +65,7 @@ class OkFindbugsTask extends FindBugs {
 
         println("OkCheck: find assemble task: ${project.tasks.findByName('assemble')}")
         project.task(NAME, type: OkFindbugsTask) {
-            dependsOn "assemble"
+            dependsOn "assembleDebug"
             project.extensions.findbugs.with {
                 reports {
                     html {

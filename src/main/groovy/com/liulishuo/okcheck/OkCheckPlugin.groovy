@@ -184,9 +184,10 @@ class OkCheckPlugin implements Plugin<Project> {
         // ignore non-release build-type to improve speed.
         if (isRequireOkcheck) {
             project.plugins.whenPluginAdded { plugin ->
-                if ('com.android.build.gradle.LibraryPlugin' == plugin.class.name) {
+                if ('com.android.build.gradle.LibraryPlugin' == plugin.class.name
+                        || 'com.android.build.gradle.ApplicationPlugin' == plugin.class.name) {
                     project.android.variantFilter {
-                        if (it.buildType.name != 'release') {
+                        if (it.buildType.name != 'debug') {
                             it.ignore = true
                         }
                     }
@@ -197,11 +198,12 @@ class OkCheckPlugin implements Plugin<Project> {
             Collection<Set<Task>> values = map.values()
             for (Set<Task> taskSet : values) {
                 for (Task task : taskSet) {
-                    if (task.name.endsWith('DebugUnitTest')) {
+                    if (task.name.endsWith('ReleaseUnitTest')) {
                         task.deleteAllActions()
                     }
                 }
             }
+
         }
     }
 
@@ -244,7 +246,7 @@ class OkCheckPlugin implements Plugin<Project> {
     }
 
     private static boolean isFirstBlood(Project project) {
-        String projectHomePath = "${ChangeFile.okcheckHomePath()}/${project.rootProject.name}"
+        String projectHomePath = "${ChangeFile.okcheckHomePath(project)}/${project.rootProject.name}"
         // not exist means first time to invoke okcheck(maybe just clean time).
         return !new File(projectHomePath).exists()
     }
