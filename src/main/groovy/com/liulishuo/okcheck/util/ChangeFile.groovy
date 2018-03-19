@@ -17,16 +17,19 @@
 package com.liulishuo.okcheck.util
 
 import groovy.io.FileType
+import org.gradle.api.Project
 
 class ChangeFile {
     public final String backupPath
     private final String currentBranchName = GitUtil.currentBranchName()
     private final String currentCommitId = GitUtil.currentCommitId()
     private final String projectName
+    private final Project project
 
-    ChangeFile(String projectName) {
-        this.projectName = projectName
+    ChangeFile(Project project) {
+        this.projectName = project.name
         backupPath = backupBranchCommitIdFilePath(currentBranchName)
+        this.project = project
     }
 
     List<String> getChangeFilePathList() {
@@ -115,11 +118,14 @@ class ChangeFile {
     private String commitIdBackupPath = null
 
     String getCommitIdBackupPath() {
-        if (commitIdBackupPath == null) commitIdBackupPath = "${okcheckHomePath()}/$projectName/commit-id"
+        if (commitIdBackupPath == null) commitIdBackupPath = "${okcheckHomePath(project)}/$projectName/commit-id"
         return commitIdBackupPath
     }
 
-    static String okcheckHomePath() {
+    static String okcheckHomePath(Project project) {
+        File firstCandidate = new File(project.rootDir(), ".okcheck")
+        if (firstCandidate.exists()) return firstCandidate.absolutePath
+
         return "${System.getProperty("user.home")}/.okcheck"
     }
 }

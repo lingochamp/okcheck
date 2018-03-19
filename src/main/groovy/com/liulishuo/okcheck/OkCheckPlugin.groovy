@@ -123,7 +123,7 @@ class OkCheckPlugin implements Plugin<Project> {
             if (isRequireOkCheck) println("OkCheck: First blood means every module is free to okcheck!")
             changedModuleList.addAll(ChangeModule.getAllModuleList(project))
         } else {
-            ChangeFile changeFile = new ChangeFile(project.rootProject.name)
+            ChangeFile changeFile = new ChangeFile(project.rootProject)
 
             List<String> changeFilePathList = changeFile.getChangeFilePathList()
             if (isRequireOkCheck) {
