@@ -48,6 +48,8 @@ allprojects {
 ```
 subprojects {
     findbugs {
+        // 默认值是default，最大值是max，最小值是min，用于调节扫描精度，精度越高扫描到的问题越多
+        effort = "max"
         ignoreFailures = true
     }
 }

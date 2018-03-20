@@ -28,8 +28,6 @@ class OkFindbugsTask extends FindBugs {
         setGroup("verification")
         project.extensions.findbugs.with {
             excludeFilterConfig = project.resources.text.fromString(FindbugsFilter.FILTER)
-            effort = "max"
-            reportLevel = "medium"
             classes = project.files("$project.buildDir/intermediates/classes")
 
             source 'src'
