@@ -18,6 +18,7 @@ package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.config.PmdRuleSet
 import com.liulishuo.okcheck.util.DestinationUtil
+import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.Pmd
 
@@ -45,7 +46,7 @@ class OkPmdTask extends Pmd {
         }
 
         doFirst {
-            println("OkCheck:${project.name} runing OkPmd")
+            Util.printLog("OkCheck:${project.name} runing OkPmd")
         }
     }
 

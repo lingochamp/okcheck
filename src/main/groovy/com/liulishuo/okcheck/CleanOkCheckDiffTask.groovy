@@ -17,6 +17,7 @@
 package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.util.ChangeFile
+import com.liulishuo.okcheck.util.Util
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -27,7 +28,7 @@ class CleanOkCheckDiffTask extends DefaultTask {
     @TaskAction
     void clean() {
         String homePath = ChangeFile.okcheckHomePath(project)
-        println("OkCheck: delete ${homePath}")
+        Util.printLog("OkCheck: delete ${homePath}")
         FileUtils.deleteDirectory(new File(ChangeFile.okcheckHomePath(project)))
     }
 

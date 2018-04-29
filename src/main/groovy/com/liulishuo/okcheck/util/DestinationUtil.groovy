@@ -20,7 +20,7 @@ import org.gradle.api.Project
 
 class DestinationUtil {
 
-    public static File getHtmlDest(Project project, File base, String type) {
+    static File getHtmlDest(Project project, File base, String type) {
         final String projectBuildPath = project.buildDir.absolutePath
         final String basePath = base.getAbsolutePath()
 
@@ -33,7 +33,7 @@ class DestinationUtil {
         }
     }
 
-    public static File getDirDest(Project project, File base, String type) {
+    static File getDirDest(Project project, File base, String type) {
         final String projectBuildPath = project.buildDir.absolutePath
         final String basePath = base.getAbsolutePath()
 

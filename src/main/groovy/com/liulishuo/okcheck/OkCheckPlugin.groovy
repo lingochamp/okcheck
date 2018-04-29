@@ -32,6 +32,8 @@ class OkCheckPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        if (isRequireOkCheck(project)) Util.enableLog()
+
         okCheckExtension = project.extensions.create("okcheck", OkCheckExtension, project)
 
         // clean okcheck diff
@@ -57,7 +59,7 @@ class OkCheckPlugin implements Plugin<Project> {
         // diff okcheck
         String branchName = GitUtil.currentBranchName()
         if (branchName == null || branchName.length() <= 0) {
-            println("OkCheck: this is not on the valid okcheck env, okcheck must running on the git repo!")
+            Util.printLog("OkCheck: this is not on the valid okcheck env, okcheck must running on the git repo!")
             return
         }
 
@@ -69,17 +71,17 @@ class OkCheckPlugin implements Plugin<Project> {
             final List<String> changedModuleList = BuildConfig.getChangedModuleList(project)
             project.afterEvaluate {
                 if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) {
-                    println("OkCheck: pass ${project.name} directly because it isn't android/library project.")
+                    Util.printLog("OkCheck: pass ${project.name} directly because it isn't android/library project.")
                     BuildConfig.addToPassedModuleFile(project)
                     return
                 }
 
                 boolean isChangedModule = changedModuleList.contains(project.name)
                 if (isChangedModule) {
-                    println("OkCheck: enable check for ${project.name} because of file changed on it")
+                    Util.printLog("OkCheck: enable check for ${project.name} because of file changed on it")
                     OkCheckTask.addValidTask(project, changedModuleList, okCheckExtension)
                 } else {
-                    project.getLogger().warn("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
+                    Util.printLog("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
                     OkCheckTask.addMockTask(project)
                 }
             }
@@ -97,26 +99,26 @@ class OkCheckPlugin implements Plugin<Project> {
             final List<String> pointTaskNameList = getPointTargetModelNameList(project)
             if (pointTaskNameList.size() > 0) {
                 if (isRequireOkCheck) {
-                    println("OkCheck: ignore okcheck diff means target module(${pointTaskNameList} is free to okcheck!")
+                    Util.printLog("OkCheck: ignore okcheck diff means target module(${pointTaskNameList} is free to okcheck!")
                 }
                 changedModuleList.addAll(pointTaskNameList)
             } else {
-                if (isRequireOkCheck) println("OkCheck: ignore okcheck diff means every module is free to okcheck!")
+                if (isRequireOkCheck) Util.printLog("OkCheck: ignore okcheck diff means every module is free to okcheck!")
                 changedModuleList.addAll(ChangeModule.getAllModuleList(project))
             }
         } else if (isFirstBlood(project)) {
-            if (isRequireOkCheck) println("OkCheck: First blood means every module is free to okcheck!")
+            if (isRequireOkCheck) Util.printLog("OkCheck: First blood means every module is free to okcheck!")
             changedModuleList.addAll(ChangeModule.getAllModuleList(project))
         } else {
             ChangeFile changeFile = new ChangeFile(project.rootProject)
 
             List<String> changeFilePathList = changeFile.getChangeFilePathList()
             if (isRequireOkCheck) {
-                println "COMMIT ID BACKUP PATH: ${changeFile.backupPath}"
+                Util.printLog("COMMIT ID BACKUP PATH: ${changeFile.backupPath}")
 
-                println "CHANGE FLIES:"
+                Util.printLog("CHANGE FLIES:")
                 changeFilePathList.forEach {
-                    println "       $it"
+                    Util.printLog("       $it")
                 }
             }
             List<String> changedCodeFilePathList = new ArrayList<>()
@@ -128,13 +130,13 @@ class OkCheckPlugin implements Plugin<Project> {
 
 
             if (changedCodeFilePathList.isEmpty()) {
-                if (isRequireOkCheck) println "NO CHANGED CODE FILE!"
+                Util.printLog("NO CHANGED CODE FILE!")
             } else {
                 changedModuleList.addAll(ChangeModule.getChangedModuleList(project, changedCodeFilePathList))
                 if (isRequireOkCheck) {
-                    println "CHANGE MODULES:"
+                    Util.printLog("CHANGE MODULES:")
                     changedModuleList.forEach {
-                        println "       $it"
+                        Util.printLog("       $it")
                     }
                 }
             }

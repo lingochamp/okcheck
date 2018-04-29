@@ -26,4 +26,15 @@ class Util {
     static boolean hasLibraryPlugin(Project project) {
         return project.plugins.hasPlugin("com.android.library")
     }
+
+
+    private static boolean isEnableLog = false
+    static void enableLog() {
+        isEnableLog = true
+    }
+
+    static void printLog(String msg) {
+        if (!isEnableLog) return
+        println(msg)
+    }
 }

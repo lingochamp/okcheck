@@ -62,7 +62,6 @@ class OkCheckTask extends DefaultTask {
         def buildTypes = project.android.buildTypes.collect { type -> type.name }
         def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
 
-        println("okcheck: buildType $buildTypes flavors $productFlavors")
         buildTypes.each { buildType ->
             addValidTask(project, moduleList, extension, "", "${buildType.capitalize()}")
         }
@@ -81,7 +80,6 @@ class OkCheckTask extends DefaultTask {
 
         def buildTypes = project.android.buildTypes.collect { type -> type.name }
         def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
-        println("okcheck: buildType $buildTypes flavors $productFlavors")
 
         buildTypes.each { buildType ->
             addMockTask(project, "", "${buildType.capitalize()}")
@@ -118,7 +116,7 @@ class OkCheckTask extends DefaultTask {
             isMock = false
         }
 
-        println("okcheck: lint$flavor$buildType")
+        Util.printLog("okcheck: lint$flavor$buildType")
         if (extension.destination != project.buildDir) {
             def lintTask = project.tasks.findByName("lint$flavor$buildType")
             if (lintTask == null) {
@@ -144,7 +142,7 @@ class OkCheckTask extends DefaultTask {
             File targetFile = DestinationUtil.getHtmlDest(project, extension.destination, "lint")
             if (!targetFile.getParentFile().exists()) targetFile.getParentFile() mkdirs()
             FileUtils.copyFile(originFile, targetFile)
-            println("OkCheck: Copy ${originFile.path} to ${targetFile.path}.")
+            Util.printLog("OkCheck: Copy ${originFile.path} to ${targetFile.path}.")
         }
     }
 

@@ -52,7 +52,7 @@ class ChangeFile {
             backupFile.createNewFile()
         }
 
-        println "OkCheck: Refresh $currentCommitId to $backupPath"
+        Util.printLog("OkCheck: Refresh $currentCommitId to $backupPath")
         backupFile.write(currentCommitId)
     }
 

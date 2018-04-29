@@ -18,6 +18,7 @@ package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.config.CheckStyle
 import com.liulishuo.okcheck.util.DestinationUtil
+import com.liulishuo.okcheck.util.Util
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.Checkstyle
@@ -62,7 +63,7 @@ class OkCheckStyleTask extends Checkstyle {
         }
 
         doFirst {
-            println("OkCheck:${project.name} runing OkCheckstyle")
+            Util.printLog("OkCheck:${project.name} runing OkCheckstyle")
         }
     }
 

@@ -16,6 +16,7 @@
 
 package com.liulishuo.okcheck
 
+import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
 
@@ -29,7 +30,7 @@ class OkKtlintTask extends JavaExec {
         args("src/**/*.kt")
 
         doFirst {
-            println("OkCheck:${project.name} runing OkKtlintTask")
+            Util.printLog("OkCheck:${project.name} runing OkKtlintTask")
         }
     }
 

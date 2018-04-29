@@ -49,7 +49,7 @@ class OkFindbugsTask extends FindBugs {
         }
 
         doFirst {
-            println("OkCheck:${project.name} runing OkFindbugs")
+            Util.printLog("OkCheck:${project.name} runing OkFindbugs")
         }
     }
 
@@ -62,7 +62,6 @@ class OkFindbugsTask extends FindBugs {
 
         def buildTypes = project.android.buildTypes.collect { type -> type.name }
         def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
-        println("okcheck: buildType $buildTypes flavors $productFlavors")
 
         buildTypes.each { buildType ->
             addTask(project, extension, "", "$buildType")
