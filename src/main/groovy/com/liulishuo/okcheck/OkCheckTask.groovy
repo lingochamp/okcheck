@@ -20,6 +20,7 @@ import com.liulishuo.okcheck.util.BuildConfig
 import com.liulishuo.okcheck.util.ChangeFile
 import com.liulishuo.okcheck.util.ChangeModule
 import com.liulishuo.okcheck.util.DestinationUtil
+import com.liulishuo.okcheck.util.Util
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -35,7 +36,6 @@ class OkCheckTask extends DefaultTask {
     boolean isMock
 
     OkCheckTask() {
-        setDescription("check project only for changed files")
     }
 
     @TaskAction
@@ -57,41 +57,105 @@ class OkCheckTask extends DefaultTask {
     }
 
     static def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension) {
-        if (project.tasks.findByName('lint') == null) {
-            addMockTask(project)
-            println("OkCheck: lint task can not be found, so it must not be android/library module, then we will not" +
-                    " run any real check on this module ${project.name}")
-            return
+        addValidTask(project, moduleList, extension, "", "")
+
+        def buildTypes = project.android.buildTypes.collect { type -> type.name }
+        def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
+
+        println("okcheck: buildType $buildTypes flavors $productFlavors")
+        buildTypes.each { buildType ->
+            addValidTask(project, moduleList, extension, "", "${buildType.capitalize()}")
         }
 
-        Set<String> dependsTaskNames = new HashSet<>()
-        dependsTaskNames.add('lint')
-        if (extension.enableCheckstyle) dependsTaskNames.add(OkCheckStyleTask.NAME)
-        if (extension.enablePmd) dependsTaskNames.add(OkPmdTask.NAME)
-        if (extension.enableFindbugs) dependsTaskNames.add(OkFindbugsTask.NAME)
-        if (extension.enableKtlint) dependsTaskNames.add(OkKtlintTask.NAME)
-
-        project.task(OkCheckPlugin.TASK_NAME, type: OkCheckTask, overwrite: true) {
-            dependsOn dependsTaskNames
-            changedModuleList = moduleList
-            isMock = false
-        }
-
-        if (extension.destination != project.buildDir) {
-            project.tasks.findByName('lint').doLast {
-                File originFile = new File(project.buildDir, "reports/lint-results.html")
-                if (originFile.exists()) {
-                    File targetFile = DestinationUtil.getHtmlDest(project, extension.destination, "lint")
-                    if (!targetFile.getParentFile().exists()) targetFile.getParentFile() mkdirs()
-                    FileUtils.copyFile(originFile, targetFile)
-                    println("OkCheck: Copy ${originFile.path} to ${targetFile.path}.")
+        productFlavors.each { flavor ->
+            buildTypes.each { buildType ->
+                if (flavor) {
+                    addValidTask(project, moduleList, extension, "${flavor.capitalize()}", "${buildType.capitalize()}")
                 }
             }
         }
     }
 
     static def addMockTask(Project project) {
-        project.task(OkCheckPlugin.TASK_NAME, type: OkCheckTask, overwrite: true) {
+        addMockTask(project, "", "")
+
+        def buildTypes = project.android.buildTypes.collect { type -> type.name }
+        def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
+        println("okcheck: buildType $buildTypes flavors $productFlavors")
+
+        buildTypes.each { buildType ->
+            addMockTask(project, "", "${buildType.capitalize()}")
+        }
+
+        productFlavors.each { flavor ->
+            buildTypes.each { buildType ->
+                if (flavor) {
+                    addMockTask(project, "${flavor.capitalize()}", "${buildType.capitalize()}")
+                }
+            }
+        }
+    }
+
+    static
+    def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension, String flavor, String buildType) {
+        Set<String> dependsTaskNames = new HashSet<>()
+        dependsTaskNames.add("lint$flavor$buildType")
+        if (extension.enableCheckstyle) dependsTaskNames.add(OkCheckStyleTask.NAME)
+        if (extension.enablePmd) dependsTaskNames.add(OkPmdTask.NAME)
+        if (extension.enableFindbugs) dependsTaskNames.add("${OkFindbugsTask.NAME}$flavor$buildType")
+        if (extension.enableKtlint) dependsTaskNames.add(OkKtlintTask.NAME)
+
+        project.task(OkCheckPlugin.TASK_NAME + "$flavor$buildType", type: OkCheckTask, overwrite: true) {
+            dependsOn dependsTaskNames
+            setGroup("verification")
+            if (flavor.length() <= 0 && buildType.length() <= 0) {
+                setDescription("Run check only for changed files for all variants")
+            } else {
+                setDescription("Run check only for changed files for $flavor$buildType build.")
+            }
+
+            changedModuleList = moduleList
+            isMock = false
+        }
+
+        println("okcheck: lint$flavor$buildType")
+        if (extension.destination != project.buildDir) {
+            def lintTask = project.tasks.findByName("lint$flavor$buildType")
+            if (lintTask == null) {
+                project.tasks.whenTaskAdded { task ->
+                    if (task.name == "lint$flavor$buildType") {
+                        task.doLast {
+                            moveLintReport(project, extension)
+                        }
+                    }
+                }
+            } else {
+                project.tasks.findByName("lint$flavor$buildType").doLast {
+                    moveLintReport(project, extension)
+                }
+            }
+
+        }
+    }
+
+    static def moveLintReport(Project project, OkCheckExtension extension) {
+        File originFile = new File(project.buildDir, "reports/lint-results.html")
+        if (originFile.exists()) {
+            File targetFile = DestinationUtil.getHtmlDest(project, extension.destination, "lint")
+            if (!targetFile.getParentFile().exists()) targetFile.getParentFile() mkdirs()
+            FileUtils.copyFile(originFile, targetFile)
+            println("OkCheck: Copy ${originFile.path} to ${targetFile.path}.")
+        }
+    }
+
+    static def addMockTask(Project project, String flavor, String buildType) {
+        project.task(OkCheckPlugin.TASK_NAME + "$flavor$buildType", type: OkCheckTask, overwrite: true) {
+            setGroup("verification")
+            if (flavor.length() <= 0 && buildType.length() <= 0) {
+                setDescription("Run check only for changed files for all variants")
+            } else {
+                setDescription("Run check only for changed files for $flavor$buildType build.")
+            }
             changedModuleList = new ArrayList<>()
             isMock = true
         }

@@ -18,13 +18,13 @@ package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.config.FindbugsFilter
 import com.liulishuo.okcheck.util.DestinationUtil
+import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.FindBugs
 
 class OkFindbugsTask extends FindBugs {
 
     OkFindbugsTask() {
-        setDescription("Analyzes class with the default set.")
         setGroup("verification")
         project.extensions.findbugs.with {
             excludeFilterConfig = project.resources.text.fromString(FindbugsFilter.FILTER)
@@ -56,14 +56,36 @@ class OkFindbugsTask extends FindBugs {
     static String NAME = "okFindbugs"
 
     static void addTask(Project project, OkCheckExtension extension) {
-//        project.configure(project) {
-//            apply plugin: 'findbugs'
-//        }
+        addTask(project, extension, "", "")
 
+        if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) return
 
-        println("OkCheck: find assemble task: ${project.tasks.findByName('assemble')}")
-        project.task(NAME, type: OkFindbugsTask) {
-            dependsOn "assembleDebug"
+        def buildTypes = project.android.buildTypes.collect { type -> type.name }
+        def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
+        println("okcheck: buildType $buildTypes flavors $productFlavors")
+
+        buildTypes.each { buildType ->
+            addTask(project, extension, "", "$buildType")
+        }
+
+        productFlavors.each { flavor ->
+            buildTypes.each { buildType ->
+                if (flavor) {
+                    addTask(project, extension, "$flavor", "$buildType")
+                }
+            }
+        }
+
+    }
+
+    static void addTask(Project project, OkCheckExtension extension, String flavor, String buildType) {
+        project.task("$NAME${flavor.capitalize()}${buildType.capitalize()}", type: OkFindbugsTask) {
+            dependsOn "assemble${flavor.capitalize()}${buildType.capitalize()}"
+            if (flavor.length() <= 0 && buildType.length() <= 0) {
+                setDescription("Analyzes class with the default set for all variants")
+            } else {
+                setDescription("Analyzes class with the default set for $flavor$buildType build.")
+            }
             project.extensions.findbugs.with {
                 reports {
                     html {
@@ -76,9 +98,5 @@ class OkFindbugsTask extends FindBugs {
                 }
             }
         }
-        println("OkCheck: add $NAME task done")
-//        project.afterEvaluate {
-//            project.tasks.findByName('check')?.dependsOn('okFindbugs')
-//        }
     }
 }

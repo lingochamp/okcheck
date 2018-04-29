@@ -20,17 +20,13 @@ import com.liulishuo.okcheck.util.BuildConfig
 import com.liulishuo.okcheck.util.ChangeFile
 import com.liulishuo.okcheck.util.ChangeModule
 import com.liulishuo.okcheck.util.GitUtil
+import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 
 class OkCheckPlugin implements Plugin<Project> {
 
-    private static final TASK_NAME = "okcheck"
-
-    private boolean pointCurrentTask = false
-    private boolean isRequireOkcheck = false
-    private boolean isNeedDiffAllProject = false
+    static final TASK_NAME = "okcheck"
 
     private OkCheckExtension okCheckExtension
 
@@ -67,41 +63,30 @@ class OkCheckPlugin implements Plugin<Project> {
 
         if (project == project.rootProject) {
             // root project
-            setupOkCheck(project)
-            OkCheckTask.addMockTask(project)
+            setupOkCheckDiff(project)
         } else {
-            setupOkCheckForSubProject(project)
-
             // changed module list
             final List<String> changedModuleList = BuildConfig.getChangedModuleList(project)
             project.afterEvaluate {
+                if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) {
+                    println("OkCheck: pass ${project.name} directly because it isn't android/library project.")
+                    BuildConfig.addToPassedModuleFile(project)
+                    return
+                }
+
                 boolean isChangedModule = changedModuleList.contains(project.name)
-                if (isNeedDiffAllProject) {
-                    if (isChangedModule) {
-                        println "OkCheck: enable check for ${project.name} because of file changed on it"
-                        OkCheckTask.addValidTask(project, changedModuleList, okCheckExtension)
-                    } else if (pointCurrentTask) {
-                        project.getLogger().warn("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
-                        OkCheckTask.addMockTask(project)
-                    }
-                } else if (pointCurrentTask) {
-                    if (!isChangedModule) {
-                        project.getLogger().warn("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
-                        OkCheckTask.addMockTask(project)
-                    } else {
-                        OkCheckTask.addValidTask(project, changedModuleList, okCheckExtension)
-                    }
-                } else if (isRequireOkcheck) {
-                    if (isChangedModule) {
-                        project.getLogger().warn("OkCheck: if you want to exec okcheck on this module please run "
-                                + "command okcheck instead of just for target module")
-                    }
+                if (isChangedModule) {
+                    println("OkCheck: enable check for ${project.name} because of file changed on it")
+                    OkCheckTask.addValidTask(project, changedModuleList, okCheckExtension)
+                } else {
+                    project.getLogger().warn("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
+                    OkCheckTask.addMockTask(project)
                 }
             }
         }
     }
 
-    private static void setupOkCheck(Project project) {
+    private static void setupOkCheckDiff(Project project) {
         if (project != project.rootProject) throw new IllegalAccessException("only can invoke by the root project!")
 
         boolean isRequireOkCheck = isRequireOkCheck(project)
@@ -158,53 +143,6 @@ class OkCheckPlugin implements Plugin<Project> {
 
         BuildConfig.saveChangedModuleList(project, changedModuleList)
         BuildConfig.setupPassedModuleFile(project)
-    }
-
-    private def setupOkCheckForSubProject(Project project) {
-        // point current task
-        isRequireOkcheck = isRequireOkCheck(project)
-        def taskNames = project.gradle.startParameter.taskNames
-        def pointOkCheck = ":" + project.name + ":" + TASK_NAME
-        for (int i = 0; i < taskNames.size(); i++) {
-            String name = taskNames.get(i)
-
-            if (name == pointOkCheck) {
-                pointCurrentTask = true
-            }
-
-            if (name == TASK_NAME) {
-                isNeedDiffAllProject = true
-            }
-
-            if (pointCurrentTask && isNeedDiffAllProject) {
-                break
-            }
-        }
-
-        // ignore non-release build-type to improve speed.
-        if (isRequireOkcheck) {
-            project.plugins.whenPluginAdded { plugin ->
-                if ('com.android.build.gradle.LibraryPlugin' == plugin.class.name
-                        || 'com.android.build.gradle.ApplicationPlugin' == plugin.class.name) {
-                    project.android.variantFilter {
-                        if (it.buildType.name != 'debug') {
-                            it.ignore = true
-                        }
-                    }
-                }
-            }
-
-            Map<Project, Set<Task>> map = project.getAllTasks(true)
-            Collection<Set<Task>> values = map.values()
-            for (Set<Task> taskSet : values) {
-                for (Task task : taskSet) {
-                    if (task.name.endsWith('ReleaseUnitTest')) {
-                        task.deleteAllActions()
-                    }
-                }
-            }
-
-        }
     }
 
     private static boolean isRequireOkCheck(Project project) {
