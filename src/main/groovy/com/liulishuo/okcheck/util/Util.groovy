@@ -51,4 +51,19 @@ class Util {
         }
         return false
     }
+
+    static boolean isCommandContainTask(Project project, String taskName) {
+        def taskNames = project.gradle.startParameter.taskNames
+
+        boolean contain = false
+        for (int i = 0; i < taskNames.size(); i++) {
+            String name = taskNames.get(i)
+            if (containsIgnoreCase(name, taskName)) {
+                contain = true
+                break
+            }
+        }
+        return contain
+
+    }
 }

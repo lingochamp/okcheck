@@ -95,14 +95,22 @@ class OkCheckTask extends DefaultTask {
     static
     def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension, String flavor, String buildType) {
         Set<String> dependsTaskNames = new HashSet<>()
-        dependsTaskNames.add("lint$flavor$buildType")
+        dependsTaskNames.add("okLint$flavor$buildType")
         dependsTaskNames.add("test$flavor${buildType}UnitTest")
         if (extension.enableCheckstyle) dependsTaskNames.add(OkCheckStyleTask.NAME)
         if (extension.enablePmd) dependsTaskNames.add(OkPmdTask.NAME)
         if (extension.enableFindbugs) dependsTaskNames.add("${OkFindbugsTask.NAME}$flavor$buildType")
         if (extension.enableKtlint) dependsTaskNames.add(OkKtlintTask.NAME)
 
+        def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
+        inputFiles += project.fileTree(dir: "src", include: "**/*.java")
+        inputFiles += project.fileTree(dir: "src", include: "**/*.groovy")
+        inputFiles += project.fileTree(dir: "src", include: "**/*.xml")
+
         project.task(OkCheckPlugin.TASK_NAME + "$flavor$buildType", type: OkCheckTask, overwrite: true) {
+            inputs.files(inputFiles)
+            outputs.dir(project.buildDir)
+
             dependsOn dependsTaskNames
             setGroup("verification")
             if (flavor.length() <= 0 && buildType.length() <= 0) {
@@ -117,20 +125,9 @@ class OkCheckTask extends DefaultTask {
 
             if (destination != project.buildDir) {
                 doLast {
-                    moveLintReport(project, destination)
                     moveUnitTestReport(project, destination)
                 }
             }
-        }
-    }
-
-    static def moveLintReport(Project project, File destination) {
-        File originFile = new File(project.buildDir, "reports/lint-results.html")
-        if (originFile.exists()) {
-            File targetFile = DestinationUtil.getHtmlDest(project, destination, "lint")
-            if (!targetFile.getParentFile().exists()) targetFile.getParentFile().mkdirs()
-            FileUtils.copyFile(originFile, targetFile)
-            Util.printLog("Copy ${originFile.path} to ${targetFile.path}.")
         }
     }
 

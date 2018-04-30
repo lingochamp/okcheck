@@ -21,15 +21,23 @@ import org.gradle.api.Project
 class DestinationUtil {
 
     static File getHtmlDest(Project project, File base, String type) {
+        return getFileDest(project, base, type, "html")
+    }
+
+    static File getXmlDest(Project project, File base, String type) {
+        return getFileDest(project, base, type, "xml")
+    }
+
+    static File getFileDest(Project project, File base, String type, String extension) {
         final String projectBuildPath = project.buildDir.absolutePath
         final String basePath = base.getAbsolutePath()
 
         if (basePath.startsWith(projectBuildPath)) {
             // already on the project path
-            return new File(base, "reports/${type}.html")
+            return new File(base, "reports/${type}.$extension")
         } else {
             // not on the project path
-            return new File(base, "reports/${project.name}/${type}.html")
+            return new File(base, "reports/${project.name}/${type}.$extension")
         }
     }
 

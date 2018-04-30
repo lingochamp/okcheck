@@ -37,13 +37,20 @@ class OkPmdTask extends Pmd {
     static String NAME = "okPmd"
 
     static void addTask(Project project, OkCheckExtension extension) {
+        def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
+        inputFiles += project.fileTree(dir: "src", include: "**/*.java")
+        def outputFile = DestinationUtil.getHtmlDest(project, extension.destination, "pmd")
+
         project.task(NAME, type: OkPmdTask) {
+            inputs.files(inputFiles)
+            outputs.file(outputFile)
+
             project.extensions.pmd.with {
                 reports {
-                    html.setDestination(DestinationUtil.getHtmlDest(project, extension.destination, "pmd"))
+                    html.setDestination(outputFile)
                 }
                 if (extension.pmdRuleSetConfig != null) {
-                    setRuleSetFiles(extension.pmdRuleSetConfig)
+                    setRuleSetFiles(project.files(extension.pmdRuleSetConfig))
                 } else {
                     ruleSetConfig = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "pmd-ruleset.xml")
                 }

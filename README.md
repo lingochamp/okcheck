@@ -2,6 +2,11 @@
 
 差量扫描，自动集成Lint、KtLint、Checkstyle、Findbugs、Pmd 5大互补静态扫描工具，灵活配置
 
+## 基本差量扫描
+
+- 基于Git仓库，对比最近一次扫描成功的记录commit id => 扫描差量的module
+- 基于本地代码, 对比最近以此扫描成功的缓存 => 已经处理的任务直接`up-to-data`
+
 ## 如何引入
 
 在根项目的`build.gradle`中配置:

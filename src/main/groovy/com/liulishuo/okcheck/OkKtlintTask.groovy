@@ -16,6 +16,7 @@
 
 package com.liulishuo.okcheck
 
+import com.liulishuo.okcheck.util.DestinationUtil
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
@@ -23,12 +24,6 @@ import org.gradle.api.tasks.JavaExec
 class OkKtlintTask extends JavaExec {
 
     OkKtlintTask() {
-        setDescription("Check Kotlin code style.")
-        setGroup("verification")
-        setMain("com.github.shyiko.ktlint.Main")
-        classpath(project.configurations.ktlint)
-        args("src/**/*.kt")
-
         doFirst {
             Util.printLog("${project.name} runing OkKtlintTask")
         }
@@ -36,32 +31,37 @@ class OkKtlintTask extends JavaExec {
 
     static String NAME = "okKtlint"
 
-    static void addTask(Project project) {
+    static void addTask(Project project, OkCheckExtension extension) {
         project.configure(project) {
             project.configurations {
                 ktlint
             }
 
             dependencies {
-                ktlint "com.github.shyiko:ktlint:0.11.1"
+                ktlint "com.github.shyiko:ktlint:0.22.0"
             }
         }
 
-        project.task(NAME, type: OkKtlintTask)
-        project.task("okKtFormat", type: OkKtlintFormat)
+        def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
+        def outputFile = DestinationUtil.getXmlDest(project, extension.destination, "ktlint")
+
+        project.task(NAME, type: OkKtlintTask) {
+            inputs.files(inputFiles)
+            outputs.file(outputFile)
+
+            group = "verification"
+            description = "Runs ktlint."
+            main = "com.github.shyiko.ktlint.Main"
+            classpath = project.configurations.ktlint
+            args = [
+                    "--reporter=plain",
+                    "--reporter=checkstyle,output=${outputFile}",
+                    "src/**/*.kt"
+            ]
+        }
 
         project.afterEvaluate {
             project.tasks.findByName('check')?.dependsOn(NAME)
         }
-    }
-}
-
-class OkKtlintFormat extends JavaExec {
-    OkKtlintFormat() {
-        setDescription("Fix Kotlin code style deviations.")
-        setMain("com.github.shyiko.ktlint.Main")
-        classpath(project.configurations.ktlint)
-        args("-F", "src/**/*.kt")
-        setGroup("formatting")
     }
 }

@@ -49,10 +49,11 @@ class OkCheckPlugin implements Plugin<Project> {
             }
 
             project.afterEvaluate {
+                OkLint.inspectLint(project, okCheckExtension)
                 if (okCheckExtension.enableCheckstyle) OkCheckStyleTask.addTask(project, okCheckExtension)
                 if (okCheckExtension.enablePmd) OkPmdTask.addTask(project, okCheckExtension)
                 if (okCheckExtension.enableFindbugs) OkFindbugsTask.addTask(project, okCheckExtension)
-                if (okCheckExtension.enableKtlint) OkKtlintTask.addTask(project)
+                if (okCheckExtension.enableKtlint) OkKtlintTask.addTask(project, okCheckExtension)
             }
         }
 
@@ -146,17 +147,7 @@ class OkCheckPlugin implements Plugin<Project> {
     }
 
     private static boolean isRequireOkCheck(Project project) {
-        def taskNames = project.gradle.startParameter.taskNames
-
-        boolean isRequireOkcheck = false
-        for (int i = 0; i < taskNames.size(); i++) {
-            String name = taskNames.get(i)
-            if (Util.containsIgnoreCase(name, TASK_NAME)) {
-                isRequireOkcheck = true
-                break
-            }
-        }
-        return isRequireOkcheck
+        return Util.isCommandContainTask(project, TASK_NAME)
     }
 
     private static List<String> getPointTargetModelNameList(Project project) {
