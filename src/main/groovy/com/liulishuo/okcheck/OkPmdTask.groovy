@@ -28,22 +28,6 @@ class OkPmdTask extends Pmd {
         setGroup("verification")
         setDescription("Runs a set of static code analysis rules on Java source code files and generates a report of " +
                 "problems found with the default set.")
-        project.extensions.pmd.with {
-            ruleSetConfig = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "pmd-ruleset.xml")
-            ruleSets = []
-
-            source 'src'
-            include '**/*.java'
-            exclude '**/gen/**', '**/test/**'
-            exclude '**/proto/*.java'
-            exclude '**/protobuf/*.java'
-            exclude '**/com/google/**/*.java'
-
-            reports {
-                xml.enabled = false
-                html.enabled = true
-            }
-        }
 
         doFirst {
             Util.printLog("OkCheck:${project.name} runing OkPmd")
@@ -53,17 +37,32 @@ class OkPmdTask extends Pmd {
     static String NAME = "okPmd"
 
     static void addTask(Project project, OkCheckExtension extension) {
-//        project.configure(project) {
-//            apply plugin: 'pmd'
-//        }
         project.task(NAME, type: OkPmdTask) {
             project.extensions.pmd.with {
                 reports {
                     html.setDestination(DestinationUtil.getHtmlDest(project, extension.destination, "pmd"))
                 }
+                if (extension.pmdRuleSetConfig != null) {
+                    setRuleSetFiles(extension.pmdRuleSetConfig)
+                } else {
+                    ruleSetConfig = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "pmd-ruleset.xml")
+                }
 
                 if (extension.exclude.size() > 0) {
                     exclude extension.exclude
+                }
+
+                ruleSets = []
+                source 'src'
+                include '**/*.java'
+                exclude '**/gen/**', '**/test/**'
+                exclude '**/proto/*.java'
+                exclude '**/protobuf/*.java'
+                exclude '**/com/google/**/*.java'
+
+                reports {
+                    xml.enabled = false
+                    html.enabled = true
                 }
             }
         }

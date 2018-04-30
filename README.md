@@ -39,6 +39,11 @@ allprojects {
 
 	//`checkstyle`,`pmd`,`findbugs`忽略路径包含`protobuf`的所有`java`文件
 	exclude = ['**/protobuf/*.java']
+
+        // 设置默认的配置文件
+	checkStyleConfig = null
+	findBugsExcludeFilterConfig = null
+	pmdRuleSetConfig = null
     }
 }
 ```

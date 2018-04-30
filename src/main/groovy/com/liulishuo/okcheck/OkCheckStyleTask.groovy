@@ -29,27 +29,6 @@ class OkCheckStyleTask extends Checkstyle {
     OkCheckStyleTask() {
         setGroup("verification")
         setDescription("Check style with the default set.")
-        project.extensions.checkstyle.with {
-            toolVersion = "8.3"
-            if (project.rootProject.file("suppressions.xml").exists()) {
-                config = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "checkstyle_with_suppression.xml")
-            } else {
-                config = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "checkstyle.xml")
-            }
-
-            source 'src'
-            include '**/*.java'
-            exclude '**/gen/**', '**/test/**'
-            exclude '**/proto/*.java'
-            exclude '**/protobuf/*.java'
-            exclude '**/com/google/**/*.java'
-
-            classpath = project.files()
-            reports {
-                xml.enabled = false
-                html.enabled = true
-            }
-        }
 
         doLast {
             reports.all { report ->
@@ -70,18 +49,39 @@ class OkCheckStyleTask extends Checkstyle {
     static String NAME = "okCheckStyle"
 
     static void addTask(Project project, OkCheckExtension extension) {
-//        project.configure(project) {
-//            apply plugin: 'checkstyle'
-//        }
-
         project.task(NAME, type: OkCheckStyleTask) {
             project.extensions.checkstyle.with {
+                toolVersion = "8.3"
+
                 reports {
                     html.setDestination(DestinationUtil.getHtmlDest(project, extension.destination, "checkstyle"))
                 }
 
+                if (extension.checkStyleConfig != null) {
+                    configFile = extension.checkStyleConfig
+                } else {
+                    if (project.rootProject.file("suppressions.xml").exists()) {
+                        config = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "checkstyle_with_suppression.xml")
+                    } else {
+                        config = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "checkstyle.xml")
+                    }
+                }
+
                 if (extension.exclude.size() > 0) {
                     exclude extension.exclude
+                }
+
+                source 'src'
+                include '**/*.java'
+                exclude '**/gen/**', '**/test/**'
+                exclude '**/proto/*.java'
+                exclude '**/protobuf/*.java'
+                exclude '**/com/google/**/*.java'
+
+                classpath = project.files()
+                reports {
+                    xml.enabled = false
+                    html.enabled = true
                 }
             }
         }

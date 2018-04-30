@@ -116,7 +116,6 @@ class OkCheckTask extends DefaultTask {
             isMock = false
         }
 
-        Util.printLog("okcheck: lint$flavor$buildType")
         if (extension.destination != project.buildDir) {
             def lintTask = project.tasks.findByName("lint$flavor$buildType")
             if (lintTask == null) {

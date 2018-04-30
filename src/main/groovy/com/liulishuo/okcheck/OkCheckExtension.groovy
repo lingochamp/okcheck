@@ -16,6 +16,7 @@
 
 package com.liulishuo.okcheck
 
+import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
 
 class OkCheckExtension {
@@ -25,11 +26,35 @@ class OkCheckExtension {
     boolean enableKtlint = true
     File destination
 
+    File checkStyleConfig = null
+    File findBugsExcludeFilterConfig = null
+    File pmdRuleSetConfig = null
+
     String[] exclude = []
 
     OkCheckExtension(Project project) {
         destination = project.rootProject.getBuildDir()
+        if (project == project.rootProject) {
+            project.afterEvaluate {
+                if (checkStyleConfig != null) {
+                    Util.printLog("OkCheck: Using the custom checkstyle config.")
+                } else {
+                    Util.printLog("OkCheck: Using the default checkstyle config.")
+                }
+
+                if (findBugsExcludeFilterConfig != null) {
+                    Util.printLog("OkCheck: Using the custom findbugs exclude filter config.")
+                } else {
+                    Util.printLog("OkCheck: Using the default findbugs exclude filter config.")
+                }
+
+                if (pmdRuleSetConfig != null) {
+                    Util.printLog("OkCheck: Using the custom pmd rule set config.")
+                } else {
+                    Util.printLog("OkCheck: Using the default pmd rule set config.")
+                }
+            }
+
+        }
     }
-
-
 }

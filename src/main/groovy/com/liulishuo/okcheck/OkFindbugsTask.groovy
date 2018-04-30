@@ -27,27 +27,6 @@ class OkFindbugsTask extends FindBugs {
 
     OkFindbugsTask() {
         setGroup("verification")
-        project.extensions.findbugs.with {
-            excludeFilterConfig = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "findbugs-filter.xml")
-            classes = project.files("$project.buildDir/intermediates/classes")
-
-            source 'src'
-            include '**/*.java'
-            exclude '**/gen/**', '**/test/**'
-            exclude '**/proto/*.java'
-            exclude '**/protobuf/*.java'
-            exclude '**/com/google/**/*.java'
-
-            reports {
-                xml.enabled = false
-                html.enabled = true
-//                xml {
-//                    destination new File(dest, "reports/findbugs/findbugs.xml")
-//                    xml.withMessages true
-//                }
-            }
-            classpath = project.files()
-        }
 
         doFirst {
             Util.printLog("OkCheck:${project.name} runing OkFindbugs")
@@ -79,6 +58,7 @@ class OkFindbugsTask extends FindBugs {
     }
 
     static void addTask(Project project, OkCheckExtension extension, String flavor, String buildType) {
+
         project.task("$NAME${flavor.capitalize()}${buildType.capitalize()}", type: OkFindbugsTask) {
             dependsOn "assemble${flavor.capitalize()}${buildType.capitalize()}"
             if (flavor.length() <= 0 && buildType.length() <= 0) {
@@ -92,10 +72,29 @@ class OkFindbugsTask extends FindBugs {
                         destination DestinationUtil.getHtmlDest(project, extension.destination, "findbugs")
                     }
                 }
+                if (extension.findBugsExcludeFilterConfig != null) {
+                    setExcludeBugsFilter(extension.findBugsExcludeFilterConfig)
+                } else {
+                    excludeFilterConfig = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "findbugs-filter.xml")
+                }
 
                 if (extension.exclude.size() > 0) {
                     exclude extension.exclude
                 }
+                classes = project.files("$project.buildDir/intermediates/classes")
+
+                source 'src'
+                include '**/*.java'
+                exclude '**/gen/**', '**/test/**'
+                exclude '**/proto/*.java'
+                exclude '**/protobuf/*.java'
+                exclude '**/com/google/**/*.java'
+
+                reports {
+                    xml.enabled = false
+                    html.enabled = true
+                }
+                classpath = project.files()
             }
         }
     }
