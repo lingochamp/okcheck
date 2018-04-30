@@ -18,13 +18,11 @@ package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.util.BuildConfig
 import com.liulishuo.okcheck.util.ChangeFile
-import com.liulishuo.okcheck.util.ChangeModule
 import com.liulishuo.okcheck.util.DestinationUtil
 import com.liulishuo.okcheck.util.Util
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
@@ -35,8 +33,8 @@ class OkCheckTask extends DefaultTask {
     @Input
     boolean isMock
 
-    OkCheckTask() {
-    }
+    @Input
+    File destination
 
     @TaskAction
     void setupOkcheck() {
@@ -98,6 +96,7 @@ class OkCheckTask extends DefaultTask {
     def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension, String flavor, String buildType) {
         Set<String> dependsTaskNames = new HashSet<>()
         dependsTaskNames.add("lint$flavor$buildType")
+        dependsTaskNames.add("test$flavor${buildType}UnitTest")
         if (extension.enableCheckstyle) dependsTaskNames.add(OkCheckStyleTask.NAME)
         if (extension.enablePmd) dependsTaskNames.add(OkPmdTask.NAME)
         if (extension.enableFindbugs) dependsTaskNames.add("${OkFindbugsTask.NAME}$flavor$buildType")
@@ -114,34 +113,34 @@ class OkCheckTask extends DefaultTask {
 
             changedModuleList = moduleList
             isMock = false
-        }
+            destination = extension.destination
 
-        if (extension.destination != project.buildDir) {
-            def lintTask = project.tasks.findByName("lint$flavor$buildType")
-            if (lintTask == null) {
-                project.tasks.whenTaskAdded { task ->
-                    if (task.name == "lint$flavor$buildType") {
-                        task.doLast {
-                            moveLintReport(project, extension)
-                        }
-                    }
-                }
-            } else {
-                project.tasks.findByName("lint$flavor$buildType").doLast {
-                    moveLintReport(project, extension)
+            if (destination != project.buildDir) {
+                doLast {
+                    moveLintReport(project, destination)
+                    moveUnitTestReport(project, destination)
                 }
             }
-
         }
     }
 
-    static def moveLintReport(Project project, OkCheckExtension extension) {
+    static def moveLintReport(Project project, File destination) {
         File originFile = new File(project.buildDir, "reports/lint-results.html")
         if (originFile.exists()) {
-            File targetFile = DestinationUtil.getHtmlDest(project, extension.destination, "lint")
-            if (!targetFile.getParentFile().exists()) targetFile.getParentFile() mkdirs()
+            File targetFile = DestinationUtil.getHtmlDest(project, destination, "lint")
+            if (!targetFile.getParentFile().exists()) targetFile.getParentFile().mkdirs()
             FileUtils.copyFile(originFile, targetFile)
             Util.printLog("Copy ${originFile.path} to ${targetFile.path}.")
+        }
+    }
+
+    static def moveUnitTestReport(Project project, File destination) {
+        File originDir = new File(project.buildDir, "reports/tests")
+        if (originDir.exists()) {
+            File targetDir = DestinationUtil.getDirDest(project, destination, "tests")
+            if (!targetDir.getParentFile().exists()) targetDir.getParentFile().mkdirs()
+            FileUtils.copyDirectory(originDir, targetDir)
+            Util.printLog("Copy ${originDir.path} to ${targetDir.path}.")
         }
     }
 
@@ -155,6 +154,7 @@ class OkCheckTask extends DefaultTask {
             }
             changedModuleList = new ArrayList<>()
             isMock = true
+            destination = new File("")
         }
     }
 }
