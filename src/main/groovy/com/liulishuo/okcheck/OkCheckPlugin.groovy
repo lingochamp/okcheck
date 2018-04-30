@@ -59,7 +59,7 @@ class OkCheckPlugin implements Plugin<Project> {
         // diff okcheck
         String branchName = GitUtil.currentBranchName()
         if (branchName == null || branchName.length() <= 0) {
-            Util.printLog("OkCheck: this is not on the valid okcheck env, okcheck must running on the git repo!")
+            Util.printLog("This isn't the valid okcheck env, okcheck must running on the git repo!")
             return
         }
 
@@ -71,17 +71,17 @@ class OkCheckPlugin implements Plugin<Project> {
             final List<String> changedModuleList = BuildConfig.getChangedModuleList(project)
             project.afterEvaluate {
                 if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) {
-                    Util.printLog("OkCheck: pass ${project.name} directly because it isn't android/library project.")
+                    Util.printLog("Pass ${project.name} directly because it isn't android/library project.")
                     BuildConfig.addToPassedModuleFile(project)
                     return
                 }
 
                 boolean isChangedModule = changedModuleList.contains(project.name)
                 if (isChangedModule) {
-                    Util.printLog("OkCheck: enable check for ${project.name} because of file changed on it")
+                    Util.printLog("Enable check for ${project.name} because of file changed on it")
                     OkCheckTask.addValidTask(project, changedModuleList, okCheckExtension)
                 } else {
-                    Util.printLog("OkCheck: NO CHANGED CODE FOUND FOR ${project.name}")
+                    Util.printLog("NO CHANGED CODE FOUND FOR ${project.name}")
                     OkCheckTask.addMockTask(project)
                 }
             }
@@ -98,16 +98,14 @@ class OkCheckPlugin implements Plugin<Project> {
         if (ignoreDiff) {
             final List<String> pointTaskNameList = getPointTargetModelNameList(project)
             if (pointTaskNameList.size() > 0) {
-                if (isRequireOkCheck) {
-                    Util.printLog("OkCheck: ignore okcheck diff means target module(${pointTaskNameList} is free to okcheck!")
-                }
+                Util.printLog("ignore okcheck diff means target module(${pointTaskNameList} is free to okcheck!")
                 changedModuleList.addAll(pointTaskNameList)
             } else {
-                if (isRequireOkCheck) Util.printLog("OkCheck: ignore okcheck diff means every module is free to okcheck!")
+                Util.printLog("ignore okcheck diff means every module is free to okcheck!")
                 changedModuleList.addAll(ChangeModule.getAllModuleList(project))
             }
         } else if (isFirstBlood(project)) {
-            if (isRequireOkCheck) Util.printLog("OkCheck: First blood means every module is free to okcheck!")
+            Util.printLog("First blood means every module is free to okcheck!")
             changedModuleList.addAll(ChangeModule.getAllModuleList(project))
         } else {
             ChangeFile changeFile = new ChangeFile(project.rootProject)
@@ -153,7 +151,7 @@ class OkCheckPlugin implements Plugin<Project> {
         boolean isRequireOkcheck = false
         for (int i = 0; i < taskNames.size(); i++) {
             String name = taskNames.get(i)
-            if (name.contains(TASK_NAME)) {
+            if (Util.containsIgnoreCase(name, TASK_NAME)) {
                 isRequireOkcheck = true
                 break
             }

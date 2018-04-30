@@ -37,21 +37,21 @@ class OkCheckExtension {
         if (project == project.rootProject) {
             project.afterEvaluate {
                 if (checkStyleConfig != null) {
-                    Util.printLog("OkCheck: Using the custom checkstyle config.")
+                    Util.printLog("Using the custom checkstyle config.")
                 } else {
-                    Util.printLog("OkCheck: Using the default checkstyle config.")
+                    Util.printLog("Using the default checkstyle config.")
                 }
 
                 if (findBugsExcludeFilterConfig != null) {
-                    Util.printLog("OkCheck: Using the custom findbugs exclude filter config.")
+                    Util.printLog("Using the custom findbugs exclude filter config.")
                 } else {
-                    Util.printLog("OkCheck: Using the default findbugs exclude filter config.")
+                    Util.printLog("Using the default findbugs exclude filter config.")
                 }
 
                 if (pmdRuleSetConfig != null) {
-                    Util.printLog("OkCheck: Using the custom pmd rule set config.")
+                    Util.printLog("Using the custom pmd rule set config.")
                 } else {
-                    Util.printLog("OkCheck: Using the default pmd rule set config.")
+                    Util.printLog("Using the default pmd rule set config.")
                 }
             }
 

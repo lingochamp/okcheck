@@ -30,7 +30,7 @@ class OkKtlintTask extends JavaExec {
         args("src/**/*.kt")
 
         doFirst {
-            Util.printLog("OkCheck:${project.name} runing OkKtlintTask")
+            Util.printLog("${project.name} runing OkKtlintTask")
         }
     }
 

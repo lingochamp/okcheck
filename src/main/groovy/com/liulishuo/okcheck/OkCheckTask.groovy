@@ -41,16 +41,16 @@ class OkCheckTask extends DefaultTask {
     @TaskAction
     void setupOkcheck() {
         if (project == project.rootProject) {
-            println "OkCheck: Finish root okcheck task!"
+            Util.printLog("Finish root okcheck task!")
         } else if (!isMock) {
-            println "OkCheck: Finish ${project.name} okcheck task!"
+            Util.printLog("Finish ${project.name} okcheck task!")
             BuildConfig.addToPassedModuleFile(project)
 
             if (BuildConfig.isAllModulePassed(project, changedModuleList)) {
                 ChangeFile changeFile = new ChangeFile(project.rootProject)
                 changeFile.refreshLastExecCommitId()
-                println "OkCheck: All check is passed and refreshed the commit to current one!"
-                println "OkCheck: ${changeFile.maintain()}"
+                Util.printLog("All check is passed and refreshed the commit to current one!")
+                Util.printLog(changeFile.maintain())
             }
         }
 
@@ -141,7 +141,7 @@ class OkCheckTask extends DefaultTask {
             File targetFile = DestinationUtil.getHtmlDest(project, extension.destination, "lint")
             if (!targetFile.getParentFile().exists()) targetFile.getParentFile() mkdirs()
             FileUtils.copyFile(originFile, targetFile)
-            Util.printLog("OkCheck: Copy ${originFile.path} to ${targetFile.path}.")
+            Util.printLog("Copy ${originFile.path} to ${targetFile.path}.")
         }
     }
 

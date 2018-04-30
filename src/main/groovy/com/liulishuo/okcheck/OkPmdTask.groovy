@@ -30,7 +30,7 @@ class OkPmdTask extends Pmd {
                 "problems found with the default set.")
 
         doFirst {
-            Util.printLog("OkCheck:${project.name} runing OkPmd")
+            Util.printLog("${project.name} runing OkPmd")
         }
     }
 

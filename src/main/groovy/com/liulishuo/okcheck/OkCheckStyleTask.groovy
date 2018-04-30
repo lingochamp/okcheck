@@ -42,7 +42,7 @@ class OkCheckStyleTask extends Checkstyle {
         }
 
         doFirst {
-            Util.printLog("OkCheck:${project.name} runing OkCheckstyle")
+            Util.printLog("${project.name} runing OkCheckstyle")
         }
     }
 

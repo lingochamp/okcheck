@@ -29,7 +29,7 @@ class OkFindbugsTask extends FindBugs {
         setGroup("verification")
 
         doFirst {
-            Util.printLog("OkCheck:${project.name} runing OkFindbugs")
+            Util.printLog("${project.name} runing OkFindbugs")
         }
     }
 
