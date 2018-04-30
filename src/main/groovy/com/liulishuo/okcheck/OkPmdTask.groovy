@@ -16,8 +16,8 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.config.PmdRuleSet
 import com.liulishuo.okcheck.util.DestinationUtil
+import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.Pmd
@@ -29,7 +29,7 @@ class OkPmdTask extends Pmd {
         setDescription("Runs a set of static code analysis rules on Java source code files and generates a report of " +
                 "problems found with the default set.")
         project.extensions.pmd.with {
-            ruleSetConfig = project.resources.text.fromString(PmdRuleSet.RULE_SET)
+            ruleSetConfig = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "pmd-ruleset.xml")
             ruleSets = []
 
             source 'src'

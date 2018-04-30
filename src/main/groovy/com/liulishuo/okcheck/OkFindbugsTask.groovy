@@ -16,8 +16,9 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.config.FindbugsFilter
+
 import com.liulishuo.okcheck.util.DestinationUtil
+import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.FindBugs
@@ -27,7 +28,7 @@ class OkFindbugsTask extends FindBugs {
     OkFindbugsTask() {
         setGroup("verification")
         project.extensions.findbugs.with {
-            excludeFilterConfig = project.resources.text.fromString(FindbugsFilter.FILTER)
+            excludeFilterConfig = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "findbugs-filter.xml")
             classes = project.files("$project.buildDir/intermediates/classes")
 
             source 'src'

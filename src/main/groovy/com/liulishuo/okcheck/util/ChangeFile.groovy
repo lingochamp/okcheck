@@ -55,7 +55,6 @@ class ChangeFile {
         Util.printLog("OkCheck: Refresh $currentCommitId to $backupPath")
         backupFile.write(currentCommitId)
     }
-
     private String getLastExecCommitId() {
         File backupFile = new File(backupPath)
         if (backupFile.exists()) {

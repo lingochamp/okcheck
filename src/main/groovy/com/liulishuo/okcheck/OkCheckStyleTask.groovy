@@ -16,8 +16,9 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.config.CheckStyle
+
 import com.liulishuo.okcheck.util.DestinationUtil
+import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -31,11 +32,10 @@ class OkCheckStyleTask extends Checkstyle {
         project.extensions.checkstyle.with {
             toolVersion = "8.3"
             if (project.rootProject.file("suppressions.xml").exists()) {
-                config = project.resources.text.fromString(CheckStyle.RULE_WITH_SUPPRESSION)
+                config = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "checkstyle_with_suppression.xml")
             } else {
-                config = project.resources.text.fromString(CheckStyle.RULE)
+                config = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "checkstyle.xml")
             }
-
 
             source 'src'
             include '**/*.java'
