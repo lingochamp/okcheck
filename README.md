@@ -1,6 +1,6 @@
 # Okcheck
 
-差量扫描，自动集成Lint、KtLint、Checkstyle、Findbugs、Pmd 5大互补静态扫描工具，灵活配置
+差量扫描，自动集成Lint、KtLint、UnitTest、Checkstyle、Findbugs、Pmd 5大互补静态扫描工具与单元测试，灵活配置
 
 ## 基本差量扫描
 
@@ -14,7 +14,7 @@
 ```groovy
 buildscript {
     dependencies {
-        classpath 'com.liulishuo.okcheck:gradle:0.1.2'
+        classpath 'com.liulishuo.okcheck:gradle:{latest_version}'
     }
 }
 
@@ -23,12 +23,14 @@ allprojects {
 }
 ```
 
-至此，就已经完全整合，并且采用我们定制的统一规则生效5大静态扫描工具，以及可以通过`./gradlew okcheck`差分静态扫描，并且默认所有报告会整合到根项目的`build/reports`目录下，方便统一导出。
+至此，就已经完全整合，并且采用我们定制的统一规则生效5大静态扫描工具与单元测试，以及可以通过`./gradlew okcheck`差分静态扫描，并且默认所有报告会整合到根项目的`build/reports`目录下，方便统一导出。
 
 
 ## 任务说明
 
 当进行`okcheck`任务的时候，会对所有的`variant`进行编译与扫描（如有一般都有`debug`与 `release`两个编译类型导致，存在至少两个`variant`)，因此通常来说我们只需要对某一个`variant`进行编译扫描即可: 如`okcheckDebug`。
+
+![](https://github.com/lingochamp/okcheck/raw/master/art/tasks.jpg)
 
 - `./gradlew okcheckDebug`: 执行差量的扫描
 - `./gradlew cleanOkcheckDiff`: 清除所有缓存的差量数据，下次会全量扫描
