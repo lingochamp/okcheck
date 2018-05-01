@@ -47,6 +47,10 @@ class OkCheckStyleTask extends Checkstyle {
     static String NAME = "okCheckStyle"
 
     static void addTask(Project project, OkCheckExtension.CheckStyleOptions options) {
+        project.configure(project) {
+            apply plugin: 'checkstyle'
+        }
+
         project.task(NAME, type: OkCheckStyleTask) {
             project.extensions.checkstyle.with {
                 toolVersion = "8.3"

@@ -36,6 +36,9 @@ class OkPmdTask extends Pmd {
     static String NAME = "okPmd"
 
     static void addTask(Project project, OkCheckExtension.PmdOptions options) {
+        project.configure(project) {
+            apply plugin: 'pmd'
+        }
         def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
         inputFiles += project.fileTree(dir: "src", include: "**/*.java")
         def outputFile = options.htmlFile

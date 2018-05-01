@@ -34,6 +34,9 @@ class OkFindbugsTask extends FindBugs {
     static String NAME = "okFindbugs"
 
     static void addTask(Project project, OkCheckExtension.FindBugsOptions options) {
+        project.configure(project) {
+            apply plugin: 'findbugs'
+        }
         addTask(project, options, "", "")
 
         if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) return

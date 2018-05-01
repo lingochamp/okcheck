@@ -39,15 +39,8 @@ class OkCheckPlugin implements Plugin<Project> {
         // clean okcheck diff
         if (project == project.rootProject) CleanOkCheckDiffTask.addTask(project)
 
-        // lint->checkstyle->ktlint->pmd->findbugs
+        // lint, ktlint, checkstyle, unitTest, pmd, findbugs
         if (project != project.rootProject) {
-            // we have to apply those plugin first to handle its extension.
-            project.configure(project) {
-                apply plugin: 'checkstyle'
-                apply plugin: 'pmd'
-                apply plugin: 'findbugs'
-            }
-
             project.afterEvaluate {
                 OkLint.inspectLint(project, okCheckExtension.lint)
                 if (okCheckExtension.checkStyle.enabled) OkCheckStyleTask.addTask(project, okCheckExtension.checkStyle)
