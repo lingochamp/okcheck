@@ -122,14 +122,17 @@ class OkCheckExtension {
         return pmd
     }
 
+    @NonNull
     KtLintOptions getKtlint() {
         return ktlint
     }
 
+    @NonNull
     LintOptions getLint() {
         return lint
     }
 
+    @NonNull
     UnitTestOptions getUnitTest() {
         return unitTest
     }
@@ -185,6 +188,9 @@ class OkCheckExtension {
 
     static class KtLintOptions {
         boolean enabled = true
+        
+        @NonNull
+        String version = "0.22.0"
 
         @NonNull
         private final CommonHelper common

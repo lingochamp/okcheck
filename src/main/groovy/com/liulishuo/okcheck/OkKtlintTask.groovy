@@ -37,7 +37,7 @@ class OkKtlintTask extends JavaExec {
             }
 
             dependencies {
-                ktlint "com.github.shyiko:ktlint:0.22.0"
+                ktlint "com.github.shyiko:ktlint:${options.version}"
             }
         }
 

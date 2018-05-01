@@ -58,6 +58,7 @@ allprojects {
         ktlint {
             enabled = true
             exclude = ['**/proto/*.java']
+            version = "0.22.0"
         }
         checkstyle {
             enabled = true
