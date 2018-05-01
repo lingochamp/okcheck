@@ -1,8 +1,8 @@
 # Okcheck
 
 ![](https://img.shields.io/badge/OkCheck-Increamental-green.svg)
-![](https://img.shields.io/badge/OkCheck-Lint UnitTest-orange.svg)
-![](https://img.shields.io/badge/OkCheck-KtLint Checkstyle Findbugs Pmd-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-Lint%20UnitTest-orange.svg)
+![](https://img.shields.io/badge/OkCheck-KtLint%20Checkstyle%20Findbugs%20Pmd-yellow.svg)
 [ ![Download](https://api.bintray.com/packages/jacksgong/maven/OkCheck/images/download.svg) ](https://bintray.com/jacksgong/maven/OkCheck/_latestVersion)
 [![](https://img.shields.io/badge/SnapShot-0.1.5-white.svg)](https://oss.sonatype.org/content/repositories/snapshots/com/liulishuo/okcheck/)
 
@@ -18,8 +18,8 @@
 ## 案例
 
 ![](https://github.com/lingochamp/okcheck/raw/master/art/diff.jpg)
-![](https://github.com/lingochamp/okcheck/raw/master/art/reports.png)
 ![](https://github.com/lingochamp/okcheck/raw/master/art/up-to-date.jpg)
+![](https://github.com/lingochamp/okcheck/raw/master/art/reports.png)
 
 ## 如何引入
 
