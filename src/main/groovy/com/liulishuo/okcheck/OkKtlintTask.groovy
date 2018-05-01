@@ -16,7 +16,6 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.util.DestinationUtil
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
 import org.gradle.api.tasks.JavaExec
@@ -31,7 +30,7 @@ class OkKtlintTask extends JavaExec {
 
     static String NAME = "okKtlint"
 
-    static void addTask(Project project, OkCheckExtension extension) {
+    static void addTask(Project project, OkCheckExtension.KtLintOptions options) {
         project.configure(project) {
             project.configurations {
                 ktlint
@@ -43,7 +42,8 @@ class OkKtlintTask extends JavaExec {
         }
 
         def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
-        def outputFile = DestinationUtil.getXmlDest(project, extension.destination, "ktlint")
+        if (options.exclude.size() > 0) inputFiles.exclude(options.exclude)
+        def outputFile = options.xmlFile
 
         project.task(NAME, type: OkKtlintTask) {
             inputs.files(inputFiles)

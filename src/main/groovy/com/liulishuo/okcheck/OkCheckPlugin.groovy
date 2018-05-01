@@ -49,11 +49,12 @@ class OkCheckPlugin implements Plugin<Project> {
             }
 
             project.afterEvaluate {
-                OkLint.inspectLint(project, okCheckExtension)
-                if (okCheckExtension.enableCheckstyle) OkCheckStyleTask.addTask(project, okCheckExtension)
-                if (okCheckExtension.enablePmd) OkPmdTask.addTask(project, okCheckExtension)
-                if (okCheckExtension.enableFindbugs) OkFindbugsTask.addTask(project, okCheckExtension)
-                if (okCheckExtension.enableKtlint) OkKtlintTask.addTask(project, okCheckExtension)
+                OkLint.inspectLint(project, okCheckExtension.lint)
+                if (okCheckExtension.checkStyle.enabled) OkCheckStyleTask.addTask(project, okCheckExtension.checkStyle)
+                if (okCheckExtension.pmd.enabled) OkPmdTask.addTask(project, okCheckExtension.pmd)
+                if (okCheckExtension.findbugs.enabled) OkFindbugsTask.addTask(project, okCheckExtension.findbugs)
+                if (okCheckExtension.ktlint.enabled) OkKtlintTask.addTask(project, okCheckExtension.ktlint)
+                // unit-test
             }
         }
 

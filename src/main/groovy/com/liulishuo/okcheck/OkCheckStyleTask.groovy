@@ -16,8 +16,6 @@
 
 package com.liulishuo.okcheck
 
-
-import com.liulishuo.okcheck.util.DestinationUtil
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.GradleException
@@ -48,18 +46,20 @@ class OkCheckStyleTask extends Checkstyle {
 
     static String NAME = "okCheckStyle"
 
-    static void addTask(Project project, OkCheckExtension extension) {
+    static void addTask(Project project, OkCheckExtension.CheckStyleOptions options) {
         project.task(NAME, type: OkCheckStyleTask) {
             project.extensions.checkstyle.with {
                 toolVersion = "8.3"
 
                 reports {
-                    html.setDestination(DestinationUtil.getHtmlDest(project, extension.destination, "checkstyle"))
+                    html.setDestination(options.htmlFile)
                 }
 
-                if (extension.checkStyleConfig != null) {
-                    configFile = extension.checkStyleConfig
+                if (options.config != null) {
+                    Util.printLog("Using the custom checkstyle config.")
+                    config = options.config
                 } else {
+                    Util.printLog("Using the default checkstyle config.")
                     if (project.rootProject.file("suppressions.xml").exists()) {
                         config = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "checkstyle_with_suppression.xml")
                     } else {
@@ -67,8 +67,8 @@ class OkCheckStyleTask extends Checkstyle {
                     }
                 }
 
-                if (extension.exclude.size() > 0) {
-                    exclude extension.exclude
+                if (options.exclude.size() > 0) {
+                    exclude options.exclude
                 }
 
                 source 'src'

@@ -25,58 +25,71 @@ allprojects {
 
 至此，就已经完全整合，并且采用我们定制的统一规则生效5大静态扫描工具，以及可以通过`./gradlew okcheck`差分静态扫描，并且默认所有报告会整合到根项目的`build/reports`目录下，方便统一导出。
 
-## 如何配置
 
-如下配置不引入KtLint与Checkstyle，让报告导出到每个module自己的reports目录下，以及`checkstyle`,`pmd`,`findbugs`忽略路径包含`protobuf`的所有`java`文件:
+## 任务说明
 
-```
-allprojects {
-    okcheck {
-        // AndroidLint 会强制开启，所以目前没有提供开关
-        enableCheckstyle = false
-        // enableFindbugs = false
-        // enablePmd = false
-        enableKtlint = false
+当进行`okcheck`任务的时候，会对所有的`variant`进行编译与扫描（如有一般都有`debug`与 `release`两个编译类型导致，存在至少两个`variant`)，因此通常来说我们只需要对某一个`variant`进行编译扫描即可: 如`okcheckDebug`。
 
-	// 为了方便统一导出，因此默认的所有报告会在根项目的`build/reports/<modules>/`下面
-	// 如果想要定制到每个独立module自己的reports下面，使用如下配置
-	destination = buildDir
-
-	//`checkstyle`,`pmd`,`findbugs`忽略路径包含`protobuf`的所有`java`文件
-	exclude = ['**/protobuf/*.java']
-
-        // 设置默认的配置文件
-	checkStyleConfig = null
-	findBugsExcludeFilterConfig = null
-	pmdRuleSetConfig = null
-    }
-}
-```
-
-配置让编译继续，如果findbugs扫描出存在warnnings的错误(其他的同理):
-
-```
-subprojects {
-    findbugs {
-        // 默认值是default，最大值是max，最小值是min，用于调节扫描精度，精度越高扫描到的问题越多
-        effort = "max"
-        ignoreFailures = true
-    }
-}
-```
-
-配置忽略`NeedIgnoreDemo.java`
-
-任务说明:
-
-- `./gradlew okcheck`: 执行差量的扫描
+- `./gradlew okcheckDebug`: 执行差量的扫描
 - `./gradlew cleanOkcheckDiff`: 清除所有缓存的差量数据，下次会全量扫描
 - `./gradlew -PignoreOkcheckDiff okcheck`: 忽略差量数据进行全量的扫描
 - `./gradlew -PignoreOkCheckDiff :module1:okcheck`: 忽略差量数据进行`module1`模块的扫描
 
+## 如何配置
+
+为了方便说明下面所有提到的，都采用默认值(当没有提供时所采用的默认值)作为案例，以下是在根项目的`build.gradle`中配置:
+
+```
+allprojects {
+    exclude = ['**/proto/*.java']
+    destination = project.rootProject.buildDir
+    okcheck {
+        unittest {
+            enabled = true
+            exclude = ['**/proto/*.java']
+        }
+        lint {
+            enabled = true
+            exclude = ['**/proto/*.java']
+
+        }
+        ktlint {
+            enabled = true
+            exclude = ['**/proto/*.java']
+        }
+        checkstyle {
+            enabled = true
+            exclude = ['**/proto/*.java']
+            // 采用默认的统一配置
+            configFile = null
+        }
+        findbugs {
+            enabled = true
+            exclude = ['**/proto/*.java']
+
+            effort = "default"
+
+            // Warning级别的错误默认会终止扫描
+            ignoreFailures = false
+            // 采用默认的统一配置
+            excludeBugFilter = null
+        }
+        pmd {
+            enabled = true
+            exclude = ['**/proto/*.java']
+
+            // Warning级别的错误默认会终止扫描
+            ignoreFailures = false
+            // 采用默认的统一配置
+            ruleSetFiles = null
+        }
+    }
+}
+```
+
+
 ## 其他
 
-- 在`apply`了`okcheck`以后，如若没有对源码与资源扫描的任务(`lint`,`ktlint`,`checkstyle`,`pmd`)进行关闭，默认也会将这几个任务绑定到`check`任务中。
 - 首次执行`okcheck`任务会进行全量扫描
 
 #### 已经忽略包

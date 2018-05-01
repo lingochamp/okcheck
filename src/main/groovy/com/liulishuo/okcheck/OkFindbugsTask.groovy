@@ -16,8 +16,6 @@
 
 package com.liulishuo.okcheck
 
-
-import com.liulishuo.okcheck.util.DestinationUtil
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
@@ -35,8 +33,8 @@ class OkFindbugsTask extends FindBugs {
 
     static String NAME = "okFindbugs"
 
-    static void addTask(Project project, OkCheckExtension extension) {
-        addTask(project, extension, "", "")
+    static void addTask(Project project, OkCheckExtension.FindBugsOptions options) {
+        addTask(project, options, "", "")
 
         if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) return
 
@@ -44,20 +42,19 @@ class OkFindbugsTask extends FindBugs {
         def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
 
         buildTypes.each { buildType ->
-            addTask(project, extension, "", "$buildType")
+            addTask(project, options, "", "$buildType")
         }
 
         productFlavors.each { flavor ->
             buildTypes.each { buildType ->
                 if (flavor) {
-                    addTask(project, extension, "$flavor", "$buildType")
+                    addTask(project, options, "$flavor", "$buildType")
                 }
             }
         }
-
     }
 
-    static void addTask(Project project, OkCheckExtension extension, String flavor, String buildType) {
+    static void addTask(Project project, OkCheckExtension.FindBugsOptions options, String flavor, String buildType) {
 
         project.task("$NAME${flavor.capitalize()}${buildType.capitalize()}", type: OkFindbugsTask) {
             dependsOn "assemble${flavor.capitalize()}${buildType.capitalize()}"
@@ -68,20 +65,33 @@ class OkFindbugsTask extends FindBugs {
             }
             project.extensions.findbugs.with {
                 reports {
+                    xml.enabled = false
                     html {
-                        destination DestinationUtil.getHtmlDest(project, extension.destination, "findbugs")
+                        destination options.getHtmlFile()
+                        enabled = true
                     }
                 }
-                if (extension.findBugsExcludeFilterConfig != null) {
-                    setExcludeBugsFilter(extension.findBugsExcludeFilterConfig)
+                if (options.excludeFilterConfig != null) {
+                    Util.printLog("Using the custom findbugs exclude filter config.")
+                    excludeFilterConfig = options.excludeFilterConfig
                 } else {
                     excludeFilterConfig = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "findbugs-filter.xml")
+                    Util.printLog("Using the default findbugs exclude filter config.")
                 }
 
-                if (extension.exclude.size() > 0) {
-                    exclude extension.exclude
+                if (options.exclude.size() > 0) {
+                    exclude options.exclude
                 }
-                classes = project.files("$project.buildDir/intermediates/classes")
+
+                if (options.effort != null) {
+                    Util.printLog("Using special findbugs effort: ${options.effort}")
+                    effort = options.effort
+                }
+
+                if (options.ignoreFailures) {
+                    Util.printLog("Enable ignoreFailures for findbugs")
+                    ignoreFailures = true
+                }
 
                 source 'src'
                 include '**/*.java'
@@ -90,10 +100,7 @@ class OkFindbugsTask extends FindBugs {
                 exclude '**/protobuf/*.java'
                 exclude '**/com/google/**/*.java'
 
-                reports {
-                    xml.enabled = false
-                    html.enabled = true
-                }
+                classes = project.files("$project.buildDir/intermediates/classes")
                 classpath = project.files()
             }
         }

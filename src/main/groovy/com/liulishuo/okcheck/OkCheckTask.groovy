@@ -18,7 +18,6 @@ package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.util.BuildConfig
 import com.liulishuo.okcheck.util.ChangeFile
-import com.liulishuo.okcheck.util.DestinationUtil
 import com.liulishuo.okcheck.util.Util
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
@@ -92,12 +91,12 @@ class OkCheckTask extends DefaultTask {
     static
     def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension, String flavor, String buildType) {
         Set<String> dependsTaskNames = new HashSet<>()
-        dependsTaskNames.add(OkLint.getTaskName(flavor, buildType))
-        dependsTaskNames.add("test$flavor${buildType}UnitTest")
-        if (extension.enableCheckstyle) dependsTaskNames.add(OkCheckStyleTask.NAME)
-        if (extension.enablePmd) dependsTaskNames.add(OkPmdTask.NAME)
-        if (extension.enableFindbugs) dependsTaskNames.add("${OkFindbugsTask.NAME}$flavor$buildType")
-        if (extension.enableKtlint) dependsTaskNames.add(OkKtlintTask.NAME)
+        if (extension.lint.enabled) dependsTaskNames.add(OkLint.getTaskName(flavor, buildType))
+        if (extension.unitTest.enabled) dependsTaskNames.add("test$flavor${buildType}UnitTest")
+        if (extension.checkStyle.enabled) dependsTaskNames.add(OkCheckStyleTask.NAME)
+        if (extension.pmd.enabled) dependsTaskNames.add(OkPmdTask.NAME)
+        if (extension.findbugs.enabled) dependsTaskNames.add("${OkFindbugsTask.NAME}$flavor$buildType")
+        if (extension.ktlint.enabled) dependsTaskNames.add(OkKtlintTask.NAME)
 
         def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
         inputFiles += project.fileTree(dir: "src", include: "**/*.java")
@@ -119,18 +118,17 @@ class OkCheckTask extends DefaultTask {
             changedModuleList = moduleList
             isMock = false
 
-            if (extension.destination != project.buildDir) {
+            File unitTestReportDir = extension.getUnitTest().reportDir
+            if (!unitTestReportDir.getAbsolutePath().startsWith(project.buildDir.getAbsolutePath()))
                 doLast {
-                    moveUnitTestReport(project, extension.destination)
+                    if (extension.unitTest.enabled) moveUnitTestReport(project, unitTestReportDir)
                 }
-            }
         }
     }
 
-    static def moveUnitTestReport(Project project, File destination) {
+    static def moveUnitTestReport(Project project, File targetDir) {
         File originDir = new File(project.buildDir, "reports/tests")
         if (originDir.exists()) {
-            File targetDir = DestinationUtil.getDirDest(project, destination, "tests")
             if (!targetDir.getParentFile().exists()) targetDir.getParentFile().mkdirs()
             FileUtils.copyDirectory(originDir, targetDir)
             Util.printLog("Copy ${originDir.path} to ${targetDir.path}.")

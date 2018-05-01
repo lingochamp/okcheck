@@ -16,7 +16,6 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.util.DestinationUtil
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
@@ -36,10 +35,10 @@ class OkPmdTask extends Pmd {
 
     static String NAME = "okPmd"
 
-    static void addTask(Project project, OkCheckExtension extension) {
+    static void addTask(Project project, OkCheckExtension.PmdOptions options) {
         def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
         inputFiles += project.fileTree(dir: "src", include: "**/*.java")
-        def outputFile = DestinationUtil.getHtmlDest(project, extension.destination, "pmd")
+        def outputFile = options.htmlFile
 
         project.task(NAME, type: OkPmdTask) {
             inputs.files(inputFiles)
@@ -48,15 +47,19 @@ class OkPmdTask extends Pmd {
             project.extensions.pmd.with {
                 reports {
                     html.setDestination(outputFile)
+                    html.enabled = true
+                    xml.enabled = false
                 }
-                if (extension.pmdRuleSetConfig != null) {
-                    setRuleSetFiles(project.files(extension.pmdRuleSetConfig))
+                if (options.ruleSetConfig != null) {
+                    Util.printLog("Using the custom pmd rule set config.")
+                    ruleSetConfig = options.ruleSetConfig
                 } else {
+                    Util.printLog("Using the default pmd rule set config.")
                     ruleSetConfig = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "pmd-ruleset.xml")
                 }
 
-                if (extension.exclude.size() > 0) {
-                    exclude extension.exclude
+                if (options.exclude.size() > 0) {
+                    exclude options.exclude
                 }
 
                 ruleSets = []
@@ -67,10 +70,11 @@ class OkPmdTask extends Pmd {
                 exclude '**/protobuf/*.java'
                 exclude '**/com/google/**/*.java'
 
-                reports {
-                    xml.enabled = false
-                    html.enabled = true
+                if (options.ignoreFailures) {
+                    Util.printLog("Enable ignoreFailures for pmd")
+                    ignoreFailures = true
                 }
+
             }
         }
         project.afterEvaluate {

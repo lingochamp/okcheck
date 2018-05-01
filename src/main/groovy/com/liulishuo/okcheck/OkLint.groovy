@@ -16,7 +16,6 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.util.DestinationUtil
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -26,39 +25,39 @@ class OkLint extends DefaultTask {
     /**
      * Check whether need to effect the origin lint task to let it incrementally.
      */
-    static void inspectLint(Project project, OkCheckExtension extension) {
+    static void inspectLint(Project project, OkCheckExtension.LintOptions options) {
         boolean containOkcheck = Util.isCommandContainTask(project, "okcheck")
         boolean containOkLint = Util.isCommandContainTask(project, "okLint")
 
         boolean incrementalLint = containOkcheck || containOkLint
-        addTask(project, extension, incrementalLint)
+        addTask(project, options, incrementalLint)
 
     }
 
-    static void addTask(Project project, OkCheckExtension extension, boolean incrementalLint) {
-        addTask(project, extension, "", "", incrementalLint)
+    static void addTask(Project project, OkCheckExtension.LintOptions options, boolean incrementalLint) {
+        addTask(project, options, "", "", incrementalLint)
         def buildTypes = project.android.buildTypes.collect { type -> type.name }
         def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
         buildTypes.each { buildType ->
-            addTask(project, extension, "${buildType.capitalize()}", "", incrementalLint)
+            addTask(project, options, "${buildType.capitalize()}", "", incrementalLint)
         }
 
         productFlavors.each { flavor ->
             buildTypes.each { buildType ->
                 if (flavor) {
-                    addTask(project, extension, "${flavor.capitalize()}", "${buildType.capitalize()}", incrementalLint)
+                    addTask(project, options, "${flavor.capitalize()}", "${buildType.capitalize()}", incrementalLint)
                 }
             }
         }
     }
 
-    static void addTask(Project project, OkCheckExtension extension, String buildType, String flavor, boolean incrementalLint) {
+    static void addTask(Project project, OkCheckExtension.LintOptions options, String buildType, String flavor, boolean incrementalLint) {
 
         def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
         inputFiles += project.fileTree(dir: "src", include: "**/*.java")
         inputFiles += project.fileTree(dir: "src", include: "**/*.groovy")
         inputFiles += project.fileTree(dir: "src", include: "**/*.xml")
-        def outputFile = DestinationUtil.getHtmlDest(project, extension.destination, "lint")
+        def outputFile = options.htmlOutput
 
         project.tasks.whenTaskAdded { task ->
             if (task.name == getOriginTaskName(flavor, buildType)) {
