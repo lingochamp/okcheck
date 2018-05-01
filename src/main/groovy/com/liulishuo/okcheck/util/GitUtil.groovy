@@ -50,6 +50,14 @@ class GitUtil {
         filterInvalidLine(runCmd("git log --pretty='%h' -n $limitCount").split('\n'))
     }
 
+    static int farToCommit(String fromCommitId, String toCommitId) {
+        return runCmd("git rev-list $fromCommitId...$toCommitId --count").toInteger()
+    }
+
+    static List<String> getAllBeforeCommitIds() {
+        return filterInvalidLine(runCmd("git log --pretty=format:\"%H\"").split('\n'))
+    }
+
     static List<String> assembleLastStringForEachLine(List<String> originList) {
         final List<String> lastStringList = new ArrayList<>();
         originList.forEach {

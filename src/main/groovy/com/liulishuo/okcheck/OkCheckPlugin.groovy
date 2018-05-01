@@ -106,30 +106,35 @@ class OkCheckPlugin implements Plugin<Project> {
             ChangeFile changeFile = new ChangeFile(project.rootProject)
 
             List<String> changeFilePathList = changeFile.getChangeFilePathList()
-            if (isRequireOkCheck) {
-                Util.printLog("COMMIT ID BACKUP PATH: ${changeFile.backupPath}")
-
-                Util.printLog("CHANGE FLIES:")
-                changeFilePathList.forEach {
-                    Util.printLog("       $it")
-                }
-            }
-            List<String> changedCodeFilePathList = new ArrayList<>()
-            changeFilePathList.forEach {
-                if (it.endsWith(".java") || it.endsWith(".groovy") || it.endsWith(".kt") || it.endsWith(".xml")) {
-                    changedCodeFilePathList.add(it)
-                }
-            }
-
-
-            if (changedCodeFilePathList.isEmpty()) {
-                Util.printLog("NO CHANGED CODE FILE!")
+            if (changeFilePathList == null) {
+                Util.printLog("There isn't success okcheck on .okcheck folder, so every module is free to okcheck!")
+                changedModuleList.addAll(ChangeModule.getAllModuleList(project))
             } else {
-                changedModuleList.addAll(ChangeModule.getChangedModuleList(project, changedCodeFilePathList))
                 if (isRequireOkCheck) {
-                    Util.printLog("CHANGE MODULES:")
-                    changedModuleList.forEach {
+                    Util.printLog("COMMIT ID BACKUP PATH: ${changeFile.backupPath}")
+
+                    Util.printLog("CHANGE FLIES:")
+                    changeFilePathList.forEach {
                         Util.printLog("       $it")
+                    }
+                }
+                List<String> changedCodeFilePathList = new ArrayList<>()
+                changeFilePathList.forEach {
+                    if (it.endsWith(".java") || it.endsWith(".groovy") || it.endsWith(".kt") || it.endsWith(".xml")) {
+                        changedCodeFilePathList.add(it)
+                    }
+                }
+
+
+                if (changedCodeFilePathList.isEmpty()) {
+                    Util.printLog("NO CHANGED CODE FILE!")
+                } else {
+                    changedModuleList.addAll(ChangeModule.getChangedModuleList(project, changedCodeFilePathList))
+                    if (isRequireOkCheck) {
+                        Util.printLog("CHANGE MODULES:")
+                        changedModuleList.forEach {
+                            Util.printLog("       $it")
+                        }
                     }
                 }
             }

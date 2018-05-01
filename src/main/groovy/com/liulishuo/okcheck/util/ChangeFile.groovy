@@ -16,6 +16,7 @@
 
 package com.liulishuo.okcheck.util
 
+import com.android.annotations.Nullable
 import groovy.io.FileType
 import org.gradle.api.Project
 
@@ -32,13 +33,16 @@ class ChangeFile {
         backupPath = backupBranchCommitIdFilePath(currentBranchName)
     }
 
+    @Nullable
     List<String> getChangeFilePathList() {
         List<String> noCommitFilePathList = GitUtil.noCommitFilePathList()
-        String lastExecCommitId = getLastExecCommitId()
-        if (lastExecCommitId == currentCommitId) return noCommitFilePathList
+        String latestSuccessId = getLatestSuccessId()
+        if (latestSuccessId == currentCommitId) return noCommitFilePathList
+
+        if (latestSuccessId == null) return null
 
         List<String> changeFileList = noCommitFilePathList
-        changeFileList.addAll(GitUtil.diffFileToNowList(lastExecCommitId))
+        changeFileList.addAll(GitUtil.diffFileToNowList(latestSuccessId))
         return changeFileList
     }
 
@@ -55,13 +59,47 @@ class ChangeFile {
         Util.printLog("Refresh $currentCommitId to $backupPath")
         backupFile.write(currentCommitId)
     }
-    private String getLastExecCommitId() {
-        File backupFile = new File(backupPath)
-        if (backupFile.exists()) {
-            return backupFile.readLines().get(0)
-        } else {
-            return GitUtil.commitIdFromDevelop(currentBranchName)
+
+    @Nullable
+    private String getLatestSuccessId() {
+        String candidateId = null
+        String branchName = null
+
+        while (true) {
+            File backupFile = new File(backupPath)
+            if (backupFile.exists()) {
+                candidateId = backupFile.readLines().get(0)
+            }
+            List<String> allBeforeCommitIds = GitUtil.getAllBeforeCommitIds()
+            if (candidateId != null && allBeforeCommitIds.contains(candidateId)) {
+                branchName = currentBranchName
+                break
+            }
+
+            candidateId = null
+            def dir = new File(getCommitIdBackupPath())
+
+            int leastCount = -1
+            dir.eachFileRecurse(FileType.FILES) { file ->
+                String id = file.readLines().get(0)
+                if (allBeforeCommitIds.contains(id)) {
+                    int count = GitUtil.farToCommit(id, currentCommitId)
+                    if (leastCount == -1 || leastCount > count) {
+                        leastCount = count
+                        candidateId = id
+                        branchName = (file.absolutePath - dir.absolutePath).substring(1)
+                    }
+                }
+            }
+
+            break
         }
+
+
+        if (branchName != null) {
+            Util.printLog("Found latest success check the commit id[$candidateId] which was ran on the branch[$branchName]")
+        }
+        return candidateId
     }
 
     String maintain() {
