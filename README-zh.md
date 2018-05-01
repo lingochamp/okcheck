@@ -15,6 +15,12 @@
 - 基于Git仓库，对比最近一次扫描成功的记录commit id => 扫描差量的module
 - 基于本地代码, 对比最近以此扫描成功的缓存 => 已经处理的任务直接`up-to-data`
 
+## 案例
+
+![](https://github.com/lingochamp/okcheck/raw/master/art/diff.jpg)
+![](https://github.com/lingochamp/okcheck/raw/master/art/reports.png)
+![](https://github.com/lingochamp/okcheck/raw/master/art/up-to-date.jpg)
+
 ## 如何引入
 
 在根项目的`build.gradle`中配置:
@@ -32,6 +38,18 @@ allprojects {
 ```
 
 至此，就已经完全整合，并且采用我们定制的统一规则生效5大静态扫描工具与单元测试，以及可以通过`./gradlew okcheck`差分静态扫描，并且默认所有报告会整合到根项目的`build/reports`目录下，方便统一导出。
+
+> 目前,我们正在等待`jcenter`同意正式版本，因此你可以先使用`Snapshot`版本
+
+如果你希望使用`Snapshot`版本，请添加以下仓库到你的`gradle.build`:
+
+```groovy
+buildscript {
+  repositories {
+      maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  }
+}
+```
 
 ## 任务说明
 

@@ -15,6 +15,12 @@ Incremental scan，integrate Lint、KtLint、UnitTest、Checkstyle、Findbugs、
 - Base on the Git version control, compare to the latest success scan => Only scan the changed module
 - Base on the local build cache => If there isn't any change compare to the last scan tasks will finish with `up-to-data` as far as possible
 
+## Example
+
+![](https://github.com/lingochamp/okcheck/raw/master/art/diff.jpg)
+![](https://github.com/lingochamp/okcheck/raw/master/art/reports.png)
+![](https://github.com/lingochamp/okcheck/raw/master/art/up-to-date.jpg)
+
 ## How to Import
 
 On the `build.gradle` at your root project:
@@ -33,6 +39,17 @@ allprojects {
 
 Done! Everything is ready to scan, now you can check with 6 job just run `./gradlew okcheckDebug` and just see result, and all report is settle down the `build/reports` for the root project as default.
 
+> At the present, we are waiting for accepting of jcenter for release version, so you can use snapshot version first.
+
+There is Snapshot version also valid, if you want to use snapshot version, please add repository on the `build.gradle`:
+
+```groovy
+buildscript {
+  repositories {
+      maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  }
+}
+```
 
 ## Task Description
 
