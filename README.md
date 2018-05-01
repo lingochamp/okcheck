@@ -1,15 +1,15 @@
 # Okcheck
 
-差量扫描，自动集成Lint、KtLint、UnitTest、Checkstyle、Findbugs、Pmd 5大互补静态扫描工具与单元测试，灵活配置
+Incremental scan，integrate Lint、KtLint、UnitTest、Checkstyle、Findbugs、Pmd, powerful and easy to use.
 
-## 基本差量扫描
+## Basic Incremental Scan
 
-- 基于Git仓库，对比最近一次扫描成功的记录commit id => 扫描差量的module
-- 基于本地代码, 对比最近以此扫描成功的缓存 => 已经处理的任务直接`up-to-data`
+- Base on the Git version control, compare to the latest success scan => Only scan the changed module
+- Base on the local build cache => If there isn't any change compare to the last scan tasks will finish with `up-to-data` as far as possible
 
-## 如何引入
+## How to Import
 
-在根项目的`build.gradle`中配置:
+On the `build.gradle` at your root project:
 
 ```groovy
 buildscript {
@@ -23,29 +23,32 @@ allprojects {
 }
 ```
 
-至此，就已经完全整合，并且采用我们定制的统一规则生效5大静态扫描工具与单元测试，以及可以通过`./gradlew okcheck`差分静态扫描，并且默认所有报告会整合到根项目的`build/reports`目录下，方便统一导出。
+Done! Everything is ready to scan, now you can check with 6 job just run `./gradlew okcheckDebug` and just see result, and all report is settle down the `build/reports` for the root project as default.
 
 
-## 任务说明
+## Task Description
 
-当进行`okcheck`任务的时候，会对所有的`variant`进行编译与扫描（如有一般都有`debug`与 `release`两个编译类型导致，存在至少两个`variant`)，因此通常来说我们只需要对某一个`variant`进行编译扫描即可: 如`okcheckDebug`。
+When you run `okcheck` task, we will compile and check with all `variant`(As usual, there are two `variant` as `debug` and `release`), so, normally you just need to check with one `variant` to increase scan speed, such as `okcheckDebug`.
 
 ![](https://github.com/lingochamp/okcheck/raw/master/art/tasks.jpg)
 
-- `./gradlew okcheckDebug`: 执行差量的扫描
-- `./gradlew cleanOkcheckDiff`: 清除所有缓存的差量数据，下次会全量扫描
-- `./gradlew -PignoreOkcheckDiff okcheck`: 忽略差量数据进行全量的扫描
-- `./gradlew -PignoreOkCheckDiff :module1:okcheck`: 忽略差量数据进行`module1`模块的扫描
+- `./gradlew okcheckDebug`: Run the okcheck task for the Debug build type.
+- `./gradlew cleanOkcheckDiff`: Clean all cached success commit id(which is on the `~/.okcheck` folder as default), since then the next time we will scan all module.
+- `./gradlew -PignoreOkcheckDiff okcheck`: Run the okcheck task and ignore cached success commit id, which will raise run okcheck for whole module.
+- `./gradlew -PignoreOkCheckDiff :module1:okcheck`: Run the okcheck task for the module1 and ignore its cached success commit id, which will raise run okcheck certainly even if there isn't any change compare to last success scan.
 
-## 如何配置
+## How to Customize
 
-为了方便说明下面所有提到的，都采用默认值(当没有提供时所采用的默认值)作为案例，以下是在根项目的`build.gradle`中配置:
+For the convenient, all value on the bellow is the default value as example, the follow code is write on the `build.gradle` at the root project.
 
 ```
 allprojects {
-    exclude = ['**/proto/*.java']
-    destination = project.rootProject.buildDir
+    apply plugin: 'okcheck'
+
     okcheck {
+        exclude = ['**/proto/*.java']
+        destination = project.rootProject.buildDir
+
         unittest {
             enabled = true
             exclude = ['**/proto/*.java']
@@ -63,7 +66,7 @@ allprojects {
         checkstyle {
             enabled = true
             exclude = ['**/proto/*.java']
-            // 采用默认的统一配置
+            // We will use the default config build-in the okcheck
             configFile = null
         }
         findbugs {
@@ -72,18 +75,18 @@ allprojects {
 
             effort = "default"
 
-            // Warning级别的错误默认会终止扫描
+            // Whether allow the build to continue if there are warnings
             ignoreFailures = false
-            // 采用默认的统一配置
+            // We will use the default excludeBugFilter file build-in the okcheck
             excludeBugFilter = null
         }
         pmd {
             enabled = true
             exclude = ['**/proto/*.java']
 
-            // Warning级别的错误默认会终止扫描
+            // Whether allow the build to continue if there are warnings
             ignoreFailures = false
-            // 采用默认的统一配置
+            // We will use the default ruleSetFiles build-in the okcheck
             ruleSetFiles = null
         }
     }
@@ -91,13 +94,13 @@ allprojects {
 ```
 
 
-## 其他
+## Others
 
-- 首次执行`okcheck`任务会进行全量扫描
+- As you know, the first time of running okcheck will check all module as default
 
-#### 已经忽略包
+#### Exclude
 
-在`checkstyle`,`findbugs`,`pmd`中忽略了以下路径的扫描:
+Following paths are exclude on `checkstyle`, `findbugs`, `pmd` as default:
 
 ```
 **/gen/**
