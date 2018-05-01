@@ -1,6 +1,17 @@
 # Okcheck
 
-差量扫描，自动集成Lint、KtLint、UnitTest、Checkstyle、Findbugs、Pmd强大且灵活的Android Gradle插件
+![](https://img.shields.io/badge/OkCheck-Increamental-green.svg)
+![](https://img.shields.io/badge/OkCheck-Lint-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-KtLint-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-UnitTest-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-Checkstyle-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-Findbugs-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-Pmd-yellow.svg)
+[![](https://img.shields.io/badge/SnapShot-0.1.5-blue.svg)](https://oss.sonatype.org/content/repositories/snapshots/com/liulishuo/okcheck/)
+
+差量扫描，自动集成Lint、KtLint、UnitTest、Checkstyle、Findbugs、Pmd 强大且灵活的Android Gradle插件
+
+> [English](https://github.com/lingochamp/okcheck)
 
 ## 基本差量扫描
 
@@ -24,7 +35,6 @@ allprojects {
 ```
 
 至此，就已经完全整合，并且采用我们定制的统一规则生效5大静态扫描工具与单元测试，以及可以通过`./gradlew okcheck`差分静态扫描，并且默认所有报告会整合到根项目的`build/reports`目录下，方便统一导出。
-
 
 ## 任务说明
 

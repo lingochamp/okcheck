@@ -1,6 +1,16 @@
-# Okcheck
+# OkCheck
+
+![](https://img.shields.io/badge/OkCheck-Increamental-green.svg)
+![](https://img.shields.io/badge/OkCheck-Lint-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-KtLint-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-UnitTest-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-Checkstyle-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-Findbugs-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-Pmd-yellow.svg)
 
 Incremental scan，integrate Lint、KtLint、UnitTest、Checkstyle、Findbugs、Pmd, powerful and easy to use.
+
+> [中文文档](https://github.com/lingochamp/okcheck/blob/master/README-zh.md)
 
 ## Basic Incremental Scan
 

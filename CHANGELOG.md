@@ -1,3 +1,16 @@
+## 0.1.4
+
+__2018-05-01__
+
+- Feat: split tasks with build-type and flavor
+- Feat: support define the custom config for checkstyle, findbugs and pmd
+- Feat: integrate unit-test on okcheck
+- Feat: support incremental check locally for pmd, lint, ktlint, okcheck, (findbugs and checkstyle incremental by offical support)
+- Feat: apply sub plugin only if it is enabled, because we provide sub-scope extension now
+- Feat: support using latest success commit id as the target compare id if there isn't any okcheck on the current branch
+- Feat: using built-in extension to make config more readable, such as okcheck `{ findbugs {..} unittest {..} .. }`
+- Feat: support config the version of ktlint through ktlint scope on okcheck
+
 ## 0.1.3
 
 - Feat: using debug type instead for both library and application
