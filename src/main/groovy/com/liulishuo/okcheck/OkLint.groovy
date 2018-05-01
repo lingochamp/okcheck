@@ -61,7 +61,7 @@ class OkLint extends DefaultTask {
         def outputFile = DestinationUtil.getHtmlDest(project, extension.destination, "lint")
 
         project.tasks.whenTaskAdded { task ->
-            if (task.name == "lint$flavor$buildType") {
+            if (task.name == getOriginTaskName(flavor, buildType)) {
                 if (incrementalLint) {
                     task.inputs.files(inputFiles)
                     task.outputs.file(outputFile)
@@ -70,7 +70,7 @@ class OkLint extends DefaultTask {
                     project.android.lintOptions.htmlOutput = outputFile
                 }
 
-                project.task("okLint$flavor$buildType", type: OkLint) {
+                project.task(getTaskName(flavor, buildType), type: OkLint) {
                     dependsOn task.name
                     inputs.files(inputFiles)
                     outputs.file(outputFile)
@@ -84,7 +84,13 @@ class OkLint extends DefaultTask {
                 }
             }
         }
+    }
 
+    static String getTaskName(String flavor, String buildType) {
+        return "ok${getOriginTaskName(flavor, buildType).capitalize()}"
+    }
 
+    private static String getOriginTaskName(String flavor, String buildType) {
+        return "lint${flavor.capitalize()}${buildType.capitalize()}"
     }
 }

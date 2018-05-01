@@ -33,9 +33,6 @@ class OkCheckTask extends DefaultTask {
     @Input
     boolean isMock
 
-    @Input
-    File destination
-
     @TaskAction
     void setupOkcheck() {
         if (project == project.rootProject) {
@@ -95,7 +92,7 @@ class OkCheckTask extends DefaultTask {
     static
     def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension, String flavor, String buildType) {
         Set<String> dependsTaskNames = new HashSet<>()
-        dependsTaskNames.add("okLint$flavor$buildType")
+        dependsTaskNames.add(OkLint.getTaskName(flavor, buildType))
         dependsTaskNames.add("test$flavor${buildType}UnitTest")
         if (extension.enableCheckstyle) dependsTaskNames.add(OkCheckStyleTask.NAME)
         if (extension.enablePmd) dependsTaskNames.add(OkPmdTask.NAME)
@@ -121,11 +118,10 @@ class OkCheckTask extends DefaultTask {
 
             changedModuleList = moduleList
             isMock = false
-            destination = extension.destination
 
-            if (destination != project.buildDir) {
+            if (extension.destination != project.buildDir) {
                 doLast {
-                    moveUnitTestReport(project, destination)
+                    moveUnitTestReport(project, extension.destination)
                 }
             }
         }
@@ -151,7 +147,6 @@ class OkCheckTask extends DefaultTask {
             }
             changedModuleList = new ArrayList<>()
             isMock = true
-            destination = new File("")
         }
     }
 }
