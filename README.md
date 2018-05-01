@@ -37,7 +37,7 @@ allprojects {
 }
 ```
 
-Done! Everything is ready to scan, now you can check with 6 job just run `./gradlew okcheckDebug` and just see result, and all report is settle down the `build/reports` for the root project as default.
+Done! Everything is ready to scan, now you can check with 6 job just run `./gradlew okcheckDebug` and just see result, and all report is settle down the `build/reports` for the root project as default(But if you want all reports save on the origin directory, just set `destination` to `project.buildDir`).
 
 > At the present, we are waiting for accepting of jcenter for release version, so you can use snapshot version first.
 
