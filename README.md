@@ -1,12 +1,10 @@
 # OkCheck
 
 ![](https://img.shields.io/badge/OkCheck-Increamental-green.svg)
-![](https://img.shields.io/badge/OkCheck-Lint-yellow.svg)
-![](https://img.shields.io/badge/OkCheck-KtLint-yellow.svg)
-![](https://img.shields.io/badge/OkCheck-UnitTest-yellow.svg)
-![](https://img.shields.io/badge/OkCheck-Checkstyle-yellow.svg)
-![](https://img.shields.io/badge/OkCheck-Findbugs-yellow.svg)
-![](https://img.shields.io/badge/OkCheck-Pmd-yellow.svg)
+![](https://img.shields.io/badge/OkCheck-Lint UnitTest-orange.svg)
+![](https://img.shields.io/badge/OkCheck-KtLint Checkstyle Findbugs Pmd-yellow.svg)
+[ ![Download](https://api.bintray.com/packages/jacksgong/maven/OkCheck/images/download.svg) ](https://bintray.com/jacksgong/maven/OkCheck/_latestVersion)
+[![](https://img.shields.io/badge/SnapShot-0.1.5-white.svg)](https://oss.sonatype.org/content/repositories/snapshots/com/liulishuo/okcheck/)
 
 Incremental scan，integrate Lint、KtLint、UnitTest、Checkstyle、Findbugs、Pmd, powerful and easy to use.
 
