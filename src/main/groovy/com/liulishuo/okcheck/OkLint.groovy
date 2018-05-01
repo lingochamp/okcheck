@@ -26,6 +26,8 @@ class OkLint extends DefaultTask {
      * Check whether need to effect the origin lint task to let it incrementally.
      */
     static void inspectLint(Project project, OkCheckExtension.LintOptions options) {
+        if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) return
+
         boolean containOkcheck = Util.isCommandContainTask(project, "okcheck")
         boolean containOkLint = Util.isCommandContainTask(project, "okLint")
 
