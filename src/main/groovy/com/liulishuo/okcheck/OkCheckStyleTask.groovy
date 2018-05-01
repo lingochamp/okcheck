@@ -60,10 +60,10 @@ class OkCheckStyleTask extends Checkstyle {
                 }
 
                 if (options.config != null) {
-                    Util.printLog("Using the custom checkstyle config.")
+//                    Util.printLog("Using the custom checkstyle config.")
                     config = options.config
                 } else {
-                    Util.printLog("Using the default checkstyle config.")
+//                    Util.printLog("Using the default checkstyle config.")
                     if (project.rootProject.file("suppressions.xml").exists()) {
                         config = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "checkstyle_with_suppression.xml")
                     } else {

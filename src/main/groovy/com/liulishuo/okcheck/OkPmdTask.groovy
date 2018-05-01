@@ -54,10 +54,10 @@ class OkPmdTask extends Pmd {
                     xml.enabled = false
                 }
                 if (options.ruleSetConfig != null) {
-                    Util.printLog("Using the custom pmd rule set config.")
+//                    Util.printLog("Using the custom pmd rule set config.")
                     ruleSetConfig = options.ruleSetConfig
                 } else {
-                    Util.printLog("Using the default pmd rule set config.")
+//                    Util.printLog("Using the default pmd rule set config.")
                     ruleSetConfig = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "pmd-ruleset.xml")
                 }
 
@@ -74,7 +74,7 @@ class OkPmdTask extends Pmd {
                 exclude '**/com/google/**/*.java'
 
                 if (options.ignoreFailures) {
-                    Util.printLog("Enable ignoreFailures for pmd")
+//                    Util.printLog("Enable ignoreFailures for pmd")
                     ignoreFailures = true
                 }
 

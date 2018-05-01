@@ -75,11 +75,11 @@ class OkFindbugsTask extends FindBugs {
                     }
                 }
                 if (options.excludeFilterConfig != null) {
-                    Util.printLog("Using the custom findbugs exclude filter config.")
+//                    Util.printLog("Using the custom findbugs exclude filter config.")
                     excludeFilterConfig = options.excludeFilterConfig
                 } else {
                     excludeFilterConfig = ResourceUtils.readTextResource(project, getClass().getClassLoader(), "findbugs-filter.xml")
-                    Util.printLog("Using the default findbugs exclude filter config.")
+//                    Util.printLog("Using the default findbugs exclude filter config.")
                 }
 
                 if (options.exclude.size() > 0) {
@@ -87,12 +87,12 @@ class OkFindbugsTask extends FindBugs {
                 }
 
                 if (options.effort != null) {
-                    Util.printLog("Using special findbugs effort: ${options.effort}")
+//                    Util.printLog("Using special findbugs effort: ${options.effort}")
                     effort = options.effort
                 }
 
                 if (options.ignoreFailures) {
-                    Util.printLog("Enable ignoreFailures for findbugs")
+//                    Util.printLog("Enable ignoreFailures for findbugs")
                     ignoreFailures = true
                 }
 
