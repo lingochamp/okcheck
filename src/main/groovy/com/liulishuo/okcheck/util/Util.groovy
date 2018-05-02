@@ -16,6 +16,7 @@
 
 package com.liulishuo.okcheck.util
 
+import com.liulishuo.okcheck.OkLint
 import org.gradle.api.Project
 
 class Util {
@@ -64,6 +65,22 @@ class Util {
             }
         }
         return contain
+    }
 
+    static String getBuildInTaskName(String projectName, String hostTaskName, String taskName, String flavor,
+                                     String buildType, String firstFlavor, String taskNameSuffix = "") {
+        String name
+        if (flavor.isEmpty() && buildType.isEmpty()) {
+            // the empty lint is always exist
+            name = "$taskName${taskNameSuffix.capitalize()}"
+        } else if (flavor.isEmpty() && firstFlavor != null) {
+            // the non empty build-type with empty flavor will not exist
+            name = "$taskName${firstFlavor.capitalize()}${buildType.capitalize()}${taskNameSuffix.capitalize()}"
+            printLog("There is define flavor(s) on $projectName, so on the $hostTaskName we have to add $name as dependencies task")
+        } else {
+            name = "$taskName${flavor.capitalize()}${buildType.capitalize()}${taskNameSuffix.capitalize()}"
+        }
+
+        return name
     }
 }

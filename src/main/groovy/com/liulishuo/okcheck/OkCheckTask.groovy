@@ -98,16 +98,11 @@ class OkCheckTask extends DefaultTask {
         String taskName = OkCheckPlugin.TASK_NAME + "$flavor$buildType"
         Set<String> dependsTaskNames = new HashSet<>()
         if (extension.lint.enabled) {
-            String okLintName
-            if (flavor.isEmpty() && firstFlavor != null) {
-                okLintName = OkLint.getTaskName(firstFlavor, buildType)
-                Util.printLog("There is define flavor(s) on ${project.name}, so on the $taskName we have to add $okLintName as dependencies task")
-            } else {
-                okLintName = OkLint.getTaskName(flavor, buildType)
-            }
-            dependsTaskNames.add(okLintName)
+            dependsTaskNames.add(Util.getBuildInTaskName(project.name, taskName, "okLint", flavor, buildType, firstFlavor))
         }
-        if (extension.unitTest.enabled) dependsTaskNames.add("test$flavor${buildType}UnitTest")
+        if (extension.unitTest.enabled) {
+            dependsTaskNames.add(Util.getBuildInTaskName(project.name, taskName, "test", flavor, buildType, firstFlavor, "UnitTest"))
+        }
         if (extension.checkStyle.enabled) dependsTaskNames.add(OkCheckStyleTask.NAME)
         if (extension.pmd.enabled) dependsTaskNames.add(OkPmdTask.NAME)
         if (extension.findbugs.enabled) dependsTaskNames.add("${OkFindbugsTask.NAME}$flavor$buildType")
