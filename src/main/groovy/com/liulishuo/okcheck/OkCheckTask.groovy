@@ -51,29 +51,34 @@ class OkCheckTask extends DefaultTask {
     }
 
     static def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension) {
-        addValidTask(project, moduleList, extension, "", "")
 
         def buildTypes = project.android.buildTypes.collect { type -> type.name }
         def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
 
+        String firstFlavor = null
+        if (productFlavors.size() > 0) firstFlavor = productFlavors.get(0)
+
+        addValidTask(project, moduleList, extension, "", "", firstFlavor)
+
         buildTypes.each { buildType ->
-            addValidTask(project, moduleList, extension, "", "${buildType.capitalize()}")
+            addValidTask(project, moduleList, extension, "", "${buildType.capitalize()}", firstFlavor)
         }
 
         productFlavors.each { flavor ->
             buildTypes.each { buildType ->
                 if (flavor) {
-                    addValidTask(project, moduleList, extension, "${flavor.capitalize()}", "${buildType.capitalize()}")
+                    addValidTask(project, moduleList, extension, "${flavor.capitalize()}", "${buildType.capitalize()}", firstFlavor)
                 }
             }
         }
     }
 
     static def addMockTask(Project project) {
-        addMockTask(project, "", "")
 
         def buildTypes = project.android.buildTypes.collect { type -> type.name }
         def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
+
+        addMockTask(project, "", "")
 
         buildTypes.each { buildType ->
             addMockTask(project, "", "${buildType.capitalize()}")
@@ -89,9 +94,19 @@ class OkCheckTask extends DefaultTask {
     }
 
     static
-    def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension, String flavor, String buildType) {
+    def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension, String flavor, String buildType, String firstFlavor) {
+        String taskName = OkCheckPlugin.TASK_NAME + "$flavor$buildType"
         Set<String> dependsTaskNames = new HashSet<>()
-        if (extension.lint.enabled) dependsTaskNames.add(OkLint.getTaskName(flavor, buildType))
+        if (extension.lint.enabled) {
+            String okLintName
+            if (flavor.isEmpty() && firstFlavor != null) {
+                okLintName = OkLint.getTaskName(firstFlavor, buildType)
+                Util.printLog("There is define flavor(s) on ${project.name}, so on the $taskName we have to add $okLintName as dependencies task")
+            } else {
+                okLintName = OkLint.getTaskName(flavor, buildType)
+            }
+            dependsTaskNames.add(okLintName)
+        }
         if (extension.unitTest.enabled) dependsTaskNames.add("test$flavor${buildType}UnitTest")
         if (extension.checkStyle.enabled) dependsTaskNames.add(OkCheckStyleTask.NAME)
         if (extension.pmd.enabled) dependsTaskNames.add(OkPmdTask.NAME)
@@ -103,7 +118,7 @@ class OkCheckTask extends DefaultTask {
         inputFiles += project.fileTree(dir: "src", include: "**/*.groovy")
         inputFiles += project.fileTree(dir: "src", include: "**/*.xml")
 
-        project.task(OkCheckPlugin.TASK_NAME + "$flavor$buildType", type: OkCheckTask, overwrite: true) {
+        project.task(taskName, type: OkCheckTask, overwrite: true) {
             inputs.files(inputFiles)
             outputs.dir(project.buildDir)
 
