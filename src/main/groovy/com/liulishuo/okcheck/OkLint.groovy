@@ -28,6 +28,7 @@ class OkLint extends DefaultTask {
     static void inspectLint(Project project, OkCheckExtension.LintOptions options) {
         if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) return
 
+
         boolean containOkcheck = Util.isCommandContainTask(project, "okcheck")
         boolean containOkLint = Util.isCommandContainTask(project, "okLint")
 
@@ -41,7 +42,7 @@ class OkLint extends DefaultTask {
         def buildTypes = project.android.buildTypes.collect { type -> type.name }
         def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
         buildTypes.each { buildType ->
-            addTask(project, options, "${buildType.capitalize()}", "", incrementalLint)
+            addTask(project, options, "", "${buildType.capitalize()}", incrementalLint)
         }
 
         productFlavors.each { flavor ->
@@ -53,7 +54,7 @@ class OkLint extends DefaultTask {
         }
     }
 
-    static void addTask(Project project, OkCheckExtension.LintOptions options, String buildType, String flavor, boolean incrementalLint) {
+    static void addTask(Project project, OkCheckExtension.LintOptions options, String flavor, String buildType, boolean incrementalLint) {
 
         def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
         inputFiles += project.fileTree(dir: "src", include: "**/*.java")
