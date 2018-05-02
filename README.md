@@ -28,7 +28,7 @@ On the `build.gradle` at your root project:
 ```groovy
 buildscript {
     dependencies {
-        classpath 'com.liulishuo.okcheck:gradle:{latest_version}'
+        classpath 'com.liulishuo.okcheck:gradle:0.1.4'
     }
 }
 
@@ -38,8 +38,6 @@ allprojects {
 ```
 
 Done! Everything is ready to scan, now you can check with 6 job just run `./gradlew okcheckDebug` and just see result, and all report is settle down the `build/reports` for the root project as default(But if you want all reports save on the origin directory, just set `destination` to `project.buildDir`).
-
-> At the present, we are waiting for accepting of jcenter for release version, so you can use snapshot version first.
 
 There is Snapshot version also valid, if you want to use snapshot version, please add repository on the `build.gradle`:
 

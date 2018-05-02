@@ -28,7 +28,7 @@
 ```groovy
 buildscript {
     dependencies {
-        classpath 'com.liulishuo.okcheck:gradle:{latest_version}'
+        classpath 'com.liulishuo.okcheck:gradle:0.1.4'
     }
 }
 
@@ -38,8 +38,6 @@ allprojects {
 ```
 
 至此，就已经完全整合，并且采用我们定制的统一规则生效5大静态扫描工具与单元测试，以及可以通过`./gradlew okcheck`差分静态扫描，并且默认所有报告会整合到根项目的`build/reports`目录下，方便统一导出(但是如果你想要报告存在原本的目录，只需要将`destination`设置为`project.buildDir`即可)。
-
-> 目前,我们正在等待`jcenter`同意正式版本，因此你可以先使用`Snapshot`版本
 
 如果你希望使用`Snapshot`版本，请添加以下仓库到你的`gradle.build`:
 
