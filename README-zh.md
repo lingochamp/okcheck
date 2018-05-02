@@ -1,4 +1,4 @@
-# Okcheck
+# OkCheck
 
 ![](https://img.shields.io/badge/OkCheck-Increamental-green.svg)
 ![](https://img.shields.io/badge/OkCheck-Lint%20UnitTest-orange.svg)
