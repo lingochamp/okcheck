@@ -1,3 +1,11 @@
+## 0.1.5
+
+__2018-05-02__
+
+- Fix: fix oklint add flavor and debug malposition issue
+- Fix: fix can't find oklint on okcheck task issue if there are flavor(s) on the project
+- Fix: fix can't find unitTest task on the okcheck task issue if there are flavor(s) on the project
+
 ## 0.1.4
 
 __2018-05-01__
