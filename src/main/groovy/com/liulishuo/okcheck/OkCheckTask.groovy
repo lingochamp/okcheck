@@ -101,7 +101,12 @@ class OkCheckTask extends DefaultTask {
             dependsTaskNames.add(Util.getBuildInTaskName(project.name, taskName, "okLint", flavor, buildType, firstFlavor))
         }
         if (extension.unitTest.enabled) {
-            dependsTaskNames.add(Util.getBuildInTaskName(project.name, taskName, "test", flavor, buildType, firstFlavor, "UnitTest"))
+            // unit test only have test, test${buildType}UnitTest and test$flavor${buildType}UnitTest
+            if (buildType.isEmpty() && flavor.isEmpty()) {
+                dependsTaskNames.add("test")
+            } else {
+                dependsTaskNames.add(Util.getBuildInTaskName(project.name, taskName, "test", flavor, buildType, firstFlavor, "UnitTest"))
+            }
         }
         if (extension.checkStyle.enabled) dependsTaskNames.add(OkCheckStyleTask.NAME)
         if (extension.pmd.enabled) dependsTaskNames.add(OkPmdTask.NAME)

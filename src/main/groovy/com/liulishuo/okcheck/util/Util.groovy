@@ -16,7 +16,6 @@
 
 package com.liulishuo.okcheck.util
 
-import com.liulishuo.okcheck.OkLint
 import org.gradle.api.Project
 
 class Util {
