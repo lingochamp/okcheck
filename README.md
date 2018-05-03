@@ -120,6 +120,7 @@ allprojects {
 ## Others
 
 - As you know, the first time of running okcheck will check all module as default
+- If you want to suppress some methods or lines for `checkstyle` task, as default build-in checkstyle config, you just need to add `suppressions.xml` file on your root project directory and define them on it.
 
 #### Exclude
 

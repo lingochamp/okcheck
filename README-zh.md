@@ -120,6 +120,7 @@ allprojects {
 ## 其他
 
 - 首次执行`okcheck`任务会进行全量扫描
+- 如果你希望针对`checkstyle`任务`suppress`一些方法与行，对于默认内置的`checkstyle`的配置，有只需要在根项目目录添加`suppressions.xml`文件，并在里面定义它们即可
 
 #### 已经忽略包
 
