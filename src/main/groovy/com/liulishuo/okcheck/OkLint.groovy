@@ -19,6 +19,8 @@ package com.liulishuo.okcheck
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.file.FileTree
 
 class OkLint extends DefaultTask {
 
@@ -62,30 +64,33 @@ class OkLint extends DefaultTask {
         inputFiles += project.fileTree(dir: "src", include: "**/*.xml")
         def outputFile = options.htmlOutput
 
-        project.tasks.whenTaskAdded { task ->
-            if (task.name == getOriginTaskName(flavor, buildType)) {
-                if (incrementalLint) {
-                    task.inputs.files(inputFiles)
-                    task.outputs.file(outputFile)
+        project.task(getTaskName(flavor, buildType), type: OkLint) {
+            dependsOn getOriginTaskName(flavor, buildType)
+            inputs.files(inputFiles)
+            outputs.file(outputFile)
 
-                    project.android.lintOptions.htmlReport = true
-                    project.android.lintOptions.htmlOutput = outputFile
-                }
-
-                project.task(getTaskName(flavor, buildType), type: OkLint) {
-                    dependsOn task.name
-                    inputs.files(inputFiles)
-                    outputs.file(outputFile)
-
-                    setGroup("verification")
-                    if (flavor.length() <= 0 && buildType.length() <= 0) {
-                        setDescription("Run lint incremental for all variants")
-                    } else {
-                        setDescription("Run lint incremental for $flavor$buildType build.")
-                    }
-                }
+            setGroup("verification")
+            if (flavor.length() <= 0 && buildType.length() <= 0) {
+                setDescription("Run lint incremental for all variants")
+            } else {
+                setDescription("Run lint incremental for $flavor$buildType build.")
             }
         }
+
+        String originTaskName = getOriginTaskName(flavor, buildType)
+        Set<Task> originTasks = project.getTasksByName(originTaskName, false)
+        Task originTask = null
+        if (originTasks != null && originTasks.size() > 0) originTask = originTasks[0]
+        if (originTask == null) {
+            project.tasks.whenTaskAdded { task ->
+                if (task.name == originTaskName) {
+                    if (incrementalLint) addIncrementalAndReport(project, task, inputFiles, outputFile)
+                }
+            }
+        } else {
+            if (incrementalLint) addIncrementalAndReport(project, originTask, inputFiles, outputFile)
+        }
+
     }
 
     static String getTaskName(String flavor, String buildType) {
@@ -94,5 +99,13 @@ class OkLint extends DefaultTask {
 
     private static String getOriginTaskName(String flavor, String buildType) {
         return "lint${flavor.capitalize()}${buildType.capitalize()}"
+    }
+
+    private static addIncrementalAndReport(Project project, Task task, FileTree inputFiles, File outputFile) {
+        task.inputs.files(inputFiles)
+        task.outputs.file(outputFile)
+
+        project.android.lintOptions.htmlReport = true
+        project.android.lintOptions.htmlOutput = outputFile
     }
 }
