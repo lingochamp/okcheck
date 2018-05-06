@@ -1,3 +1,10 @@
+## 0.1.6
+
+__2018-05-06__
+
+- Fix: fix can't find testUnitTest task issue when run okcheck for all variants
+- Fix: fix can't find okLint task when lint task has already been added during require add okLint task
+
 ## 0.1.5
 
 __2018-05-02__
