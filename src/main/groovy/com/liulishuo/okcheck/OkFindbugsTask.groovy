@@ -37,9 +37,10 @@ class OkFindbugsTask extends FindBugs {
         project.configure(project) {
             apply plugin: 'findbugs'
         }
-        addTask(project, options, "", "")
 
         if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) return
+
+        addTask(project, options, "", "")
 
         def buildTypes = project.android.buildTypes.collect { type -> type.name }
         def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
