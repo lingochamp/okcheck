@@ -1,3 +1,9 @@
+## 0.1.7
+
+__2018-05-07__
+
+- Fix: fix can't find assemble task when execute okFindbugs for non-android project
+
 ## 0.1.6
 
 __2018-05-06__
