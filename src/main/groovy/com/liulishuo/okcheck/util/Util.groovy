@@ -70,10 +70,10 @@ class Util {
                                      String buildType, String firstFlavor, String taskNameSuffix = "") {
         String name
         if (flavor.isEmpty() && buildType.isEmpty()) {
-            // the empty lint is always exist
+            // the task with empty flavor & build type is always exist
             name = "$taskName${taskNameSuffix.capitalize()}"
         } else if (flavor.isEmpty() && firstFlavor != null) {
-            // the non empty build-type with empty flavor will not exist
+            // there is not exist non empty build-type with empty flavor when there are flavors defined
             name = "$taskName${firstFlavor.capitalize()}${buildType.capitalize()}${taskNameSuffix.capitalize()}"
             printLog("There is define flavor(s) on $projectName, so on the $hostTaskName we have to add $name as dependencies task")
         } else {
