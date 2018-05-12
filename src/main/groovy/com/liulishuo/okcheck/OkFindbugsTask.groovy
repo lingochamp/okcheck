@@ -104,7 +104,8 @@ class OkFindbugsTask extends FindBugs {
                 exclude '**/protobuf/*.java'
                 exclude '**/com/google/**/*.java'
 
-                classes = project.files("$project.buildDir/intermediates/classes")
+                classes = project.files("$project.buildDir/intermediates/classes/${flavor.toLowerCase()}/${buildType.toLowerCase()}",
+                        "$project.buildDir/intermediates/javac/${flavor.toLowerCase()}/${buildType.toLowerCase()}")
                 classpath = project.files()
             }
         }
