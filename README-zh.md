@@ -64,7 +64,7 @@ buildscript {
 
 为了方便说明下面所有提到的，都采用默认值(当没有提供时所采用的默认值)作为案例，以下是在根项目的`build.gradle`中配置:
 
-```
+```groovy
 allprojects {
     apply plugin: 'okcheck'
 

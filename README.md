@@ -64,7 +64,7 @@ When you run `okcheck` task, we will compile and check with all `variant`(As usu
 
 For the convenient, all value on the bellow is the default value as example, the follow code is write on the `build.gradle` at the root project.
 
-```
+```groovy
 allprojects {
     apply plugin: 'okcheck'
 
