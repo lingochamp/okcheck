@@ -44,6 +44,9 @@ class OkCheckExtension {
     @NonNull
     private final UnitTestOptions unitTest
 
+    @NonNull
+    private final CoverageReportOptions coverageReport
+
     OkCheckExtension(Project project) {
         File destination = project.rootProject.getBuildDir()
 
@@ -64,6 +67,9 @@ class OkCheckExtension {
 
         unitTest = new UnitTestOptions(project)
         unitTest.setDestination(destination)
+
+        coverageReport = new CoverageReportOptions(project)
+        coverageReport.setDestination(destination)
     }
 
     void setExclude(String[] exclude) {
@@ -72,6 +78,7 @@ class OkCheckExtension {
         this.pmd.exclude = exclude
         this.ktlint.exclude = exclude
         this.lint.exclude = exclude
+        this.coverageReport.exclude = exclude
     }
 
     void setDestination(File destination) {
@@ -81,6 +88,7 @@ class OkCheckExtension {
         this.ktlint.setDestination(destination)
         this.lint.setDestination(destination)
         this.unitTest.setDestination(destination)
+        this.coverageReport.setDestination(destination)
     }
 
     void checkstyle(Closure closure) {
@@ -105,6 +113,10 @@ class OkCheckExtension {
 
     void unittest(Closure closure) {
         ConfigureUtil.configure(closure, unitTest)
+    }
+
+    void coverageReport(Closure closure) {
+        ConfigureUtil.configure(closure, coverageReport)
     }
 
     @NonNull
@@ -135,6 +147,43 @@ class OkCheckExtension {
     @NonNull
     UnitTestOptions getUnitTest() {
         return unitTest
+    }
+
+    @NonNull
+    CoverageReportOptions getCoverageReport() {
+        return coverageReport
+    }
+
+    static class CheckStyleOptions extends CheckstyleExtension {
+
+        boolean enabled = true
+
+        @NonNull
+        private final CommonHelper common
+
+
+        CheckStyleOptions(Project project) {
+            super(project)
+            common = new CommonHelper(project, "checkstyle")
+        }
+
+        void setDestination(File destination) {
+            common.setDestination(destination)
+        }
+
+        @NonNull
+        File getHtmlFile() {
+            return common.htmlFile
+        }
+
+        void setExclude(String... exclude) {
+            common.exclude = exclude
+        }
+
+        @NonNull
+        String[] getExclude() {
+            return common.exclude
+        }
     }
 
     static class UnitTestOptions extends TestOptions.UnitTestOptions {
@@ -188,7 +237,7 @@ class OkCheckExtension {
 
     static class KtLintOptions {
         boolean enabled = true
-        
+
         @NonNull
         String version = "0.22.0"
 
@@ -219,35 +268,52 @@ class OkCheckExtension {
         }
     }
 
-    static class CheckStyleOptions extends CheckstyleExtension {
+    static class CoverageReportOptions {
 
-        boolean enabled = true
+        boolean enabledXml = false
+        boolean enabledHtml = false
+        boolean enabledCsv = false
 
         @NonNull
-        private final CommonHelper common
+        private File xmlFile
+
+        @NonNull
+        private File htmlFile
+
+        @NonNull
+        private File csvFile
+
+        private final Project project
 
 
-        CheckStyleOptions(Project project) {
-            super(project)
-            common = new CommonHelper(project, "checkstyle")
+        CoverageReportOptions(Project project) {
+            this.project = project
         }
 
         void setDestination(File destination) {
-            common.setDestination(destination)
+            File dir = DestinationUtil.getDirDest(project, destination, "coverage")
+            this.htmlFile = dir
+            this.xmlFile = new File(dir, "report.xml")
+            this.csvFile = new File(dir, "report.csv")
         }
 
         @NonNull
         File getHtmlFile() {
-            return common.htmlFile
-        }
-
-        void setExclude(String... exclude) {
-            common.exclude = exclude
+            return this.htmlFile
         }
 
         @NonNull
-        String[] getExclude() {
-            return common.exclude
+        File getXmlFile() {
+            return this.xmlFile
+        }
+
+        @NonNull
+        File getCsvFile() {
+            return this.csvFile
+        }
+
+        boolean isEnabled() {
+            return enabledXml || enabledHtml || enabledCsv
         }
     }
 

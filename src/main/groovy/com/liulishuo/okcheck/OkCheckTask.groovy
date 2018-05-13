@@ -51,45 +51,14 @@ class OkCheckTask extends DefaultTask {
     }
 
     static def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension) {
-
-        def buildTypes = project.android.buildTypes.collect { type -> type.name }
-        def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
-
-        String firstFlavor = null
-        if (productFlavors.size() > 0) firstFlavor = productFlavors.get(0)
-
-        addValidTask(project, moduleList, extension, "", "", firstFlavor)
-
-        buildTypes.each { buildType ->
-            addValidTask(project, moduleList, extension, "", "${buildType.capitalize()}", firstFlavor)
-        }
-
-        productFlavors.each { flavor ->
-            buildTypes.each { buildType ->
-                if (flavor) {
-                    addValidTask(project, moduleList, extension, "${flavor.capitalize()}", "${buildType.capitalize()}", firstFlavor)
-                }
-            }
+        Util.addTaskWithVariants(project) { flavor, buildType, firstFlavor ->
+            addValidTask(project, moduleList, extension, "${flavor.capitalize()}", "${buildType.capitalize()}", "$firstFlavor")
         }
     }
 
     static def addMockTask(Project project) {
-
-        def buildTypes = project.android.buildTypes.collect { type -> type.name }
-        def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
-
-        addMockTask(project, "", "")
-
-        buildTypes.each { buildType ->
-            addMockTask(project, "", "${buildType.capitalize()}")
-        }
-
-        productFlavors.each { flavor ->
-            buildTypes.each { buildType ->
-                if (flavor) {
-                    addMockTask(project, "${flavor.capitalize()}", "${buildType.capitalize()}")
-                }
-            }
+        Util.addTaskWithVariants(project) { flavor, buildType, firstFlavor ->
+            addMockTask(project, "${flavor.capitalize()}", "${buildType.capitalize()}")
         }
     }
 
@@ -108,18 +77,14 @@ class OkCheckTask extends DefaultTask {
                 dependsTaskNames.add(Util.getBuildInTaskName(project.name, taskName, "test", flavor, buildType, firstFlavor, "UnitTest"))
             }
         }
+        if (extension.coverageReport.enabled) dependsTaskNames.add(OkCoverageReport.getTaskName(flavor, buildType))
         if (extension.checkStyle.enabled) dependsTaskNames.add(OkCheckStyleTask.NAME)
         if (extension.pmd.enabled) dependsTaskNames.add(OkPmdTask.NAME)
         if (extension.findbugs.enabled) dependsTaskNames.add("${OkFindbugsTask.NAME}$flavor$buildType")
         if (extension.ktlint.enabled) dependsTaskNames.add(OkKtlintTask.NAME)
 
-        def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
-        inputFiles += project.fileTree(dir: "src", include: "**/*.java")
-        inputFiles += project.fileTree(dir: "src", include: "**/*.groovy")
-        inputFiles += project.fileTree(dir: "src", include: "**/*.xml")
-
         project.task(taskName, type: OkCheckTask, overwrite: true) {
-            inputs.files(inputFiles)
+            inputs.files(Util.getAllInputs(project))
             outputs.dir(project.buildDir)
 
             dependsOn dependsTaskNames
@@ -145,8 +110,8 @@ class OkCheckTask extends DefaultTask {
         File originDir = new File(project.buildDir, "reports/tests")
         if (originDir.exists()) {
             if (!targetDir.getParentFile().exists()) targetDir.getParentFile().mkdirs()
-            FileUtils.copyDirectory(originDir, targetDir)
-            Util.printLog("Copy ${originDir.path} to ${targetDir.path}.")
+            FileUtils.moveDirectory(originDir, targetDir)
+            Util.printLog("move ${originDir.path} to ${targetDir.path}.")
         }
     }
 

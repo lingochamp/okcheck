@@ -3,6 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -66,13 +67,23 @@ class Util {
         return contain
     }
 
+    static String getUnitTestTaskName(String projectName, String hostTaskName, String flavor,
+                                      String buildType, String firstFlavor) {
+
+        if (buildType.isEmpty() && flavor.isEmpty()) {
+            return "test"
+        } else {
+            return getBuildInTaskName(projectName, hostTaskName, "test", flavor, buildType, firstFlavor, "UnitTest")
+        }
+    }
+
     static String getBuildInTaskName(String projectName, String hostTaskName, String taskName, String flavor,
                                      String buildType, String firstFlavor, String taskNameSuffix = "") {
         String name
         if (flavor.isEmpty() && buildType.isEmpty()) {
             // the task with empty flavor & build type is always exist
             name = "$taskName${taskNameSuffix.capitalize()}"
-        } else if (flavor.isEmpty() && firstFlavor != null) {
+        } else if (flavor.isEmpty() && !firstFlavor.isEmpty()) {
             // there is not exist non empty build-type with empty flavor when there are flavors defined
             name = "$taskName${firstFlavor.capitalize()}${buildType.capitalize()}${taskNameSuffix.capitalize()}"
             printLog("There is define flavor(s) on $projectName, so on the $hostTaskName we have to add $name as dependencies task")
@@ -81,5 +92,36 @@ class Util {
         }
 
         return name
+    }
+
+    static addTaskWithVariants(Project project, addTask) {
+        def buildTypes = project.android.buildTypes.collect { type -> type.name }
+        def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
+
+        String firstFlavor = ""
+        if (productFlavors.size() > 0) firstFlavor = productFlavors.get(0)
+
+        addTask("", "", firstFlavor)
+
+        buildTypes.each { buildType ->
+            addTask("", "${buildType.capitalize()}", firstFlavor)
+        }
+
+        productFlavors.each { flavor ->
+            buildTypes.each { buildType ->
+                if (flavor) {
+                    addTask("${flavor.capitalize()}", "${buildType.capitalize()}", firstFlavor)
+                }
+            }
+        }
+    }
+
+    static def getAllInputs(Project project) {
+        def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
+        inputFiles += project.fileTree(dir: "src", include: "**/*.java")
+        inputFiles += project.fileTree(dir: "src", include: "**/*.groovy")
+        inputFiles += project.fileTree(dir: "src", include: "**/*.xml")
+        return inputFiles
+
     }
 }

@@ -47,6 +47,7 @@ class OkCheckPlugin implements Plugin<Project> {
                 if (okCheckExtension.pmd.enabled) OkPmdTask.addTask(project, okCheckExtension.pmd)
                 if (okCheckExtension.findbugs.enabled) OkFindbugsTask.addTask(project, okCheckExtension.findbugs)
                 if (okCheckExtension.ktlint.enabled) OkKtlintTask.addTask(project, okCheckExtension.ktlint)
+                if (okCheckExtension.coverageReport.isEnabled()) OkCoverageReport.addTask(project, okCheckExtension.coverageReport)
                 // unit-test
             }
         }

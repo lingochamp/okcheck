@@ -40,29 +40,15 @@ class OkLint extends DefaultTask {
     }
 
     static void addTask(Project project, OkCheckExtension.LintOptions options, boolean incrementalLint) {
-        addTask(project, options, "", "", incrementalLint)
-        def buildTypes = project.android.buildTypes.collect { type -> type.name }
-        def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
-        buildTypes.each { buildType ->
-            addTask(project, options, "", "${buildType.capitalize()}", incrementalLint)
-        }
-
-        productFlavors.each { flavor ->
-            buildTypes.each { buildType ->
-                if (flavor) {
-                    addTask(project, options, "${flavor.capitalize()}", "${buildType.capitalize()}", incrementalLint)
-                }
-            }
+        Util.addTaskWithVariants(project) { flavor, buildType, firstFlavor ->
+            addTask(project, options, "${flavor.capitalize()}", "${buildType.capitalize()}", incrementalLint)
         }
     }
 
     static void addTask(Project project, OkCheckExtension.LintOptions options, String flavor, String buildType, boolean incrementalLint) {
 
-        def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
-        inputFiles += project.fileTree(dir: "src", include: "**/*.java")
-        inputFiles += project.fileTree(dir: "src", include: "**/*.groovy")
-        inputFiles += project.fileTree(dir: "src", include: "**/*.xml")
         def outputFile = options.htmlOutput
+        def inputFiles = Util.getAllInputs(project)
 
         project.task(getTaskName(flavor, buildType), type: OkLint) {
             dependsOn getOriginTaskName(flavor, buildType)
