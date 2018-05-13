@@ -59,6 +59,9 @@ class BuildConfig {
     static def addToPassedModuleFile(Project project) {
         File passedModuleFile = getPassedModuleFile(project.rootProject)
         if (!passedModuleFile.exists()) {
+            File parentDir = passedModuleFile.getParentFile()
+            if (!parentDir.exists()) parentDir.mkdirs()
+            Util.printLog("Create passed module file: " + passedModuleFile.absolutePath)
             passedModuleFile.createNewFile()
         }
 
