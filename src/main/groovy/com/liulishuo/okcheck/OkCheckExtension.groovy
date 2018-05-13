@@ -270,9 +270,9 @@ class OkCheckExtension {
 
     static class CoverageReportOptions {
 
-        boolean enabledXml = false
-        boolean enabledHtml = false
-        boolean enabledCsv = false
+        Report xml
+        Report html
+        Report csv
 
         @NonNull
         private File xmlFile
@@ -288,6 +288,9 @@ class OkCheckExtension {
 
         CoverageReportOptions(Project project) {
             this.project = project
+            xml = new Report()
+            html = new Report()
+            csv = new Report()
         }
 
         void setDestination(File destination) {
@@ -313,8 +316,12 @@ class OkCheckExtension {
         }
 
         boolean isEnabled() {
-            return enabledXml || enabledHtml || enabledCsv
+            return xml.enabled || html.enabled || csv.enabled
         }
+    }
+
+    static class Report {
+        boolean enabled = false
     }
 
     static class FindBugsOptions extends FindBugsExtension {

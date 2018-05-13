@@ -71,15 +71,15 @@ class OkCoverageReport extends JacocoReport {
 
                 reports {
                     xml {
-                        enabled = options.enabledXml
+                        enabled = options.xml.enabled
                         destination = options.xmlFile
                     }
                     html {
-                        enabled = options.enabledHtml
+                        enabled = options.html.enabled
                         destination = options.htmlFile
                     }
                     csv {
-                        enabled = options.enabledCsv
+                        enabled = options.csv.enabled
                         destination = options.csvFile
                     }
                 }
