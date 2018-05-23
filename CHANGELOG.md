@@ -1,3 +1,13 @@
+## 0.1.8
+
+__2018-05-23__
+
+- Feat: handle the case of android gradle plugin 3.2.0 for findbugs
+- Feat: integrate coverageReport for unitTest and androidTest and just disabled it as default. closes #2
+- Feat: change the coverageReport extension pattern. refs #2
+- Fix: fix can't create passed module file issue
+- Fix: fix test dir is exist issue
+
 ## 0.1.7
 
 __2018-05-07__
