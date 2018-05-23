@@ -4,7 +4,7 @@
 ![](https://img.shields.io/badge/OkCheck-Lint%20UnitTest-orange.svg)
 ![](https://img.shields.io/badge/OkCheck-KtLint%20Checkstyle%20Findbugs%20Pmd-yellow.svg)
 [ ![Download](https://api.bintray.com/packages/jacksgong/maven/OkCheck/images/download.svg) ](https://bintray.com/jacksgong/maven/OkCheck/_latestVersion)
-[![](https://img.shields.io/badge/SnapShot-0.1.8-white.svg)](https://oss.sonatype.org/content/repositories/snapshots/com/liulishuo/okcheck/)
+[![](https://img.shields.io/badge/SnapShot-0.1.9-white.svg)](https://oss.sonatype.org/content/repositories/snapshots/com/liulishuo/okcheck/)
 
 差量扫描，自动集成Lint、KtLint、UnitTest、Checkstyle、Findbugs、Pmd 强大且灵活的Android Gradle插件
 
