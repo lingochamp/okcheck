@@ -328,6 +328,9 @@ class OkCheckExtension {
 
         boolean enabled = true
 
+        boolean reportXml = false
+        boolean reportHtml = true
+
         @NonNull
         private final CommonHelper common
 
@@ -344,6 +347,11 @@ class OkCheckExtension {
         @NonNull
         File getHtmlFile() {
             return common.htmlFile
+        }
+
+        @NonNull
+        File getXmlFile() {
+            return common.xmlFile
         }
 
         void setExclude(String... exclude) {

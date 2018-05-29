@@ -56,10 +56,13 @@ class OkFindbugsTask extends FindBugs {
             }
             project.extensions.findbugs.with {
                 reports {
-                    xml.enabled = false
+                    xml {
+                        enabled = options.reportXml
+                        destination options.getXmlFile()
+                    }
                     html {
                         destination options.getHtmlFile()
-                        enabled = true
+                        enabled = options.reportHtml
                     }
                 }
                 if (options.excludeFilterConfig != null) {
