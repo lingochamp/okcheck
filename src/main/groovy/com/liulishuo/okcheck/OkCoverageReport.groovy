@@ -56,13 +56,25 @@ class OkCoverageReport extends JacocoReport {
             }
         }
 
+        def buildTypes = project.android.buildTypes.collect { type -> type.name }
+        def productFlavors = project.android.productFlavors.collect { flavor -> flavor.name }
+        String depTaskName = "create"
+        if (productFlavors.size() > 0) {
+            depTaskName += "${productFlavors.get(0)}".capitalize()
+        }
+        if (!buildTypes.contains("Debug")) {
+            depTaskName += "${buildTypes.get(0).capitalize()}CoverageReport"
+        } else {
+            depTaskName += "DebugCoverageReport"
+        }
+
         Util.addTaskWithVariants(project) { flavor, buildType, firstFlavor ->
             String taskName = getTaskName("$flavor", "$buildType")
             String unitTestName = Util.getUnitTestTaskName(project.name, taskName, "$flavor", "$buildType", "$firstFlavor")
             project.task(taskName, type: OkCoverageReport) {
                 inputs.files(Util.getAllInputs(project))
                 outputs.dir(options.htmlFile.getAbsolutePath())
-                dependsOn(unitTestName, 'createDebugCoverageReport')
+                dependsOn(unitTestName, depTaskName)
                 if (flavor.length() <= 0 && buildType.length() <= 0) {
                     setDescription("Generate HTML, Xml, CSV(default false) reports of Jacoco coverage data for all variants of unit-test and integrate-test")
                 } else {
