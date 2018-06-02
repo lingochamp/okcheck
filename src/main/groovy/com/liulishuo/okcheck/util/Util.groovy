@@ -104,13 +104,13 @@ class Util {
         addTask("", "", firstFlavor)
 
         buildTypes.each { buildType ->
-            addTask("", "${buildType.capitalize()}", firstFlavor)
+            addTask("", "$buildType", firstFlavor)
         }
 
         productFlavors.each { flavor ->
             buildTypes.each { buildType ->
                 if (flavor) {
-                    addTask("${flavor.capitalize()}", "${buildType.capitalize()}", firstFlavor)
+                    addTask("$flavor", "$buildType", firstFlavor)
                 }
             }
         }

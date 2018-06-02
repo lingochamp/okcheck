@@ -78,7 +78,7 @@ class OkCoverageReport extends JacocoReport {
                 if (flavor.length() <= 0 && buildType.length() <= 0) {
                     setDescription("Generate HTML, Xml, CSV(default false) reports of Jacoco coverage data for all variants of unit-test and integrate-test")
                 } else {
-                    setDescription("Generate HTML, Xml, CSV(default false) reports of Jacoco coverage data for $flavor$buildType variants of unit-test and integrate-test.")
+                    setDescription("Generate HTML, Xml, CSV(default false) reports of Jacoco coverage data for ${flavor.capitalize()}${buildType.capitalize()} variants of unit-test and integrate-test.")
                 }
 
                 reports {

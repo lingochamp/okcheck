@@ -52,7 +52,7 @@ class OkFindbugsTask extends FindBugs {
             if (flavor.length() <= 0 && buildType.length() <= 0) {
                 setDescription("Analyzes class with the default set for all variants")
             } else {
-                setDescription("Analyzes class with the default set for $flavor$buildType build.")
+                setDescription("Analyzes class with the default set for ${flavor.capitalize()}${buildType.capitalize()} build.")
             }
             project.extensions.findbugs.with {
                 reports {
@@ -95,8 +95,8 @@ class OkFindbugsTask extends FindBugs {
                     flavor = firstFlavor
                 }
 
-                classes = project.files("$project.buildDir/intermediates/classes/${flavor.toLowerCase()}/${buildType.toLowerCase()}",
-                        "$project.buildDir/intermediates/javac/${flavor.toLowerCase()}/${buildType.toLowerCase()}")
+                classes = project.files("$project.buildDir/intermediates/classes/$flavor/$buildType",
+                        "$project.buildDir/intermediates/javac/$flavor/$buildType")
                 classpath = project.files()
             }
         }
