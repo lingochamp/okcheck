@@ -112,6 +112,12 @@ allprojects {
             // 采用默认的统一配置
             ruleSetFiles = null
         }
+
+        coverageReport {
+            xml.enabled = false
+            html.enabled = false
+            csv.enabled = false
+        }
     }
 }
 ```

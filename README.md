@@ -112,6 +112,12 @@ allprojects {
             // We will use the default ruleSetFiles build-in the okcheck
             ruleSetFiles = null
         }
+
+        coverageReport {
+            xml.enabled = false
+            html.enabled = false 
+            csv.enabled = false
+        }
     }
 }
 ```
