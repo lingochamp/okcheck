@@ -1,3 +1,9 @@
+## 0.1.9
+
+__2018-06-02__
+
+- Fix: fix can't find createDebugCoverageReport issue when there are flavors exists
+
 ## 0.1.8
 
 __2018-05-23__
