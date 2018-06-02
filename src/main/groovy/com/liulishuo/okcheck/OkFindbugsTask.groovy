@@ -41,11 +41,11 @@ class OkFindbugsTask extends FindBugs {
         if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) return
 
         Util.addTaskWithVariants(project) { flavor, buildType, firstFlavor ->
-            addTask(project, options, "$flavor", "$buildType")
+            addTask(project, options, "$flavor", "$buildType", "$firstFlavor")
         }
     }
 
-    static void addTask(Project project, OkCheckExtension.FindBugsOptions options, String flavor, String buildType) {
+    static void addTask(Project project, OkCheckExtension.FindBugsOptions options, String flavor, String buildType, String firstFlavor) {
 
         project.task("$NAME${flavor.capitalize()}${buildType.capitalize()}", type: OkFindbugsTask) {
             dependsOn "assemble${flavor.capitalize()}${buildType.capitalize()}"
@@ -90,6 +90,10 @@ class OkFindbugsTask extends FindBugs {
                 exclude '**/proto/*.java'
                 exclude '**/protobuf/*.java'
                 exclude '**/com/google/**/*.java'
+
+                if ((flavor == null || flavor.isEmpty()) && (firstFlavor != null && !firstFlavor.isEmpty())) {
+                    flavor = firstFlavor
+                }
 
                 classes = project.files("$project.buildDir/intermediates/classes/${flavor.toLowerCase()}/${buildType.toLowerCase()}",
                         "$project.buildDir/intermediates/javac/${flavor.toLowerCase()}/${buildType.toLowerCase()}")
