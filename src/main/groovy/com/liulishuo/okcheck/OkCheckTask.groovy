@@ -109,7 +109,7 @@ class OkCheckTask extends DefaultTask {
     static def moveUnitTestReport(Project project, File targetDir) {
         File originDir = new File(project.buildDir, "reports/tests")
         if (originDir.exists()) {
-            if (targetDir.exists()) targetDir.delete()
+            if (targetDir.exists()) FileUtils.forceDelete(targetDir)
             if (!targetDir.getParentFile().exists()) targetDir.getParentFile().mkdirs()
             FileUtils.moveDirectory(originDir, targetDir)
             Util.printLog("move ${originDir.path} to ${targetDir.path}.")
