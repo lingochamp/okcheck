@@ -1,3 +1,11 @@
+## 0.2.0
+
+__2018-06-04__
+
+- Fix: fix no file analysis issue for okFindbugs because of path case sensitive
+- Fix: fix move failed which tests already exists when need to move tests folder to target path
+- Feat: support customize whether need to report xml on findbugs<Paste>
+
 ## 0.1.9
 
 __2018-06-02__
