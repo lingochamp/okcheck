@@ -84,8 +84,8 @@ class OkCheckTask extends DefaultTask {
         if (extension.ktlint.enabled) dependsTaskNames.add(OkKtlintTask.NAME)
 
         project.task(taskName, type: OkCheckTask, overwrite: true) {
-            inputs.files(Util.getAllInputs(project))
-            outputs.dir(project.buildDir)
+//            inputs.files(Util.getAllInputs(project))
+//            outputs.dir(project.buildDir)
 
             dependsOn dependsTaskNames
             setGroup("verification")
