@@ -100,7 +100,7 @@ allprojects {
             // Whether allow the build to continue if there are warnings
             ignoreFailures = false
             // We will use the default excludeFilter file build-in the okcheck
-	        excludeFilter = null
+	    excludeFilter = null
         }
         pmd {
             enabled = true
