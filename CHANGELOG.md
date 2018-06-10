@@ -1,3 +1,11 @@
+## 0.2.1
+
+__2018-06-10__
+
+- Fix: fix no-such-property exclude issue and correct excludeBugFilter->excludeFilter closes #3
+- Fix: do not define input and output to solve can't save the last success commit id issue
+- Feat: change the default line-length from 100 to 120 checkstyle-with-suppression which has already been effected on checkstyle-non-suppression
+
 ## 0.2.0
 
 __2018-06-04__
