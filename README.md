@@ -74,7 +74,6 @@ allprojects {
 
         unittest {
             enabled = true
-            exclude = ['**/proto/*.java']
         }
         lint {
             enabled = true
@@ -100,8 +99,8 @@ allprojects {
 
             // Whether allow the build to continue if there are warnings
             ignoreFailures = false
-            // We will use the default excludeBugFilter file build-in the okcheck
-            excludeBugFilter = null
+            // We will use the default excludeFilter file build-in the okcheck
+	        excludeFilter = null
         }
         pmd {
             enabled = true

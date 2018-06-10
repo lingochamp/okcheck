@@ -74,7 +74,6 @@ allprojects {
 
         unittest {
             enabled = true
-            exclude = ['**/proto/*.java']
         }
         lint {
             enabled = true
@@ -101,7 +100,7 @@ allprojects {
             // Warning级别的错误默认会终止扫描
             ignoreFailures = false
             // 采用默认的统一配置
-            excludeBugFilter = null
+            excludeFilter = null
         }
         pmd {
             enabled = true

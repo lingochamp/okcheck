@@ -78,7 +78,6 @@ class OkCheckExtension {
         this.pmd.exclude = exclude
         this.ktlint.exclude = exclude
         this.lint.exclude = exclude
-        this.coverageReport.exclude = exclude
     }
 
     void setDestination(File destination) {
