@@ -52,24 +52,28 @@ class ChangeFile {
             backupFile.getParentFile().mkdirs()
         }
 
+        final List<String> backupCommitIdList
         if (backupFile.exists()) {
+            backupCommitIdList = backupFile.readLines()
             backupFile.delete()
+        } else {
+            backupCommitIdList = new ArrayList<>()
         }
 
         backupFile.createNewFile()
 
-        List<String> oldCommitIds = backupFile.readLines()
-        if (oldCommitIds.size() >= 20) {
-            int needRemoveSize = oldCommitIds.size() - 20 + 1
+        if (backupCommitIdList.size() >= 20) {
+            Util.printLog("count of backupCommitIdList: ${backupCommitIdList.size()} which will trun to 20")
+            int needRemoveSize = backupCommitIdList.size() - 20 + 1
             while (needRemoveSize > 0) {
                 needRemoveSize--
-                oldCommitIds.remove(oldCommitIds.size() - 1)
+                backupCommitIdList.remove(backupCommitIdList.size() - 1)
             }
         }
 
-        oldCommitIds.add(0, currentCommitId)
+        backupCommitIdList.add(0, currentCommitId)
         boolean isFirstLine = true
-        for (String commitId : oldCommitIds) {
+        for (String commitId : backupCommitIdList) {
             if (isFirstLine) {
                 backupFile.append(commitId)
                 isFirstLine = false
@@ -78,7 +82,7 @@ class ChangeFile {
             }
         }
 
-        Util.printLog("Save commit <${oldCommitIds.toArray()}> to $backupPath")
+        Util.printLog("Save commit <${backupCommitIdList.toArray()}> to $backupPath")
     }
 
     @Nullable
@@ -97,6 +101,7 @@ class ChangeFile {
                 break
             }
 
+            Util.printLog("Can't find the $currentBranchName file, so try others")
             candidateId = null
             def dir = new File(getCommitIdBackupPath())
 
@@ -110,6 +115,7 @@ class ChangeFile {
 
                     if (allBeforeCommitIds.contains(id)) {
                         int count = GitUtil.farToCommit(id, currentCommitId)
+                        Util.printLog("far to $count of $id")
                         if (leastCount == -1 || leastCount > count) {
                             leastCount = count
                             candidateId = id
