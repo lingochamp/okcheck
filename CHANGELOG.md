@@ -1,3 +1,7 @@
+## 0.2.2
+
+- Fix(Incremental): save up to 20 pass check commit ids for one branch to solve incremental check can't make sense when the nearest passed id was overwrited by later one
+
 ## 0.2.1
 
 __2018-06-10__
