@@ -52,12 +52,33 @@ class ChangeFile {
             backupFile.getParentFile().mkdirs()
         }
 
-        if (!backupFile.exists()) {
-            backupFile.createNewFile()
+        if (backupFile.exists()) {
+            backupFile.delete()
         }
 
-        Util.printLog("Refresh $currentCommitId to $backupPath")
-        backupFile.write(currentCommitId)
+        backupFile.createNewFile()
+
+        List<String> oldCommitIds = backupFile.readLines()
+        if (oldCommitIds.size() >= 20) {
+            int needRemoveSize = oldCommitIds.size() - 20 + 1
+            while (needRemoveSize > 0) {
+                needRemoveSize--
+                oldCommitIds.remove(oldCommitIds.size() - 1)
+            }
+        }
+
+        oldCommitIds.add(0, currentCommitId)
+        boolean isFirstLine = true
+        for (String commitId : oldCommitIds) {
+            if (isFirstLine) {
+                backupFile.append(commitId)
+                isFirstLine = false
+            } else {
+                backupFile.append("\n" + commitId)
+            }
+        }
+
+        Util.printLog("Save commit <${oldCommitIds.toArray()}> to $backupPath")
     }
 
     @Nullable
@@ -81,13 +102,19 @@ class ChangeFile {
 
             int leastCount = -1
             dir.eachFileRecurse(FileType.FILES) { file ->
-                String id = file.readLines().get(0)
-                if (allBeforeCommitIds.contains(id)) {
-                    int count = GitUtil.farToCommit(id, currentCommitId)
-                    if (leastCount == -1 || leastCount > count) {
-                        leastCount = count
-                        candidateId = id
-                        branchName = (file.absolutePath - dir.absolutePath).substring(1)
+                List<String> ids = file.readLines()
+
+                for (String id : ids) {
+                    id = id.trim().replaceAll("[\r\n]+", "")
+                    if (id == null || id.length() <= 0) continue
+
+                    if (allBeforeCommitIds.contains(id)) {
+                        int count = GitUtil.farToCommit(id, currentCommitId)
+                        if (leastCount == -1 || leastCount > count) {
+                            leastCount = count
+                            candidateId = id
+                            branchName = (file.absolutePath - dir.absolutePath).substring(1)
+                        }
                     }
                 }
             }
