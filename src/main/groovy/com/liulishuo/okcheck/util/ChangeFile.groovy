@@ -98,7 +98,11 @@ class ChangeFile {
 
 
         if (branchName != null) {
-            Util.printLog("Found latest success check the commit id[$candidateId] which was ran on the branch[$branchName]")
+            if (branchName == "HEAD" || branchName == DELETED_RECYCLE_FILE_NAME) {
+                Util.printLog("Found latest success check the commit id[$candidateId] which was ran on record file[$branchName]")
+            } else {
+                Util.printLog("Found latest success check the commit id[$candidateId] which was ran on the branch[$branchName]")
+            }
         }
         return candidateId
     }
