@@ -104,7 +104,7 @@ class ChangeFile {
     }
 
     String maintain() {
-        String info = "maintain:"
+        String info = ""
         final List<String> branchNames = GitUtil.listAllBranches()
         final List<String> allBranchCommitIdPaths = new ArrayList<>()
         branchNames.forEach {
@@ -114,7 +114,7 @@ class ChangeFile {
         final commitBackupFile = new File(getCommitIdBackupPath())
         if (!commitBackupFile.exists()) {
             info += "no invalid backup found."
-            return info
+            return "maintain: " + info
         }
 
         // assemble all no exist backups
@@ -161,7 +161,11 @@ class ChangeFile {
             saveCommitId(deletedBranchRecycleFile, deletedBranchLatestCommitIdList)
         }
 
-        return info
+        if (info.length() > 0) {
+            return "maintain: " + info
+        } else {
+            return info
+        }
     }
 
     private static void saveCommitId(File backupFile, List<String> newCommitIds) {
