@@ -164,7 +164,7 @@ class ChangeFile {
         return info
     }
 
-    private void saveCommitId(File backupFile, List<String> newCommitIds) {
+    private static void saveCommitId(File backupFile, List<String> newCommitIds) {
         if (!backupFile.getParentFile().exists()) {
             backupFile.getParentFile().mkdirs()
         }
@@ -205,7 +205,7 @@ class ChangeFile {
             }
         }
 
-        Util.printLog("Save commit <${backupCommitIdList.toArray()}> to $backupPath")
+        Util.printLog("Save commit <${backupCommitIdList.toArray()}> to ${backupFile.absolutePath}")
     }
 
     String backupBranchCommitIdFilePath(String branchName) {
