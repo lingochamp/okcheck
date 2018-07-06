@@ -44,7 +44,8 @@ class OkCheckTask extends DefaultTask {
                 ChangeFile changeFile = new ChangeFile(project.rootProject)
                 changeFile.refreshLastExecCommitId()
                 Util.printLog("All check is passed and refreshed the commit to current one!")
-                Util.printLog(changeFile.maintain())
+                String maintainValue = changeFile.maintain()
+                if (maintainValue.length() > 0) Util.printLog(changeFile.maintain())
             }
         }
 
