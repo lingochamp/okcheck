@@ -20,7 +20,13 @@ class GitUtil {
     final static String developBranchName = 'develop'
 
     static String currentBranchName() {
-        return runCmd("git name-rev --name-only HEAD")
+        final String branchName = runCmd("git name-rev --name-only HEAD")
+        if (branchName.contains('~')) {
+            return branchName.split('~')[0]
+        } else {
+            return branchName
+        }
+
     }
 
     static String commitIdFromDevelop(String branchName) {

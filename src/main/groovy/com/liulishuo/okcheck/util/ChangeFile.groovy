@@ -153,7 +153,14 @@ class ChangeFile {
         final List<String> invalidBackups = new ArrayList<>()
         commitBackupFile.eachFileRecurse(FileType.FILES) { file ->
             if (!allBranchCommitIdPaths.contains(file.absolutePath)) {
-                invalidBackups.add(file.absolutePath)
+
+                // special case
+                if (file.name == "HEAD") {
+                    // remain HEAD
+                    Util.printLog("remain HEAD this special branch")
+                } else {
+                    invalidBackups.add(file.absolutePath)
+                }
             }
         }
 
