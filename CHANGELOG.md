@@ -1,3 +1,10 @@
+## 0.2.3
+
+__2018-07-06__
+
+- Feat: record latest commit id of deleted-branch because of there are many cases we need to calc diff from the deleted-branch lastest check-success commit id.
+- Feat: cover the case of branch-name is `branch-name~xxx` and `HEAD`
+
 ## 0.2.2
 
 __2018-06-16__
