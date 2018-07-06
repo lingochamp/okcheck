@@ -65,7 +65,7 @@ class GitUtil {
     }
 
     static List<String> assembleLastStringForEachLine(List<String> originList) {
-        final List<String> lastStringList = new ArrayList<>();
+        final List<String> lastStringList = new ArrayList<>()
         originList.forEach {
             String[] splitLine = it.split(" ")
             lastStringList.add(splitLine[splitLine.length - 1])

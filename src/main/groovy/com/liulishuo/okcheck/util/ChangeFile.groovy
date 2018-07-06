@@ -47,42 +47,9 @@ class ChangeFile {
     }
 
     def refreshLastExecCommitId() {
-        File backupFile = new File(backupPath)
-        if (!backupFile.getParentFile().exists()) {
-            backupFile.getParentFile().mkdirs()
-        }
-
-        final List<String> backupCommitIdList
-        if (backupFile.exists()) {
-            backupCommitIdList = backupFile.readLines()
-            backupFile.delete()
-        } else {
-            backupCommitIdList = new ArrayList<>()
-        }
-
-        backupFile.createNewFile()
-
-        if (backupCommitIdList.size() >= 20) {
-            Util.printLog("count of backupCommitIdList: ${backupCommitIdList.size()} which will trun to 20")
-            int needRemoveSize = backupCommitIdList.size() - 20 + 1
-            while (needRemoveSize > 0) {
-                needRemoveSize--
-                backupCommitIdList.remove(backupCommitIdList.size() - 1)
-            }
-        }
-
-        backupCommitIdList.add(0, currentCommitId)
-        boolean isFirstLine = true
-        for (String commitId : backupCommitIdList) {
-            if (isFirstLine) {
-                backupFile.append(commitId)
-                isFirstLine = false
-            } else {
-                backupFile.append("\n" + commitId)
-            }
-        }
-
-        Util.printLog("Save commit <${backupCommitIdList.toArray()}> to $backupPath")
+        final List<String> newCommitIds = new ArrayList<>()
+        newCommitIds.add(currentCommitId)
+        saveCommitId(new File(backupPath), newCommitIds)
     }
 
     @Nullable
@@ -151,6 +118,7 @@ class ChangeFile {
 
         // assemble all no exist backups
         final List<String> invalidBackups = new ArrayList<>()
+        final List<String> deletedBranchLatestCommitIdList = new ArrayList<>()
         commitBackupFile.eachFileRecurse(FileType.FILES) { file ->
             if (!allBranchCommitIdPaths.contains(file.absolutePath)) {
 
@@ -160,6 +128,7 @@ class ChangeFile {
                     Util.printLog("remain HEAD this special branch")
                 } else {
                     invalidBackups.add(file.absolutePath)
+                    deletedBranchLatestCommitIdList.add(file.readLines().get(0))
                 }
             }
         }
@@ -185,7 +154,57 @@ class ChangeFile {
             }
         }
 
+        // maintain deleted branch latest commit id
+        if (deletedBranchLatestCommitIdList.size() > 0) {
+            File deletedBranchRecycleFile = new File(backupBranchCommitIdFilePath("deleted-recycle~"))
+            saveCommitId(deletedBranchRecycleFile, deletedBranchLatestCommitIdList)
+        }
+
         return info
+    }
+
+    private void saveCommitId(File backupFile, List<String> newCommitIds) {
+        if (!backupFile.getParentFile().exists()) {
+            backupFile.getParentFile().mkdirs()
+        }
+
+        final List<String> backupCommitIdList
+        if (backupFile.exists()) {
+            backupCommitIdList = backupFile.readLines()
+            backupFile.delete()
+        } else {
+            backupCommitIdList = new ArrayList<>()
+        }
+
+        backupFile.createNewFile()
+
+        if (backupCommitIdList.size() + newCommitIds.size() >= 20) {
+            int needRemoveSize = backupCommitIdList.size() + newCommitIds.size() - 20
+
+            Util.printLog("will delete $needRemoveSize from origin count ${backupCommitIdList.size()} because count of new insert ${newCommitIds.size()}")
+
+            while (needRemoveSize > 0) {
+                needRemoveSize--
+                backupCommitIdList.remove(backupCommitIdList.size() - 1)
+            }
+        }
+
+        newCommitIds.reverse()
+        for (String newCommitId : newCommitIds) {
+            backupCommitIdList.add(0, newCommitId)
+        }
+
+        boolean isFirstLine = true
+        for (String commitId : backupCommitIdList) {
+            if (isFirstLine) {
+                backupFile.append(commitId)
+                isFirstLine = false
+            } else {
+                backupFile.append("\n" + commitId)
+            }
+        }
+
+        Util.printLog("Save commit <${backupCommitIdList.toArray()}> to $backupPath")
     }
 
     String backupBranchCommitIdFilePath(String branchName) {
