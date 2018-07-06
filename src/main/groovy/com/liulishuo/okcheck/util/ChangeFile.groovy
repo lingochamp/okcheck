@@ -26,6 +26,7 @@ class ChangeFile {
     private final String currentCommitId = GitUtil.currentCommitId()
     private final String projectName
     private final Project project
+    private static final String DELETED_RECYCLE_FILE_NAME = "deleted-recycle~"
 
     ChangeFile(Project project) {
         this.projectName = project.name
@@ -123,9 +124,9 @@ class ChangeFile {
             if (!allBranchCommitIdPaths.contains(file.absolutePath)) {
 
                 // special case
-                if (file.name == "HEAD") {
+                if (file.name == "HEAD" || file.name == DELETED_RECYCLE_FILE_NAME) {
                     // remain HEAD
-                    Util.printLog("remain HEAD this special branch")
+                    Util.printLog("remain HEAD and $DELETED_RECYCLE_FILE_NAME branch backup")
                 } else {
                     invalidBackups.add(file.absolutePath)
                     deletedBranchLatestCommitIdList.add(file.readLines().get(0))
@@ -156,7 +157,7 @@ class ChangeFile {
 
         // maintain deleted branch latest commit id
         if (deletedBranchLatestCommitIdList.size() > 0) {
-            File deletedBranchRecycleFile = new File(backupBranchCommitIdFilePath("deleted-recycle~"))
+            File deletedBranchRecycleFile = new File(backupBranchCommitIdFilePath(DELETED_RECYCLE_FILE_NAME))
             saveCommitId(deletedBranchRecycleFile, deletedBranchLatestCommitIdList)
         }
 
