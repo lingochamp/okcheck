@@ -1,3 +1,9 @@
+## 0.2.4
+
+__2018-09-10__
+
+- Fix: fix on some case because of mix of jacoco version raise exec file destroyed. Refs [PR 7](https://github.com/lingochamp/okcheck/pull/7)
+
 ## 0.2.3
 
 __2018-07-06__

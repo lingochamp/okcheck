@@ -28,7 +28,7 @@ On the `build.gradle` at your root project:
 ```groovy
 buildscript {
     dependencies {
-        classpath 'com.liulishuo.okcheck:gradle:0.2.3'
+        classpath 'com.liulishuo.okcheck:gradle:0.2.4'
     }
 }
 
