@@ -3,5 +3,8 @@
 /.idea/misc.xml
 /.idea/libraries
 /.idea/modules.xml
+/.idea/modules/gradle.iml
+/.gradle
 /build
 .DS_Store
+local.properties
