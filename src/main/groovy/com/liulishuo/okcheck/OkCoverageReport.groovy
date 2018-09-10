@@ -36,6 +36,10 @@ class OkCoverageReport extends JacocoReport {
         project.configure(project) {
             apply plugin: 'jacoco'
 
+            jacoco {
+                toolVersion = "0.7.4.201502262128"
+            }
+
             android {
                 testOptions {
                     unitTests.all {
