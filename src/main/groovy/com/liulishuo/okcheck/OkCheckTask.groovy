@@ -34,7 +34,7 @@ class OkCheckTask extends DefaultTask {
 
     @TaskAction
     void setupOkcheck() {
-        if (project == project.rootProject) {
+        if (project == project.rootProject && project.subprojects.size() > 0) {
             Util.printLog("Finish root okcheck task!")
         } else if (!isMock) {
             Util.printLog("Finish ${project.name} okcheck task!")
