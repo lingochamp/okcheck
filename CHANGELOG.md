@@ -1,3 +1,10 @@
+## 0.2.5
+
+__2018-10-18__
+
+- Fix: fix ArrayIndexOutOfBoundsException issue when need-remove-commit-id count larger than 20
+- Feat: handle the case of only have one root-project(no subprojects) case
+
 ## 0.2.4
 
 __2018-09-10__
