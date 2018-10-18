@@ -187,8 +187,10 @@ class ChangeFile {
 
         backupFile.createNewFile()
 
-        if (backupCommitIdList.size() + newCommitIds.size() >= 20) {
-            int needRemoveSize = backupCommitIdList.size() + newCommitIds.size() - 20
+        int maxRemainCount = Math.max(30, newCommitIds.size())
+
+        if (backupCommitIdList.size() + newCommitIds.size() >= maxRemainCount) {
+            int needRemoveSize = backupCommitIdList.size() + newCommitIds.size() - maxRemainCount
 
             Util.printLog("will delete $needRemoveSize from origin count ${backupCommitIdList.size()} because count of new insert ${newCommitIds.size()}")
 
