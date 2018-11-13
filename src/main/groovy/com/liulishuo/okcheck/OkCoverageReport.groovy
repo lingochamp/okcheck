@@ -34,11 +34,13 @@ class OkCoverageReport extends JacocoReport {
         if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) return
 
         project.configure(project) {
-            apply plugin: 'jacoco'
-
-            jacoco {
-                toolVersion = "0.7.4.201502262128"
+            if (!Util.hasJacocoPlugin(project)) {
+                apply plugin: 'jacoco'
             }
+
+//            jacoco {
+//                toolVersion = "0.7.4.201502262128"
+//            }
 
             android {
                 testOptions {

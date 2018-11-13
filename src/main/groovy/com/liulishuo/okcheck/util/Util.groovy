@@ -28,6 +28,10 @@ class Util {
         return project.plugins.hasPlugin("com.android.library")
     }
 
+    static boolean hasJacocoPlugin(Project project) {
+        return project.plugins.hasPlugin("jacoco")
+    }
+
 
     private static boolean isEnableLog = false
 
