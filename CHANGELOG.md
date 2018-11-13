@@ -1,3 +1,7 @@
+## 0.2.7
+
+- Feat: do not apply jacoco plugin manually if it has been applied and do not assign special jacoco version
+
 ## 0.2.5
 
 __2018-10-18__
