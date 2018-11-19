@@ -67,22 +67,29 @@ class OkCheckTask extends DefaultTask {
     def addValidTask(Project project, List<String> moduleList, OkCheckExtension extension, String flavor, String buildType, String firstFlavor) {
         String taskName = OkCheckPlugin.TASK_NAME + "$flavor$buildType"
         Set<String> dependsTaskNames = new HashSet<>()
-        if (extension.lint.enabled) {
-            dependsTaskNames.add(Util.getBuildInTaskName(project.name, taskName, "okLint", flavor, buildType, firstFlavor))
+        if (!flavor.trim()) {
+            dependsTaskNames.addAll(project.android.productFlavors.collect {
+                OkCheckPlugin.TASK_NAME + "${it.name.capitalize()}$buildType"
+            })
         }
-        if (extension.unitTest.enabled) {
-            // unit test only have test, test${buildType}UnitTest and test$flavor${buildType}UnitTest
-            if (buildType.isEmpty() && flavor.isEmpty()) {
-                dependsTaskNames.add("test")
-            } else {
-                dependsTaskNames.add(Util.getBuildInTaskName(project.name, taskName, "test", flavor, buildType, firstFlavor, "UnitTest"))
+        if (!dependsTaskNames) {
+            if (extension.lint.enabled) {
+                dependsTaskNames.add(Util.getBuildInTaskName(project.name, taskName, "okLint", flavor, buildType, firstFlavor))
             }
+            if (extension.unitTest.enabled) {
+                // unit test only have test, test${buildType}UnitTest and test$flavor${buildType}UnitTest
+                if (buildType.isEmpty() && flavor.isEmpty()) {
+                    dependsTaskNames.add("test")
+                } else {
+                    dependsTaskNames.add(Util.getBuildInTaskName(project.name, taskName, "test", flavor, buildType, firstFlavor, "UnitTest"))
+                }
+            }
+            if (extension.coverageReport.enabled) dependsTaskNames.add(OkCoverageReport.getTaskName(flavor, buildType))
+            if (extension.checkStyle.enabled) dependsTaskNames.add(OkCheckStyleTask.NAME)
+            if (extension.pmd.enabled) dependsTaskNames.add(OkPmdTask.NAME)
+            if (extension.findbugs.enabled) dependsTaskNames.add("${OkFindbugsTask.NAME}$flavor$buildType")
+            if (extension.ktlint.enabled) dependsTaskNames.add(OkKtlintTask.NAME)
         }
-        if (extension.coverageReport.enabled) dependsTaskNames.add(OkCoverageReport.getTaskName(flavor, buildType))
-        if (extension.checkStyle.enabled) dependsTaskNames.add(OkCheckStyleTask.NAME)
-        if (extension.pmd.enabled) dependsTaskNames.add(OkPmdTask.NAME)
-        if (extension.findbugs.enabled) dependsTaskNames.add("${OkFindbugsTask.NAME}$flavor$buildType")
-        if (extension.ktlint.enabled) dependsTaskNames.add(OkKtlintTask.NAME)
 
         project.task(taskName, type: OkCheckTask, overwrite: true) {
 //            inputs.files(Util.getAllInputs(project))

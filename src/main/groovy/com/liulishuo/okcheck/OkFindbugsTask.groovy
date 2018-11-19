@@ -116,7 +116,7 @@ class OkFindbugsTask extends FindBugs {
                     flavor = firstFlavor
                 }
 
-                classes = classFiles
+                classes = project.files(classFilePaths)
                 classpath = project.files()
 
                 onlyIf { !skip }
