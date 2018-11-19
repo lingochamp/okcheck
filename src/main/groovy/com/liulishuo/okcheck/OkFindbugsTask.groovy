@@ -47,8 +47,16 @@ class OkFindbugsTask extends FindBugs {
 
     static void addTask(Project project, OkCheckExtension.FindBugsOptions options, String flavor, String buildType, String firstFlavor) {
 
-        project.task("$NAME${flavor.capitalize()}${buildType.capitalize()}", type: OkFindbugsTask) {
+        String promptTask = "$NAME${flavor.capitalize()}${buildType.capitalize()}Prompt"
+        def classFiles = project.files("$project.buildDir/intermediates/classes/$flavor/$buildType",
+                "$project.buildDir/intermediates/javac/$flavor/$buildType")
+        project.task(promptTask) {
             dependsOn "assemble${flavor.capitalize()}${buildType.capitalize()}"
+            onlyIf { classFiles.isEmpty() }
+            println("Could not find class files in any of the following locations:\n$project.buildDir/intermediates/classes/$flavor/$buildType\n$project.buildDir/intermediates/javac/$flavor/$buildType")
+        }
+        project.task("$NAME${flavor.capitalize()}${buildType.capitalize()}", type: OkFindbugsTask, dependsOn: promptTask) {
+
             if (flavor.length() <= 0 && buildType.length() <= 0) {
                 setDescription("Analyzes class with the default set for all variants")
             } else {
@@ -98,9 +106,10 @@ class OkFindbugsTask extends FindBugs {
                     flavor = firstFlavor
                 }
 
-                classes = project.files("$project.buildDir/intermediates/classes/$flavor/$buildType",
-                        "$project.buildDir/intermediates/javac/$flavor/$buildType")
+                classes = classFiles
                 classpath = project.files()
+
+                onlyIf { !classes.isEmpty() }
             }
         }
     }
