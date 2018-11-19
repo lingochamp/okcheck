@@ -57,10 +57,9 @@ class OkFindbugsTask extends FindBugs {
             project.fileTree(dir: it, include: "**/*.class")
         }.inject { l, r -> l + r }
 
-        Boolean skip = classFiles.empty
         project.task(promptTask) {
             dependsOn "assemble${flavor.capitalize()}${buildType.capitalize()}"
-            onlyIf { skip }
+            onlyIf { classFiles.empty }
             doLast {
                 println("Could not find class files in any of the following locations:\n$classFilePaths")
             }
@@ -119,7 +118,7 @@ class OkFindbugsTask extends FindBugs {
                 classes = project.files(classFilePaths)
                 classpath = project.files()
 
-                onlyIf { !skip }
+                onlyIf { !classFiles.empty }
             }
         }
     }
