@@ -1,3 +1,9 @@
+## 0.2.8
+
+- Fix(findbugs): move class file check to task execution stage
+- Fix(okcheck): run all flavors when no flavor is specified
+- Fix(findbugs): skip task if no class files are present
+
 ## 0.2.7
 
 - Feat: do not apply jacoco plugin manually if it has been applied and do not assign special jacoco version

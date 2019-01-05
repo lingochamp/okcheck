@@ -28,7 +28,7 @@
 ```groovy
 buildscript {
     dependencies {
-        classpath 'com.liulishuo.okcheck:gradle:0.2.7'
+        classpath 'com.liulishuo.okcheck:gradle:0.2.8'
     }
 }
 
