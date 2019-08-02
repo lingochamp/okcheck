@@ -1,3 +1,61 @@
+## 0.2.8
+
+- Fix(findbugs): move class file check to task execution stage
+- Fix(okcheck): run all flavors when no flavor is specified
+- Fix(findbugs): skip task if no class files are present
+
+## 0.2.7
+
+- Feat: do not apply jacoco plugin manually if it has been applied and do not assign special jacoco version
+
+## 0.2.5
+
+__2018-10-18__
+
+- Fix: fix ArrayIndexOutOfBoundsException issue when need-remove-commit-id count larger than 20
+- Feat: handle the case of only have one root-project(no subprojects) case
+
+## 0.2.4
+
+__2018-09-10__
+
+- Fix: fix on some case because of mix of jacoco version raise exec file destroyed. Refs [PR 7](https://github.com/lingochamp/okcheck/pull/7)
+
+## 0.2.3
+
+__2018-07-06__
+
+- Feat: record latest commit id of deleted-branch because of there are many cases we need to calc diff from the deleted-branch lastest check-success commit id.
+- Feat: cover the case of branch-name is `branch-name~xxx` and `HEAD`
+
+## 0.2.2
+
+__2018-06-16__
+
+- Fix(Incremental): save up to 20 pass check commit ids for one branch to solve incremental check can't make sense when the nearest passed id was overwritten by later one.
+
+## 0.2.1
+
+__2018-06-10__
+
+- Fix: fix no-such-property exclude issue and correct excludeBugFilter->excludeFilter closes #3
+- Fix: do not define input and output to solve can't save the last success commit id issue
+- Feat: change the default line-length from 100 to 120 checkstyle-with-suppression which has already been effected on checkstyle-non-suppression
+
+## 0.2.0
+
+__2018-06-04__
+
+- Fix: fix no file analysis issue for okFindbugs because of path case sensitive
+- Fix: fix move failed which tests already exists when need to move tests folder to target path
+- Feat: support customize whether need to report xml on findbugs
+
+## 0.1.9
+
+__2018-06-02__
+
+- Fix: fix can't find createDebugCoverageReport issue when there are flavors exists
+
 ## 0.1.8
 
 __2018-05-23__

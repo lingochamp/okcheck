@@ -40,7 +40,7 @@ class OkCheckPlugin implements Plugin<Project> {
         if (project == project.rootProject) CleanOkCheckDiffTask.addTask(project)
 
         // lint, ktlint, checkstyle, unitTest, pmd, findbugs
-        if (project != project.rootProject) {
+        if (project != project.rootProject || project.rootProject.subprojects.size() <= 0) {
             project.afterEvaluate {
                 OkLint.inspectLint(project, okCheckExtension.lint)
                 if (okCheckExtension.checkStyle.enabled) OkCheckStyleTask.addTask(project, okCheckExtension.checkStyle)
@@ -62,24 +62,31 @@ class OkCheckPlugin implements Plugin<Project> {
         if (project == project.rootProject) {
             // root project
             setupOkCheckDiff(project)
+            if (project.subprojects.size() <= 0) {
+                distributeOkCheckTask(project)
+            }
         } else {
             // changed module list
-            final List<String> changedModuleList = BuildConfig.getChangedModuleList(project)
-            project.afterEvaluate {
-                if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) {
-                    Util.printLog("Pass ${project.name} directly because it isn't android/library project.")
-                    BuildConfig.addToPassedModuleFile(project)
-                    return
-                }
+            distributeOkCheckTask(project)
+        }
+    }
 
-                boolean isChangedModule = changedModuleList.contains(project.name)
-                if (isChangedModule) {
-                    Util.printLog("Enable check for ${project.name} because of file changed on it")
-                    OkCheckTask.addValidTask(project, changedModuleList, okCheckExtension)
-                } else {
-                    Util.printLog("NO CHANGED CODE FOUND FOR ${project.name}")
-                    OkCheckTask.addMockTask(project)
-                }
+    private void distributeOkCheckTask(Project project) {
+        final List<String> changedModuleList = BuildConfig.getChangedModuleList(project)
+        project.afterEvaluate {
+            if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) {
+                Util.printLog("Pass ${project.name} directly because it isn't android/library project.")
+                BuildConfig.addToPassedModuleFile(project)
+                return
+            }
+
+            boolean isChangedModule = changedModuleList.contains(project.name)
+            if (isChangedModule) {
+                Util.printLog("Enable check for ${project.name} because of file changed on it")
+                OkCheckTask.addValidTask(project, changedModuleList, okCheckExtension)
+            } else {
+                Util.printLog("NO CHANGED CODE FOUND FOR ${project.name}")
+                OkCheckTask.addMockTask(project)
             }
         }
     }

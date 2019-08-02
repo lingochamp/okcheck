@@ -26,6 +26,7 @@ class ChangeFile {
     private final String currentCommitId = GitUtil.currentCommitId()
     private final String projectName
     private final Project project
+    private static final String DELETED_RECYCLE_FILE_NAME = "deleted-recycle~"
 
     ChangeFile(Project project) {
         this.projectName = project.name
@@ -47,17 +48,9 @@ class ChangeFile {
     }
 
     def refreshLastExecCommitId() {
-        File backupFile = new File(backupPath)
-        if (!backupFile.getParentFile().exists()) {
-            backupFile.getParentFile().mkdirs()
-        }
-
-        if (!backupFile.exists()) {
-            backupFile.createNewFile()
-        }
-
-        Util.printLog("Refresh $currentCommitId to $backupPath")
-        backupFile.write(currentCommitId)
+        final List<String> newCommitIds = new ArrayList<>()
+        newCommitIds.add(currentCommitId)
+        saveCommitId(new File(backupPath), newCommitIds)
     }
 
     @Nullable
@@ -76,18 +69,26 @@ class ChangeFile {
                 break
             }
 
+            Util.printLog("Can't find the $currentBranchName file, so try others")
             candidateId = null
             def dir = new File(getCommitIdBackupPath())
 
             int leastCount = -1
             dir.eachFileRecurse(FileType.FILES) { file ->
-                String id = file.readLines().get(0)
-                if (allBeforeCommitIds.contains(id)) {
-                    int count = GitUtil.farToCommit(id, currentCommitId)
-                    if (leastCount == -1 || leastCount > count) {
-                        leastCount = count
-                        candidateId = id
-                        branchName = (file.absolutePath - dir.absolutePath).substring(1)
+                List<String> ids = file.readLines()
+
+                for (String id : ids) {
+                    id = id.trim().replaceAll("[\r\n]+", "")
+                    if (id == null || id.length() <= 0) continue
+
+                    if (allBeforeCommitIds.contains(id)) {
+                        int count = GitUtil.farToCommit(id, currentCommitId)
+                        Util.printLog("far to $count of $id")
+                        if (leastCount == -1 || leastCount > count) {
+                            leastCount = count
+                            candidateId = id
+                            branchName = (file.absolutePath - dir.absolutePath).substring(1)
+                        }
                     }
                 }
             }
@@ -97,13 +98,17 @@ class ChangeFile {
 
 
         if (branchName != null) {
-            Util.printLog("Found latest success check the commit id[$candidateId] which was ran on the branch[$branchName]")
+            if (branchName == "HEAD" || branchName == DELETED_RECYCLE_FILE_NAME) {
+                Util.printLog("Found latest success check the commit id[$candidateId] which was ran on the record file[$branchName]")
+            } else {
+                Util.printLog("Found latest success check the commit id[$candidateId] which was ran on the branch[$branchName]")
+            }
         }
         return candidateId
     }
 
     String maintain() {
-        String info = "maintain:"
+        String info = ""
         final List<String> branchNames = GitUtil.listAllBranches()
         final List<String> allBranchCommitIdPaths = new ArrayList<>()
         branchNames.forEach {
@@ -113,14 +118,23 @@ class ChangeFile {
         final commitBackupFile = new File(getCommitIdBackupPath())
         if (!commitBackupFile.exists()) {
             info += "no invalid backup found."
-            return info
+            return "maintain: " + info
         }
 
         // assemble all no exist backups
         final List<String> invalidBackups = new ArrayList<>()
+        final List<String> deletedBranchLatestCommitIdList = new ArrayList<>()
         commitBackupFile.eachFileRecurse(FileType.FILES) { file ->
             if (!allBranchCommitIdPaths.contains(file.absolutePath)) {
-                invalidBackups.add(file.absolutePath)
+
+                // special case
+                if (file.name == "HEAD" || file.name == DELETED_RECYCLE_FILE_NAME) {
+                    // remain HEAD
+                    Util.printLog("remain HEAD and $DELETED_RECYCLE_FILE_NAME branch backup")
+                } else {
+                    invalidBackups.add(file.absolutePath)
+                    deletedBranchLatestCommitIdList.add(file.readLines().get(0))
+                }
             }
         }
 
@@ -145,7 +159,63 @@ class ChangeFile {
             }
         }
 
-        return info
+        // maintain deleted branch latest commit id
+        if (deletedBranchLatestCommitIdList.size() > 0) {
+            File deletedBranchRecycleFile = new File(backupBranchCommitIdFilePath(DELETED_RECYCLE_FILE_NAME))
+            saveCommitId(deletedBranchRecycleFile, deletedBranchLatestCommitIdList)
+        }
+
+        if (info.length() > 0) {
+            return "maintain: " + info
+        } else {
+            return info
+        }
+    }
+
+    private static void saveCommitId(File backupFile, List<String> newCommitIds) {
+        if (!backupFile.getParentFile().exists()) {
+            backupFile.getParentFile().mkdirs()
+        }
+
+        final List<String> backupCommitIdList
+        if (backupFile.exists()) {
+            backupCommitIdList = backupFile.readLines()
+            backupFile.delete()
+        } else {
+            backupCommitIdList = new ArrayList<>()
+        }
+
+        backupFile.createNewFile()
+
+        int maxRemainCount = Math.max(30, newCommitIds.size())
+
+        if (backupCommitIdList.size() + newCommitIds.size() >= maxRemainCount) {
+            int needRemoveSize = backupCommitIdList.size() + newCommitIds.size() - maxRemainCount
+
+            Util.printLog("will delete $needRemoveSize from origin count ${backupCommitIdList.size()} because count of new insert ${newCommitIds.size()}")
+
+            while (needRemoveSize > 0) {
+                needRemoveSize--
+                backupCommitIdList.remove(backupCommitIdList.size() - 1)
+            }
+        }
+
+        newCommitIds.reverse()
+        for (String newCommitId : newCommitIds) {
+            backupCommitIdList.add(0, newCommitId)
+        }
+
+        boolean isFirstLine = true
+        for (String commitId : backupCommitIdList) {
+            if (isFirstLine) {
+                backupFile.append(commitId)
+                isFirstLine = false
+            } else {
+                backupFile.append("\n" + commitId)
+            }
+        }
+
+        Util.printLog("Save commit <${backupCommitIdList.toArray()}> to ${backupFile.absolutePath}")
     }
 
     String backupBranchCommitIdFilePath(String branchName) {

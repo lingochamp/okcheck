@@ -22,18 +22,29 @@ class ChangeModule {
 
     static List<String> getAllModuleList(Project project) {
         final List<String> moduleNameList = new ArrayList<>()
-        project.subprojects {
-            moduleNameList.add(it.name)
+
+        if (project.subprojects.size() <= 0) {
+            moduleNameList.add(project.name)
+        } else {
+            project.subprojects {
+                moduleNameList.add(it.name)
+            }
         }
+
         return moduleNameList
     }
 
     static List<String> getChangedModuleList(Project project, List<String> changedFilePaths) {
         final List<PathModule> pathModuleList = new ArrayList<>()
         File rootDir = project.rootProject.rootDir
-        project.subprojects {
-            String relativePath = rootDir.toURI().relativize(it.projectDir.toURI()).getPath()
-            pathModuleList.add(new PathModule(relativePath, it.name))
+        if (project.subprojects.size() <= 0) {
+            String relativePath = rootDir.toURI().relativize(project.projectDir.toURI()).getPath()
+            pathModuleList.add(new PathModule(relativePath, project.name))
+        } else {
+            project.subprojects {
+                String relativePath = rootDir.toURI().relativize(it.projectDir.toURI()).getPath()
+                pathModuleList.add(new PathModule(relativePath, it.name))
+            }
         }
 
         final List<String> changedModuleNameList = new ArrayList<>()

@@ -78,7 +78,6 @@ class OkCheckExtension {
         this.pmd.exclude = exclude
         this.ktlint.exclude = exclude
         this.lint.exclude = exclude
-        this.coverageReport.exclude = exclude
     }
 
     void setDestination(File destination) {
@@ -328,6 +327,9 @@ class OkCheckExtension {
 
         boolean enabled = true
 
+        boolean reportXml = false
+        boolean reportHtml = true
+
         @NonNull
         private final CommonHelper common
 
@@ -344,6 +346,11 @@ class OkCheckExtension {
         @NonNull
         File getHtmlFile() {
             return common.htmlFile
+        }
+
+        @NonNull
+        File getXmlFile() {
+            return common.xmlFile
         }
 
         void setExclude(String... exclude) {

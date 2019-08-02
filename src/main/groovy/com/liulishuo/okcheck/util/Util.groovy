@@ -28,6 +28,10 @@ class Util {
         return project.plugins.hasPlugin("com.android.library")
     }
 
+    static boolean hasJacocoPlugin(Project project) {
+        return project.plugins.hasPlugin("jacoco")
+    }
+
 
     private static boolean isEnableLog = false
 
@@ -104,13 +108,13 @@ class Util {
         addTask("", "", firstFlavor)
 
         buildTypes.each { buildType ->
-            addTask("", "${buildType.capitalize()}", firstFlavor)
+            addTask("", "$buildType", firstFlavor)
         }
 
         productFlavors.each { flavor ->
             buildTypes.each { buildType ->
                 if (flavor) {
-                    addTask("${flavor.capitalize()}", "${buildType.capitalize()}", firstFlavor)
+                    addTask("$flavor", "$buildType", firstFlavor)
                 }
             }
         }

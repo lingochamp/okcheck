@@ -20,7 +20,13 @@ class GitUtil {
     final static String developBranchName = 'develop'
 
     static String currentBranchName() {
-        return runCmd("git name-rev --name-only HEAD")
+        final String branchName = runCmd("git name-rev --name-only HEAD")
+        if (branchName.contains('~')) {
+            return branchName.split('~')[0]
+        } else {
+            return branchName
+        }
+
     }
 
     static String commitIdFromDevelop(String branchName) {
@@ -59,7 +65,7 @@ class GitUtil {
     }
 
     static List<String> assembleLastStringForEachLine(List<String> originList) {
-        final List<String> lastStringList = new ArrayList<>();
+        final List<String> lastStringList = new ArrayList<>()
         originList.forEach {
             String[] splitLine = it.split(" ")
             lastStringList.add(splitLine[splitLine.length - 1])

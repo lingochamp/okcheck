@@ -41,25 +41,46 @@ class OkFindbugsTask extends FindBugs {
         if (!Util.hasAndroidPlugin(project) && !Util.hasLibraryPlugin(project)) return
 
         Util.addTaskWithVariants(project) { flavor, buildType, firstFlavor ->
-            addTask(project, options, "$flavor", "$buildType")
+            addTask(project, options, "$flavor", "$buildType", "$firstFlavor")
         }
     }
 
-    static void addTask(Project project, OkCheckExtension.FindBugsOptions options, String flavor, String buildType) {
+    static void addTask(Project project, OkCheckExtension.FindBugsOptions options, String flavor, String buildType, String firstFlavor) {
 
-        project.task("$NAME${flavor.capitalize()}${buildType.capitalize()}", type: OkFindbugsTask) {
+        String promptTask = "$NAME${flavor.capitalize()}${buildType.capitalize()}Prompt"
+
+        def classFilePaths = ["$project.buildDir/intermediates/classes/$flavor/$buildType",
+                              "$project.buildDir/intermediates/javac/$flavor/$buildType",
+                              "$project.buildDir/intermediates/javac/${flavor ? flavor + buildType.capitalize() : buildType}"]
+
+        def classFiles = classFilePaths.collect {
+            project.fileTree(dir: it, include: "**/*.class")
+        }.inject { l, r -> l + r }
+
+        project.task(promptTask) {
             dependsOn "assemble${flavor.capitalize()}${buildType.capitalize()}"
+            onlyIf { classFiles.empty }
+            doLast {
+                println("Could not find class files in any of the following locations:\n$classFilePaths")
+            }
+        }
+        project.task("$NAME${flavor.capitalize()}${buildType.capitalize()}", type: OkFindbugsTask, dependsOn: promptTask) {
+
             if (flavor.length() <= 0 && buildType.length() <= 0) {
                 setDescription("Analyzes class with the default set for all variants")
             } else {
-                setDescription("Analyzes class with the default set for $flavor$buildType build.")
+                setDescription("Analyzes class with the default set for ${flavor.capitalize()}${buildType.capitalize()} build.")
             }
             project.extensions.findbugs.with {
+                toolVersin = '3.0.1'
                 reports {
-                    xml.enabled = false
+                    xml {
+                        enabled = options.reportXml
+                        destination options.getXmlFile()
+                    }
                     html {
                         destination options.getHtmlFile()
-                        enabled = true
+                        enabled = options.reportHtml
                     }
                 }
                 if (options.excludeFilterConfig != null) {
@@ -91,9 +112,14 @@ class OkFindbugsTask extends FindBugs {
                 exclude '**/protobuf/*.java'
                 exclude '**/com/google/**/*.java'
 
-                classes = project.files("$project.buildDir/intermediates/classes/${flavor.toLowerCase()}/${buildType.toLowerCase()}",
-                        "$project.buildDir/intermediates/javac/${flavor.toLowerCase()}/${buildType.toLowerCase()}")
+                if ((flavor == null || flavor.isEmpty()) && (firstFlavor != null && !firstFlavor.isEmpty())) {
+                    flavor = firstFlavor
+                }
+
+                classes = project.files(classFilePaths)
                 classpath = project.files()
+
+                onlyIf { !classFiles.empty }
             }
         }
     }
