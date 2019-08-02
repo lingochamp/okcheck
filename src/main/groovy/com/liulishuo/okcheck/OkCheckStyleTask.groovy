@@ -53,7 +53,7 @@ class OkCheckStyleTask extends Checkstyle {
 
         project.task(NAME, type: OkCheckStyleTask) {
             project.extensions.checkstyle.with {
-                toolVersion = "8.3"
+                toolVersion = "6.19"
 
                 reports {
                     html.setDestination(options.htmlFile)

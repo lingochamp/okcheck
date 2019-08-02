@@ -72,6 +72,7 @@ class OkFindbugsTask extends FindBugs {
                 setDescription("Analyzes class with the default set for ${flavor.capitalize()}${buildType.capitalize()} build.")
             }
             project.extensions.findbugs.with {
+                toolVersin = '3.0.1'
                 reports {
                     xml {
                         enabled = options.reportXml
