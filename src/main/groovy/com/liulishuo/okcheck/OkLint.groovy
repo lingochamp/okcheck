@@ -49,27 +49,8 @@ class OkLint extends SourceTask {
     static void addTask(Project project, OkCheckExtension.LintOptions options, String flavor, String buildType, boolean incrementalLint) {
 
         def outputFile = options.htmlOutput
-        FileTree inputFiles = null
+        FileTree inputFiles = Util.getInputsByType(project, Util.InputType.LINT)
 
-        if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
-            inputFiles = Util.getAllInputs(project)
-
-        } else {
-            inputFiles = project.fileTree(dir: 'src/main/java')
-            for (String fileName in IncrementFilesHelper.instance.incrementFiles) {
-                inputFiles.include "$fileName"
-            }
-        }
-        inputFiles.matching {
-            exclude '**/gen/**'
-            exclude '**/test/**'
-            exclude '**/proto/*.java'
-            exclude '**/protobuf/*.java'
-            exclude '**/com/google/**/*.java'
-            exclude "android/*"
-            exclude "androidx/*"
-            exclude "com/android/*"
-        }
 
 
         project.task(getTaskName(flavor, buildType), type: OkLint) {

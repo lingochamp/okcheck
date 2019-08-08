@@ -16,7 +16,7 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.util.IncrementFilesHelper
+
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
@@ -42,26 +42,7 @@ class OkPmdTask extends Pmd {
             apply plugin: 'pmd'
         }
         def outputFile = options.htmlFile
-        FileTree inputFiles
-        if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
-            inputFiles = project.fileTree(dir: "src", include: "**/*.java")
-
-        } else {
-            inputFiles = project.fileTree(dir: 'src/main/java')
-            for (String fileName in IncrementFilesHelper.instance.incrementFiles) {
-                inputFiles.include "$fileName"
-            }
-        }
-
-        inputFiles.matching {
-            exclude '**/gen/**', '**/test/**'
-            exclude '**/proto/*.java'
-            exclude '**/protobuf/*.java'
-            exclude '**/com/google/**/*.java'
-            exclude "android/*"
-            exclude "androidx/*"
-            exclude "com/android/*"
-        }
+        FileTree inputFiles = Util.getInputsByType(project, Util.InputType.PMD)
 
         project.task(NAME, type: OkPmdTask) {
             inputs.files(inputFiles)

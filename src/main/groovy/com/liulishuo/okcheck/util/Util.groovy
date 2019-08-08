@@ -18,6 +18,8 @@
 package com.liulishuo.okcheck.util
 
 import org.gradle.api.Project
+import org.gradle.api.file.ConfigurableFileTree
+import org.gradle.api.file.FileTree
 
 class Util {
     static boolean hasAndroidPlugin(Project project) {
@@ -126,6 +128,63 @@ class Util {
         inputFiles += project.fileTree(dir: "src", include: "**/*.groovy")
         inputFiles += project.fileTree(dir: "src", include: "**/*.xml")
         return inputFiles
+    }
 
+    static def getInputsByType(Project project, InputType type) {
+        FileTree inputFiles = project.fileTree(dir: 'src/main/java')
+        if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
+            inputFiles = getFullInputs(project,type, inputFiles)
+        } else {
+            getIncrementInputFiles(inputFiles, type)
+        }
+        inputFiles.matching {
+            exclude '**/gen/**', '**/test/**'
+            exclude '**/proto/*.java'
+            exclude '**/protobuf/*.java'
+            exclude '**/com/google/**/*.java'
+            exclude "android/*"
+            exclude "androidx/*"
+            exclude "com/android/*"
+        }
+
+        return inputFiles
+    }
+
+    private static void getIncrementInputFiles(ConfigurableFileTree inputFiles, InputType type) {
+        for (String fileName in IncrementFilesHelper.instance.incrementFiles) {
+            inputFiles.include "$fileName"
+            switch (type) {
+                case InputType.KT_LINT:
+                    if (fileName.endsWith(".kt")) {
+                        inputFiles.include "$fileName"
+                    }
+                    break
+                case InputType.PMD:
+                    inputFiles.include "$fileName"
+                    break
+                default:
+                    inputFiles.include "$fileName"
+            }
+        }
+    }
+    private static FileTree getFullInputs(Project project,InputType type, FileTree inputFiles) {
+        switch (type) {
+            case InputType.KT_LINT:
+                inputFiles.matching { include: "**/*.kt" }
+                break
+            case InputType.PMD:
+                inputFiles = inputFiles.matching { include: "**/*.java" }
+                break
+            case InputType.LINT:
+                inputFiles = getAllInputs(project)
+                break
+        }
+        inputFiles
+    }
+
+    enum InputType {
+        LINT,
+        PMD,
+        KT_LINT
     }
 }
