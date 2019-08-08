@@ -16,6 +16,7 @@
 
 package com.liulishuo.okcheck
 
+import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.GradleException
@@ -76,11 +77,22 @@ class OkCheckStyleTask extends Checkstyle {
                 }
 
                 source 'src'
-                include '**/*.java'
+
+                if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
+                    include '**/*.java'
+                } else {
+                    for(String fileName in IncrementFilesHelper.instance.incrementFiles) {
+                        include "$fileName"
+                    }
+                }
+
                 exclude '**/gen/**', '**/test/**'
                 exclude '**/proto/*.java'
                 exclude '**/protobuf/*.java'
                 exclude '**/com/google/**/*.java'
+                exclude "android/*"
+                exclude "androidx/*"
+                exclude "com/android/*"
 
                 classpath = project.files()
                 reports {

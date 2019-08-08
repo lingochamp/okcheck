@@ -16,13 +16,14 @@
 
 package com.liulishuo.okcheck
 
+import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.Util
-import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileTree
+import org.gradle.api.tasks.SourceTask
 
-class OkLint extends DefaultTask {
+class OkLint extends SourceTask {
 
     /**
      * Check whether need to effect the origin lint task to let it incrementally.
@@ -48,7 +49,28 @@ class OkLint extends DefaultTask {
     static void addTask(Project project, OkCheckExtension.LintOptions options, String flavor, String buildType, boolean incrementalLint) {
 
         def outputFile = options.htmlOutput
-        def inputFiles = Util.getAllInputs(project)
+        FileTree inputFiles = null
+
+        if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
+            inputFiles = Util.getAllInputs(project)
+
+        } else {
+            inputFiles = project.fileTree(dir: 'src/main/java')
+            for (String fileName in IncrementFilesHelper.instance.incrementFiles) {
+                inputFiles.include "$fileName"
+            }
+        }
+        inputFiles.matching {
+            exclude '**/gen/**'
+            exclude '**/test/**'
+            exclude '**/proto/*.java'
+            exclude '**/protobuf/*.java'
+            exclude '**/com/google/**/*.java'
+            exclude "android/*"
+            exclude "androidx/*"
+            exclude "com/android/*"
+        }
+
 
         project.task(getTaskName(flavor, buildType), type: OkLint) {
             dependsOn getOriginTaskName(flavor, buildType)

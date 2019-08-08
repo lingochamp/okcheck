@@ -20,6 +20,7 @@ import com.liulishuo.okcheck.util.BuildConfig
 import com.liulishuo.okcheck.util.ChangeFile
 import com.liulishuo.okcheck.util.ChangeModule
 import com.liulishuo.okcheck.util.GitUtil
+import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -143,6 +144,9 @@ class OkCheckPlugin implements Plugin<Project> {
                         changedModuleList.forEach {
                             Util.printLog("       $it")
                         }
+
+                        IncrementFilesHelper.instance.addIncrementFiles(changedCodeFilePathList)
+                        IncrementFilesHelper.instance.addChangeModules(changedModuleList)
                     }
                 }
             }

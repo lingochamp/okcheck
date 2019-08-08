@@ -16,6 +16,7 @@
 
 package com.liulishuo.okcheck
 
+import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
@@ -72,7 +73,7 @@ class OkFindbugsTask extends FindBugs {
                 setDescription("Analyzes class with the default set for ${flavor.capitalize()}${buildType.capitalize()} build.")
             }
             project.extensions.findbugs.with {
-                toolVersin = '3.0.1'
+                toolVersion = '3.0.1'
                 reports {
                     xml {
                         enabled = options.reportXml
@@ -106,11 +107,22 @@ class OkFindbugsTask extends FindBugs {
                 }
 
                 source 'src'
-                include '**/*.java'
+
+                if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
+                    include '**/*.java'
+                } else  {
+                    for (String fileName : IncrementFilesHelper.instance.incrementFiles) {
+                        include "$fileName"
+                    }
+                }
+
                 exclude '**/gen/**', '**/test/**'
                 exclude '**/proto/*.java'
                 exclude '**/protobuf/*.java'
                 exclude '**/com/google/**/*.java'
+                exclude "android/*"
+                exclude "androidx/*"
+                exclude "com/android/*"
 
                 if ((flavor == null || flavor.isEmpty()) && (firstFlavor != null && !firstFlavor.isEmpty())) {
                     flavor = firstFlavor
