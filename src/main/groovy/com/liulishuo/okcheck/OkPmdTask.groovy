@@ -20,6 +20,7 @@ import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.gradle.api.plugins.quality.Pmd
 
 class OkPmdTask extends Pmd {
@@ -40,9 +41,27 @@ class OkPmdTask extends Pmd {
         project.configure(project) {
             apply plugin: 'pmd'
         }
-        def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
-        inputFiles += project.fileTree(dir: "src", include: "**/*.java")
         def outputFile = options.htmlFile
+        FileTree inputFiles
+        if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
+            inputFiles = project.fileTree(dir: "src", include: "**/*.java")
+
+        } else {
+            inputFiles = project.fileTree(dir: 'src/main/java')
+            for (String fileName in IncrementFilesHelper.instance.incrementFiles) {
+                inputFiles.include "$fileName"
+            }
+        }
+
+        inputFiles.matching {
+            exclude '**/gen/**', '**/test/**'
+            exclude '**/proto/*.java'
+            exclude '**/protobuf/*.java'
+            exclude '**/com/google/**/*.java'
+            exclude "android/*"
+            exclude "androidx/*"
+            exclude "com/android/*"
+        }
 
         project.task(NAME, type: OkPmdTask) {
             inputs.files(inputFiles)
@@ -70,22 +89,6 @@ class OkPmdTask extends Pmd {
 
                 ruleSets = []
                 source 'src'
-
-                if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
-                    include '**/*.java'
-                } else {
-                    for(String fileName : IncrementFilesHelper.instance.incrementFiles) {
-                        include "$fileName"
-                    }
-                }
-
-                exclude '**/gen/**', '**/test/**'
-                exclude '**/proto/*.java'
-                exclude '**/protobuf/*.java'
-                exclude '**/com/google/**/*.java'
-                exclude "android/*"
-                exclude "androidx/*"
-                exclude "com/android/*"
 
                 if (options.ignoreFailures) {
 //                    Util.printLog("Enable ignoreFailures for pmd")

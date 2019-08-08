@@ -16,8 +16,10 @@
 
 package com.liulishuo.okcheck
 
+import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.JavaExec
 
 class OkKtlintTask extends JavaExec {
@@ -41,7 +43,18 @@ class OkKtlintTask extends JavaExec {
             }
         }
 
-        def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
+        FileTree inputFiles = null
+        if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
+            inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
+        } else {
+            inputFiles = project.fileTree(dir: 'src/main/java')
+            for (String fileName in IncrementFilesHelper.instance.incrementFiles) {
+                if (fileName.endsWith(".kt")) {
+                    inputFiles.include "$fileName"
+                }
+            }
+        }
+
         if (options.exclude.size() > 0) inputFiles.exclude(options.exclude)
         def outputFile = options.xmlFile
 
