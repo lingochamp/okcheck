@@ -16,7 +16,6 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
