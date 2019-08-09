@@ -46,6 +46,7 @@ class OkCheckStyleTask extends Checkstyle {
     }
 
     static String NAME = "okCheckStyle"
+    List<String> changeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
 
     static void addTask(Project project, OkCheckExtension.CheckStyleOptions options) {
         project.configure(project) {
@@ -78,12 +79,18 @@ class OkCheckStyleTask extends Checkstyle {
 
                 source 'src'
 
-                if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
+                if (changeFiles.isEmpty()) {
                     include '**/*.java'
                 } else {
-                    for(String fileName in IncrementFilesHelper.instance.incrementFiles) {
-                        include "$fileName"
+
+                    boolean enableCheckStyle = false
+                    for(String fileName in changeFiles) {
+                        if (fileName.contains(".java")) {
+                            include "$fileName"
+                            enableCheckStyle = true
+                        }
                     }
+                    enabled = enableCheckStyle
                 }
 
                 exclude '**/gen/**', '**/test/**'

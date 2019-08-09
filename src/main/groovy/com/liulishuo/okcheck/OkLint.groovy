@@ -16,7 +16,6 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -50,8 +49,6 @@ class OkLint extends SourceTask {
 
         def outputFile = options.htmlOutput
         FileTree inputFiles = Util.getInputsByType(project, Util.InputType.LINT)
-
-
 
         project.task(getTaskName(flavor, buildType), type: OkLint) {
             dependsOn getOriginTaskName(flavor, buildType)

@@ -16,7 +16,7 @@
 
 package com.liulishuo.okcheck
 
-
+import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
@@ -43,6 +43,7 @@ class OkPmdTask extends Pmd {
         }
         def outputFile = options.htmlFile
         FileTree inputFiles = Util.getInputsByType(project, Util.InputType.PMD)
+        List<String> changeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
 
         project.task(NAME, type: OkPmdTask) {
             inputs.files(inputFiles)
@@ -76,6 +77,16 @@ class OkPmdTask extends Pmd {
                     ignoreFailures = true
                 }
 
+                if (!changeFiles.isEmpty()) {
+                    boolean isEnablePmd = false
+                    for (String fileName: changeFiles) {
+                        if (changeFiles.contains(".java")) {
+                            isEnablePmd = true
+                        }
+                    }
+
+                    enabled = isEnablePmd
+                }
             }
         }
         project.afterEvaluate {

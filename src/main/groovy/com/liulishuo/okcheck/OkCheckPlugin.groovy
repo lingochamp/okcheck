@@ -134,7 +134,6 @@ class OkCheckPlugin implements Plugin<Project> {
                     }
                 }
 
-
                 if (changedCodeFilePathList.isEmpty()) {
                     Util.printLog("NO CHANGED CODE FILE!")
                 } else {
@@ -144,9 +143,6 @@ class OkCheckPlugin implements Plugin<Project> {
                         changedModuleList.forEach {
                             Util.printLog("       $it")
                         }
-
-                        IncrementFilesHelper.instance.addIncrementFiles(changedCodeFilePathList)
-                        IncrementFilesHelper.instance.addChangeModules(changedModuleList)
                     }
                 }
             }

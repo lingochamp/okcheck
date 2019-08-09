@@ -16,8 +16,7 @@ package com.liulishuo.okcheck.util
  */
 
 class IncrementFilesHelper {
-    private List<String> incrementFiles = new ArrayList<>();
-    private List<String> changeModules = new ArrayList<>()
+    private Map<String,String> map = new HashMap<>()
 
     private  IncrementFilesHelper() {}
 
@@ -29,25 +28,11 @@ class IncrementFilesHelper {
         private static final INSTANCE = new IncrementFilesHelper();
     }
 
-    List<String> getIncrementFiles() {
-        return incrementFiles
+    void addModuleChangeFile(Map<String,String> changModuleMap) {
+        map = changModuleMap
     }
 
-    void addIncrementFiles(List<String> files) {
-        incrementFiles.clear();
-        incrementFiles.addAll(files);
-    }
-
-    List<String> getChangeModules() {
-        return changeModules
-    }
-
-    void addChangeModules(List<String> modules) {
-        changeModules.clear()
-        changeModules.addAll(modules)
-    }
-
-    boolean needAddTask(String name) {
-        return incrementFiles.size() >0 && incrementFiles.contains(name)
+    List<String> getModuleChangeFiles(String projectName) {
+        return map.get(projectName) != null ? map.get(projectName) : new ArrayList<String>()
     }
 }

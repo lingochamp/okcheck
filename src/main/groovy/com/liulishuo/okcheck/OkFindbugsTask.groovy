@@ -72,6 +72,7 @@ class OkFindbugsTask extends FindBugs {
             } else {
                 setDescription("Analyzes class with the default set for ${flavor.capitalize()}${buildType.capitalize()} build.")
             }
+            List<String> changeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
             project.extensions.findbugs.with {
                 toolVersion = '3.0.1'
                 reports {
@@ -108,12 +109,19 @@ class OkFindbugsTask extends FindBugs {
 
                 source 'src'
 
-                if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
+
+                if (changeFiles.isEmpty()) {
                     include '**/*.java'
                 } else  {
-                    for (String fileName : IncrementFilesHelper.instance.incrementFiles) {
-                        include "$fileName"
+
+                    boolean enableFindbugs = false
+                    for (java.lang.String fileName : changeFiles) {
+                        if (fileName.contains(".java")) {
+                            enableFindbugs = true
+                            include "$fileName"
+                        }
                     }
+                    enabled = enableFindbugs
                 }
 
                 exclude '**/gen/**', '**/test/**'

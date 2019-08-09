@@ -132,10 +132,11 @@ class Util {
 
     static def getInputsByType(Project project, InputType type) {
         FileTree inputFiles = project.fileTree(dir: 'src/main/java')
-        if (IncrementFilesHelper.instance.incrementFiles.isEmpty()) {
+        List<String> moduleChangeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
+        if (moduleChangeFiles.isEmpty()) {
             inputFiles = getFullInputs(project,type, inputFiles)
         } else {
-            getIncrementInputFiles(inputFiles, type)
+            getIncrementInputFiles(moduleChangeFiles,inputFiles, type)
         }
         inputFiles.matching {
             exclude '**/gen/**', '**/test/**'
@@ -150,8 +151,8 @@ class Util {
         return inputFiles
     }
 
-    private static void getIncrementInputFiles(ConfigurableFileTree inputFiles, InputType type) {
-        for (String fileName in IncrementFilesHelper.instance.incrementFiles) {
+    private static void getIncrementInputFiles(List<String> changeFiles,ConfigurableFileTree inputFiles, InputType type) {
+        for (String fileName in changeFiles) {
             inputFiles.include "$fileName"
             switch (type) {
                 case InputType.KT_LINT:
