@@ -44,7 +44,7 @@ class OkCheckPlugin implements Plugin<Project> {
         if (project != project.rootProject || project.rootProject.subprojects.size() <= 0) {
             project.afterEvaluate {
 
-                okCheckExtension = configureIncrementCheckStyle(project,okCheckExtension)
+                okCheckExtension = configureIncrementTask(project,okCheckExtension)
 
                 OkLint.inspectLint(project, okCheckExtension.lint)
                 if (okCheckExtension.checkStyle.enabled) OkCheckStyleTask.addTask(project, okCheckExtension.checkStyle)
@@ -75,7 +75,7 @@ class OkCheckPlugin implements Plugin<Project> {
         }
     }
 
-    private static OkCheckExtension configureIncrementCheckStyle(Project project, OkCheckExtension okCheckExtension) {
+    private static OkCheckExtension configureIncrementTask(Project project, OkCheckExtension okCheckExtension) {
         List<String> changeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
         if (changeFiles.isEmpty()) return okCheckExtension
 
