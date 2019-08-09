@@ -85,12 +85,11 @@ class OkCheckPlugin implements Plugin<Project> {
         boolean isEnableKtLint = false
         for (String fileName : changeFiles) {
             if (fileName.contains(".java")) {
-                isEnableCheckStyle = true
-                isEnableFindBugs = true
-                isEnablePMD = true
+                if (okCheckExtension.checkStyle.enabled) isEnableCheckStyle = true
+                if (okCheckExtension.findbugs.enabled) isEnableFindBugs = true
+                if (okCheckExtension.pmd.enabled) isEnablePMD = true
             } else if (fileName.contains(".kt")) {
-                isEnableKtLint = true
-                okCheckExtension.ktlint.includeFileList.add(fileName)
+                if (okCheckExtension.ktlint.enabled) isEnableKtLint = true
             }
         }
 
