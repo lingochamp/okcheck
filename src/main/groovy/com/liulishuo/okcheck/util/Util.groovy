@@ -153,7 +153,6 @@ class Util {
 
     private static void getIncrementInputFiles(List<String> changeFiles,ConfigurableFileTree inputFiles, InputType type) {
         for (String fileName in changeFiles) {
-            inputFiles.include "$fileName"
             switch (type) {
                 case InputType.KT_LINT:
                     if (fileName.endsWith(".kt")) {
