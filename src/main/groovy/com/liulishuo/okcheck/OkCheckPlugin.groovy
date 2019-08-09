@@ -20,6 +20,7 @@ import com.liulishuo.okcheck.util.BuildConfig
 import com.liulishuo.okcheck.util.ChangeFile
 import com.liulishuo.okcheck.util.ChangeModule
 import com.liulishuo.okcheck.util.GitUtil
+import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -42,6 +43,9 @@ class OkCheckPlugin implements Plugin<Project> {
         // lint, ktlint, checkstyle, unitTest, pmd, findbugs
         if (project != project.rootProject || project.rootProject.subprojects.size() <= 0) {
             project.afterEvaluate {
+
+                okCheckExtension = configureIncrementTask(project,okCheckExtension)
+
                 OkLint.inspectLint(project, okCheckExtension.lint)
                 if (okCheckExtension.checkStyle.enabled) OkCheckStyleTask.addTask(project, okCheckExtension.checkStyle)
                 if (okCheckExtension.pmd.enabled) OkPmdTask.addTask(project, okCheckExtension.pmd)
@@ -69,6 +73,31 @@ class OkCheckPlugin implements Plugin<Project> {
             // changed module list
             distributeOkCheckTask(project)
         }
+    }
+
+    private static OkCheckExtension configureIncrementTask(Project project, OkCheckExtension okCheckExtension) {
+        List<String> changeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
+        if (changeFiles.isEmpty()) return okCheckExtension
+
+        boolean isEnableCheckStyle = false
+        boolean isEnableFindBugs = false
+        boolean isEnablePMD = false
+        boolean isEnableKtLint = false
+        for (String fileName : changeFiles) {
+            if (fileName.contains(".java")) {
+                if (okCheckExtension.checkStyle.enabled) isEnableCheckStyle = true
+                if (okCheckExtension.findbugs.enabled) isEnableFindBugs = true
+                if (okCheckExtension.pmd.enabled) isEnablePMD = true
+            } else if (fileName.contains(".kt")) {
+                if (okCheckExtension.ktlint.enabled) isEnableKtLint = true
+            }
+        }
+
+        okCheckExtension.checkStyle.enabled = isEnableCheckStyle
+        okCheckExtension.findbugs.enabled = isEnableFindBugs
+        okCheckExtension.pmd.enabled = isEnablePMD
+        okCheckExtension.ktlint.enabled = isEnableKtLint
+        return okCheckExtension
     }
 
     private void distributeOkCheckTask(Project project) {
@@ -132,7 +161,6 @@ class OkCheckPlugin implements Plugin<Project> {
                         changedCodeFilePathList.add(it)
                     }
                 }
-
 
                 if (changedCodeFilePathList.isEmpty()) {
                     Util.printLog("NO CHANGED CODE FILE!")

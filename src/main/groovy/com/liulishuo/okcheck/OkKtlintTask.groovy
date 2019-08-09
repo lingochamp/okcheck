@@ -18,6 +18,7 @@ package com.liulishuo.okcheck
 
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.JavaExec
 
 class OkKtlintTask extends JavaExec {
@@ -41,9 +42,11 @@ class OkKtlintTask extends JavaExec {
             }
         }
 
-        def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
+        FileTree inputFiles = Util.getInputsByType(project, Util.InputType.KT_LINT)
+
         if (options.exclude.size() > 0) inputFiles.exclude(options.exclude)
         def outputFile = options.xmlFile
+
 
         project.task(NAME, type: OkKtlintTask) {
             inputs.files(inputFiles)
@@ -58,6 +61,8 @@ class OkKtlintTask extends JavaExec {
                     "--reporter=checkstyle,output=${outputFile}",
                     "src/**/*.kt"
             ]
+
+            enabled = options.enabled
         }
 
         project.afterEvaluate {
