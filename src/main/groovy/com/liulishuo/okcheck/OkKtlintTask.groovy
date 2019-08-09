@@ -16,7 +16,6 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
@@ -48,22 +47,10 @@ class OkKtlintTask extends JavaExec {
         if (options.exclude.size() > 0) inputFiles.exclude(options.exclude)
         def outputFile = options.xmlFile
 
-        List<String> changeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
 
         project.task(NAME, type: OkKtlintTask) {
             inputs.files(inputFiles)
             outputs.file(outputFile)
-
-
-            if (!changeFiles.isEmpty()) {
-                boolean  enableKtLint = false
-                for (String fileName in changeFiles) {
-                    if (fileName.contains(".kt")) {
-                        enableKtLint = true
-                    }
-                }
-                enabled = enableKtLint
-            }
 
             group = "verification"
             description = "Runs ktlint."
@@ -74,6 +61,8 @@ class OkKtlintTask extends JavaExec {
                     "--reporter=checkstyle,output=${outputFile}",
                     "src/**/*.kt"
             ]
+
+            enabled = options.enabled
         }
 
         project.afterEvaluate {

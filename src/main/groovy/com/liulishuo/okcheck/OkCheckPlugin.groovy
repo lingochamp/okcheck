@@ -43,6 +43,9 @@ class OkCheckPlugin implements Plugin<Project> {
         // lint, ktlint, checkstyle, unitTest, pmd, findbugs
         if (project != project.rootProject || project.rootProject.subprojects.size() <= 0) {
             project.afterEvaluate {
+
+                okCheckExtension = configureIncrementCheckStyle(project,okCheckExtension)
+
                 OkLint.inspectLint(project, okCheckExtension.lint)
                 if (okCheckExtension.checkStyle.enabled) OkCheckStyleTask.addTask(project, okCheckExtension.checkStyle)
                 if (okCheckExtension.pmd.enabled) OkPmdTask.addTask(project, okCheckExtension.pmd)
@@ -70,6 +73,32 @@ class OkCheckPlugin implements Plugin<Project> {
             // changed module list
             distributeOkCheckTask(project)
         }
+    }
+
+    private static OkCheckExtension configureIncrementCheckStyle(Project project, OkCheckExtension okCheckExtension) {
+        List<String> changeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
+        if (changeFiles.isEmpty()) return okCheckExtension
+
+        boolean isEnableCheckStyle = false
+        boolean isEnableFindBugs = false
+        boolean isEnablePMD = false
+        boolean isEnableKtLint = false
+        for (String fileName : changeFiles) {
+            if (fileName.contains(".java")) {
+                isEnableCheckStyle = true
+                isEnableFindBugs = true
+                isEnablePMD = true
+            } else if (fileName.contains(".kt")) {
+                isEnableKtLint = true
+                okCheckExtension.ktlint.includeFileList.add(fileName)
+            }
+        }
+
+        okCheckExtension.checkStyle.enabled = isEnableCheckStyle
+        okCheckExtension.findbugs.enabled = isEnableFindBugs
+        okCheckExtension.pmd.enabled = isEnablePMD
+        okCheckExtension.ktlint.enabled = isEnableKtLint
+        return okCheckExtension
     }
 
     private void distributeOkCheckTask(Project project) {

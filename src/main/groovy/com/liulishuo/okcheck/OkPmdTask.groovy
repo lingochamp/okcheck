@@ -43,7 +43,6 @@ class OkPmdTask extends Pmd {
         }
         def outputFile = options.htmlFile
         FileTree inputFiles = Util.getInputsByType(project, Util.InputType.PMD)
-        List<String> changeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
 
         project.task(NAME, type: OkPmdTask) {
             inputs.files(inputFiles)
@@ -72,21 +71,14 @@ class OkPmdTask extends Pmd {
                 ruleSets = []
                 source 'src'
 
+
+
                 if (options.ignoreFailures) {
 //                    Util.printLog("Enable ignoreFailures for pmd")
                     ignoreFailures = true
                 }
 
-                if (!changeFiles.isEmpty()) {
-                    boolean isEnablePmd = false
-                    for (String fileName: changeFiles) {
-                        if (changeFiles.contains(".java")) {
-                            isEnablePmd = true
-                        }
-                    }
-
-                    enabled = isEnablePmd
-                }
+                enabled = options.enabled
             }
         }
         project.afterEvaluate {

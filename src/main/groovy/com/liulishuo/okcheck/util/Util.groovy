@@ -160,8 +160,12 @@ class Util {
                         inputFiles.include "$fileName"
                     }
                     break
+                case InputType.FIND_BUGS:
                 case InputType.PMD:
-                    inputFiles.include "$fileName"
+                case InputType.CHECK_STYLE:
+                    if (fileName.endsWith(".java")) {
+                        inputFiles.include "$fileName"
+                    }
                     break
                 default:
                     inputFiles.include "$fileName"
@@ -173,7 +177,9 @@ class Util {
             case InputType.KT_LINT:
                 inputFiles.matching { include: "**/*.kt" }
                 break
+            case InputType.FIND_BUGS:
             case InputType.PMD:
+            case InputType.CHECK_STYLE:
                 inputFiles = inputFiles.matching { include: "**/*.java" }
                 break
             case InputType.LINT:
@@ -186,6 +192,8 @@ class Util {
     enum InputType {
         LINT,
         PMD,
-        KT_LINT
+        KT_LINT,
+        FIND_BUGS,
+        CHECK_STYLE
     }
 }

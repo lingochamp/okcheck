@@ -16,11 +16,11 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.gradle.api.plugins.quality.Checkstyle
 
 class OkCheckStyleTask extends Checkstyle {
@@ -46,16 +46,19 @@ class OkCheckStyleTask extends Checkstyle {
     }
 
     static String NAME = "okCheckStyle"
-    List<String> changeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
 
     static void addTask(Project project, OkCheckExtension.CheckStyleOptions options) {
         project.configure(project) {
             apply plugin: 'checkstyle'
         }
 
+        FileTree inputFiles = Util.getInputsByType(project, Util.InputType.CHECK_STYLE)
+
         project.task(NAME, type: OkCheckStyleTask) {
             project.extensions.checkstyle.with {
                 toolVersion = "6.19"
+
+                inputs.files(inputFiles)
 
                 reports {
                     html.setDestination(options.htmlFile)
@@ -79,33 +82,13 @@ class OkCheckStyleTask extends Checkstyle {
 
                 source 'src'
 
-                if (changeFiles.isEmpty()) {
-                    include '**/*.java'
-                } else {
-
-                    boolean enableCheckStyle = false
-                    for(String fileName in changeFiles) {
-                        if (fileName.contains(".java")) {
-                            include "$fileName"
-                            enableCheckStyle = true
-                        }
-                    }
-                    enabled = enableCheckStyle
-                }
-
-                exclude '**/gen/**', '**/test/**'
-                exclude '**/proto/*.java'
-                exclude '**/protobuf/*.java'
-                exclude '**/com/google/**/*.java'
-                exclude "android/*"
-                exclude "androidx/*"
-                exclude "com/android/*"
-
                 classpath = project.files()
                 reports {
                     xml.enabled = false
                     html.enabled = true
                 }
+
+                enabled = options.enabled
             }
         }
 

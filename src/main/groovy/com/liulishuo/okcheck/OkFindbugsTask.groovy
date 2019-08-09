@@ -16,10 +16,10 @@
 
 package com.liulishuo.okcheck
 
-import com.liulishuo.okcheck.util.IncrementFilesHelper
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.gradle.api.plugins.quality.FindBugs
 
 class OkFindbugsTask extends FindBugs {
@@ -65,6 +65,9 @@ class OkFindbugsTask extends FindBugs {
                 println("Could not find class files in any of the following locations:\n$classFilePaths")
             }
         }
+
+        FileTree inputFiles = Util.getInputsByType(project, Util.InputType.FIND_BUGS)
+
         project.task("$NAME${flavor.capitalize()}${buildType.capitalize()}", type: OkFindbugsTask, dependsOn: promptTask) {
 
             if (flavor.length() <= 0 && buildType.length() <= 0) {
@@ -72,9 +75,9 @@ class OkFindbugsTask extends FindBugs {
             } else {
                 setDescription("Analyzes class with the default set for ${flavor.capitalize()}${buildType.capitalize()} build.")
             }
-            List<String> changeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
             project.extensions.findbugs.with {
                 toolVersion = '3.0.1'
+                inputs.files(inputFiles)
                 reports {
                     xml {
                         enabled = options.reportXml
@@ -109,29 +112,6 @@ class OkFindbugsTask extends FindBugs {
 
                 source 'src'
 
-
-                if (changeFiles.isEmpty()) {
-                    include '**/*.java'
-                } else  {
-
-                    boolean enableFindbugs = false
-                    for (java.lang.String fileName : changeFiles) {
-                        if (fileName.contains(".java")) {
-                            enableFindbugs = true
-                            include "$fileName"
-                        }
-                    }
-                    enabled = enableFindbugs
-                }
-
-                exclude '**/gen/**', '**/test/**'
-                exclude '**/proto/*.java'
-                exclude '**/protobuf/*.java'
-                exclude '**/com/google/**/*.java'
-                exclude "android/*"
-                exclude "androidx/*"
-                exclude "com/android/*"
-
                 if ((flavor == null || flavor.isEmpty()) && (firstFlavor != null && !firstFlavor.isEmpty())) {
                     flavor = firstFlavor
                 }
@@ -140,6 +120,8 @@ class OkFindbugsTask extends FindBugs {
                 classpath = project.files()
 
                 onlyIf { !classFiles.empty }
+
+                enabled = options.enabled
             }
         }
     }
