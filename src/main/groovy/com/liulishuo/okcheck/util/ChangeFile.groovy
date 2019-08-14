@@ -230,9 +230,8 @@ class ChangeFile {
     }
 
     static String okcheckHomePath(Project project) {
-        File firstCandidate = new File(project.rootProject.absoluteProjectPath(".okcheck"))
+        File firstCandidate = new File(project.rootProject.rootDir.absolutePath + "/.okcheck")
         if (firstCandidate.exists()) return firstCandidate.absolutePath
-
         return "${System.getProperty("user.home")}/.okcheck"
     }
 }
