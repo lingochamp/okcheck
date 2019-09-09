@@ -66,8 +66,6 @@ class OkFindbugsTask extends FindBugs {
             }
         }
 
-        FileTree inputFiles = Util.getInputsByType(project, Util.InputType.FIND_BUGS)
-
         project.task("$NAME${flavor.capitalize()}${buildType.capitalize()}", type: OkFindbugsTask, dependsOn: promptTask) {
 
             if (flavor.length() <= 0 && buildType.length() <= 0) {
@@ -77,7 +75,6 @@ class OkFindbugsTask extends FindBugs {
             }
             project.extensions.findbugs.with {
                 toolVersion = '3.0.1'
-                inputs.files(inputFiles)
                 reports {
                     xml {
                         enabled = options.reportXml
@@ -110,7 +107,9 @@ class OkFindbugsTask extends FindBugs {
                     ignoreFailures = true
                 }
 
-                source 'src'
+                source "src/main/java"
+                include Util.getIncludeByType(project, Util.InputType.FIND_BUGS)
+                exclude Util.getExclude()
 
                 if ((flavor == null || flavor.isEmpty()) && (firstFlavor != null && !firstFlavor.isEmpty())) {
                     flavor = firstFlavor

@@ -20,6 +20,8 @@ package com.liulishuo.okcheck.util
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.file.FileTree
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 class Util {
     static boolean hasAndroidPlugin(Project project) {
@@ -119,6 +121,99 @@ class Util {
                     addTask("$flavor", "$buildType", firstFlavor)
                 }
             }
+        }
+    }
+
+    static def getExclude() {
+        return [
+                '**/gen/**',
+                '**/test/**',
+                '**/proto/*.java',
+                '**/protobuf/*.java',
+                '**/com/google/**/*.java',
+                "android/*",
+                "androidx/*",
+                "com/android/*"
+        ]
+    }
+
+    static getIncludeByType(Project project,InputType type) {
+        List<String> moduleChangeFiles = IncrementFilesHelper.instance.getModuleChangeFiles(project.name)
+        if (moduleChangeFiles.isEmpty()) {
+            return getNormalInclude(type)
+        } else {
+            return getIncrementInclude(moduleChangeFiles,type)
+        }
+    }
+
+    private static String[] getNormalInclude(InputType type) {
+        String[] include = null
+        switch (type) {
+            case InputType.KT_LINT:
+                include = ["**/*.kt"]
+                break
+            case InputType.FIND_BUGS:
+            case InputType.PMD:
+            case InputType.CHECK_STYLE:
+                include = ["**/*.java"]
+                break
+            case InputType.LINT:
+                include = [
+                        "**/*.kt",
+                        "**/*.java",
+                        "**/*.groovy",
+                        "**/*.xml",
+                        "**/*.gradle"
+                ]
+                break
+        }
+
+        return include
+    }
+
+    private static String[] getIncrementInclude(List<String> changeFiles ,InputType type) {
+        def include = []
+        for (String fileName in changeFiles) {
+            switch (type) {
+                case InputType.KT_LINT:
+                    if (fileName.endsWith(".kt")) {
+                        include.add(getFilterPath(fileName,type))
+                    }
+                    break
+                case InputType.FIND_BUGS:
+                case InputType.PMD:
+                case InputType.CHECK_STYLE:
+                    if (fileName.endsWith(".java")) {
+                        final name = getFilterPath(fileName,type)
+                        if (name != null && name.length() > 0) {
+                            include.add(name)
+                        }
+                    }
+                    break
+                default:
+                    include.add(fileName)
+            }
+        }
+
+        return include as String[]
+    }
+
+    private static String getFilterPath(String fileName,InputType type) {
+        String regex = ""
+        switch (type) {
+            case InputType.FIND_BUGS:
+            case InputType.PMD:
+            case InputType.CHECK_STYLE:
+                regex = "[a-zA-Z_0-9]*\\.java"
+                break
+            case InputType.KT_LINT:
+                regex = "[a-zA-Z_0-9]*\\.kt"
+
+        }
+        Pattern pattern = Pattern.compile(regex)
+        Matcher matcher = pattern.matcher(fileName)
+        while (matcher.find()) {
+            return "**/" +  matcher.group()
         }
     }
 

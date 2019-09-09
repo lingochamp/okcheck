@@ -68,9 +68,9 @@ class OkPmdTask extends Pmd {
                 }
 
                 ruleSets = []
-                source 'src'
-
-
+                source "src/main/java"
+                include Util.getIncludeByType(project, Util.InputType.PMD)
+                exclude Util.getExclude()
 
                 if (options.ignoreFailures) {
 //                    Util.printLog("Enable ignoreFailures for pmd")
