@@ -70,11 +70,11 @@ class OkLint extends SourceTask {
         if (originTask == null) {
             project.tasks.whenTaskAdded { task ->
                 if (task.name == originTaskName) {
-                    if (incrementalLint) addIncrementalAndReport(project, task, inputFiles, outputFile)
+                    if (incrementalLint) addIncrementalAndReport(project, outputFile)
                 }
             }
         } else {
-            if (incrementalLint) addIncrementalAndReport(project, originTask, inputFiles, outputFile)
+            if (incrementalLint) addIncrementalAndReport(project, outputFile)
         }
 
     }
@@ -87,10 +87,7 @@ class OkLint extends SourceTask {
         return "lint${flavor.capitalize()}${buildType.capitalize()}"
     }
 
-    private static addIncrementalAndReport(Project project, Task task, FileTree inputFiles, File outputFile) {
-        task.inputs.files(inputFiles)
-        task.outputs.file(outputFile)
-
+    private static addIncrementalAndReport(Project project, File outputFile) {
         project.android.lintOptions.htmlReport = true
         project.android.lintOptions.htmlOutput = outputFile
     }
