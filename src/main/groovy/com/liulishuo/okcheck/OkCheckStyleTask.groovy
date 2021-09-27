@@ -53,7 +53,7 @@ class OkCheckStyleTask extends Checkstyle {
 
         project.task(NAME, type: OkCheckStyleTask) {
             project.extensions.checkstyle.with {
-                toolVersion = "8.3"
+                toolVersion = "6.19"
 
                 reports {
                     html.setDestination(options.htmlFile)
@@ -75,18 +75,16 @@ class OkCheckStyleTask extends Checkstyle {
                     exclude options.exclude
                 }
 
-                source 'src'
-                include '**/*.java'
-                exclude '**/gen/**', '**/test/**'
-                exclude '**/proto/*.java'
-                exclude '**/protobuf/*.java'
-                exclude '**/com/google/**/*.java'
-
                 classpath = project.files()
+                source "src/main/java"
+                include Util.getIncludeByType(project,Util.InputType.CHECK_STYLE)
+                exclude Util.getExclude()
+
                 reports {
                     xml.enabled = false
                     html.enabled = true
                 }
+                enabled = options.enabled
             }
         }
 

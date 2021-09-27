@@ -19,6 +19,7 @@ package com.liulishuo.okcheck
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.gradle.api.plugins.quality.FindBugs
 
 class OkFindbugsTask extends FindBugs {
@@ -64,6 +65,7 @@ class OkFindbugsTask extends FindBugs {
                 println("Could not find class files in any of the following locations:\n$classFilePaths")
             }
         }
+
         project.task("$NAME${flavor.capitalize()}${buildType.capitalize()}", type: OkFindbugsTask, dependsOn: promptTask) {
 
             if (flavor.length() <= 0 && buildType.length() <= 0) {
@@ -72,6 +74,7 @@ class OkFindbugsTask extends FindBugs {
                 setDescription("Analyzes class with the default set for ${flavor.capitalize()}${buildType.capitalize()} build.")
             }
             project.extensions.findbugs.with {
+                toolVersion = '3.0.1'
                 reports {
                     xml {
                         enabled = options.reportXml
@@ -104,12 +107,9 @@ class OkFindbugsTask extends FindBugs {
                     ignoreFailures = true
                 }
 
-                source 'src'
-                include '**/*.java'
-                exclude '**/gen/**', '**/test/**'
-                exclude '**/proto/*.java'
-                exclude '**/protobuf/*.java'
-                exclude '**/com/google/**/*.java'
+                source "src/main/java"
+                include Util.getIncludeByType(project, Util.InputType.FIND_BUGS)
+                exclude Util.getExclude()
 
                 if ((flavor == null || flavor.isEmpty()) && (firstFlavor != null && !firstFlavor.isEmpty())) {
                     flavor = firstFlavor
@@ -119,6 +119,8 @@ class OkFindbugsTask extends FindBugs {
                 classpath = project.files()
 
                 onlyIf { !classFiles.empty }
+
+                enabled = options.enabled
             }
         }
     }

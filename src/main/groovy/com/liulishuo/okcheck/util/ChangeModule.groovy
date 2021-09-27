@@ -48,16 +48,26 @@ class ChangeModule {
         }
 
         final List<String> changedModuleNameList = new ArrayList<>()
+        final Map<String,List<String>> changeModuleMap = new HashMap<>()
         changedFilePaths.forEach {
+
             for (int i = 0; i < pathModuleList.size(); i++) {
                 PathModule pathModule = pathModuleList.get(i)
                 if (!changedModuleNameList.contains(pathModule.moduleName)
                         && pathModule.isOnThisModule(it)) {
                     changedModuleNameList.add(pathModule.moduleName)
                 }
+
+                List<String> fileList = changeModuleMap.get(pathModule.moduleName)
+                if (fileList == null) {
+                    fileList = new ArrayList<>()
+                }
+                fileList.add(it)
+                changeModuleMap.put(pathModule.moduleName,fileList)
             }
         }
 
+        IncrementFilesHelper.instance.addModuleChangeFile(changeModuleMap)
         return changedModuleNameList
     }
 

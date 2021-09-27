@@ -19,6 +19,7 @@ package com.liulishuo.okcheck
 import com.liulishuo.okcheck.util.ResourceUtils
 import com.liulishuo.okcheck.util.Util
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.gradle.api.plugins.quality.Pmd
 
 class OkPmdTask extends Pmd {
@@ -39,15 +40,16 @@ class OkPmdTask extends Pmd {
         project.configure(project) {
             apply plugin: 'pmd'
         }
-        def inputFiles = project.fileTree(dir: "src", include: "**/*.kt")
-        inputFiles += project.fileTree(dir: "src", include: "**/*.java")
         def outputFile = options.htmlFile
+        FileTree inputFiles = Util.getInputsByType(project, Util.InputType.PMD)
 
         project.task(NAME, type: OkPmdTask) {
             inputs.files(inputFiles)
             outputs.file(outputFile)
 
             project.extensions.pmd.with {
+
+                toolVersion = '5.6.1'
                 reports {
                     html.setDestination(outputFile)
                     html.enabled = true
@@ -66,18 +68,16 @@ class OkPmdTask extends Pmd {
                 }
 
                 ruleSets = []
-                source 'src'
-                include '**/*.java'
-                exclude '**/gen/**', '**/test/**'
-                exclude '**/proto/*.java'
-                exclude '**/protobuf/*.java'
-                exclude '**/com/google/**/*.java'
+                source "src/main/java"
+                include Util.getIncludeByType(project, Util.InputType.PMD)
+                exclude Util.getExclude()
 
                 if (options.ignoreFailures) {
 //                    Util.printLog("Enable ignoreFailures for pmd")
                     ignoreFailures = true
                 }
 
+                enabled = options.enabled
             }
         }
         project.afterEvaluate {

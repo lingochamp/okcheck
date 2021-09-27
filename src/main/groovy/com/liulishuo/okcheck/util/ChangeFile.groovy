@@ -177,45 +177,25 @@ class ChangeFile {
             backupFile.getParentFile().mkdirs()
         }
 
-        final List<String> backupCommitIdList
-        if (backupFile.exists()) {
-            backupCommitIdList = backupFile.readLines()
-            backupFile.delete()
-        } else {
-            backupCommitIdList = new ArrayList<>()
+        if (!backupFile.exists()) {
+            backupFile.createNewFile()
         }
-
-        backupFile.createNewFile()
-
-        int maxRemainCount = Math.max(30, newCommitIds.size())
-
-        if (backupCommitIdList.size() + newCommitIds.size() >= maxRemainCount) {
-            int needRemoveSize = backupCommitIdList.size() + newCommitIds.size() - maxRemainCount
-
-            Util.printLog("will delete $needRemoveSize from origin count ${backupCommitIdList.size()} because count of new insert ${newCommitIds.size()}")
-
-            while (needRemoveSize > 0) {
-                needRemoveSize--
-                backupCommitIdList.remove(backupCommitIdList.size() - 1)
-            }
-        }
-
         newCommitIds.reverse()
-        for (String newCommitId : newCommitIds) {
-            backupCommitIdList.add(0, newCommitId)
-        }
 
+        def lines = backupFile.readLines()
         boolean isFirstLine = true
-        for (String commitId : backupCommitIdList) {
+        for (String commitId : newCommitIds) {
+            if (commitId.size() > 0 && lines.get(0).contains(commitId)) continue
             if (isFirstLine) {
-                backupFile.append(commitId)
                 isFirstLine = false
+                lines.add(0,commitId)
             } else {
-                backupFile.append("\n" + commitId)
+                lines.add(0,"\n" + commitId)
             }
         }
+        backupFile.text = lines.join('\n')
 
-        Util.printLog("Save commit <${backupCommitIdList.toArray()}> to ${backupFile.absolutePath}")
+        Util.printLog("Save commit <${newCommitIds.toArray()}> to ${backupFile.absolutePath}")
     }
 
     String backupBranchCommitIdFilePath(String branchName) {
@@ -230,9 +210,8 @@ class ChangeFile {
     }
 
     static String okcheckHomePath(Project project) {
-        File firstCandidate = new File(project.rootProject.absoluteProjectPath(".okcheck"))
+        File firstCandidate = new File(project.rootProject.rootDir.absolutePath + "/.okcheck")
         if (firstCandidate.exists()) return firstCandidate.absolutePath
-
         return "${System.getProperty("user.home")}/.okcheck"
     }
 }
